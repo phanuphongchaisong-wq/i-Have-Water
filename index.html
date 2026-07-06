@@ -27,7 +27,7 @@
             <div class="text-center space-y-2">
                 <span class="text-5xl block animate-bounce">🥤</span>
                 <h2 id="auth-title" class="text-xl font-black text-slate-800">เข้าสู่ระบบ I Have Water</h2>
-                <p id="auth-subtitle" class="text-xs text-slate-400">กรุณาเข้าสู่ระบบเพื่อเข้าจัดการระบบคลังและ POS</p>
+                <p id="auth-subtitle" class="text-xs text-slate-400">เข้าใช้งานด้วยเบอร์โทรศัพท์และรหัสผ่าน</p>
             </div>
 
             <form id="auth-form" class="space-y-4 text-xs">
@@ -38,8 +38,8 @@
                 </div>
 
                 <div>
-                    <label class="block text-slate-500 font-bold mb-1">อีเมลผู้ใช้งาน</label>
-                    <input type="email" id="auth-email" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-slate-700 font-medium" placeholder="owner@ihavewater.com" required>
+                    <label class="block text-slate-500 font-bold mb-1">เบอร์โทรศัพท์</label>
+                    <input type="tel" id="auth-phone" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-slate-700 font-medium" placeholder="08XXXXXXXX" required pattern="[0-9]{9,10}">
                 </div>
                 <div>
                     <label class="block text-slate-500 font-bold mb-1">รหัสผ่านบัญชี</label>
@@ -101,7 +101,7 @@
                 </button>
                 <div class="text-[10px] text-slate-500 flex items-center justify-between font-mono">
                     <span><i class="fas fa-circle text-emerald-500 animate-pulse mr-1"></i> Sec-Auth</span>
-                    <span>v5.5 RBAC + Username</span>
+                    <span>v6.0 Phone+RBAC</span>
                 </div>
             </div>
         </aside>
@@ -324,7 +324,7 @@
                                 <thead class="bg-slate-50 border-b text-slate-500 font-bold">
                                     <tr>
                                         <th class="p-4">ชื่อผู้ใช้งาน (Username)</th>
-                                        <th class="p-4">อีเมล (Email)</th>
+                                        <th class="p-4">เบอร์โทรศัพท์ (Phone)</th>
                                         <th class="p-4 text-center">ระดับสิทธิ์ (Role)</th>
                                         <th class="p-4 text-center">วันที่สมัคร</th>
                                         <th class="p-4 text-center">จัดการ</th>
@@ -412,8 +412,8 @@
                     <input type="text" id="edit-user-username" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
                 </div>
                 <div>
-                    <label class="block text-slate-500 font-bold mb-1">อีเมลผู้ใช้งาน</label>
-                    <input type="text" id="edit-user-email" class="w-full p-2 border rounded-lg bg-slate-100 text-slate-500 cursor-not-allowed" disabled>
+                    <label class="block text-slate-500 font-bold mb-1">เบอร์โทรศัพท์</label>
+                    <input type="text" id="edit-user-phone" class="w-full p-2 border rounded-lg bg-slate-100 text-slate-500 cursor-not-allowed" disabled>
                 </div>
                 <div>
                     <label class="block text-slate-500 font-bold mb-1">ปรับระดับสิทธิ์</label>
@@ -543,7 +543,7 @@
                 usernameInput.required = true;
             } else {
                 title.innerText = "เข้าสู่ระบบ I Have Water";
-                subtitle.innerText = "กรุณาเข้าสู่ระบบเพื่อเข้าจัดการระบบคลังและ POS";
+                subtitle.innerText = "เข้าใช้งานด้วยเบอร์โทรศัพท์และรหัสผ่าน";
                 button.innerText = "🔓 เข้าสู่ระบบจัดการร้าน";
                 toggleBtn.innerText = "ยังไม่มีบัญชีใช่ไหม? สมัครสมาชิกเข้าใช้งานใหม่ที่นี่";
                 roleGroup.classList.add('hidden');
@@ -555,7 +555,7 @@
         document.getElementById('auth-form').addEventListener('submit', async (e) => {
             e.preventDefault();
             const username = document.getElementById('auth-username').value.trim();
-            const email = document.getElementById('auth-email').value.trim();
+            const phone = document.getElementById('auth-phone').value.trim();
             const password = document.getElementById('auth-password').value;
             const role = document.getElementById('auth-role').value;
             const submitBtn = document.getElementById('btn-auth-submit');
@@ -563,28 +563,31 @@
             submitBtn.disabled = true;
             document.getElementById('loading-screen').classList.remove('hidden');
 
+            // ทริค: แปลงเบอร์โทรเป็น Dummy Email ของระบบเราเองเพื่อส่งให้ Firebase Auth ทำงานต่อ
+            const dummyEmail = `${phone}@ihavewater.system`;
+
             try {
                 if (isSignUpMode) {
-                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                    // บันทึก Username เข้า Firestore 
+                    const userCredential = await createUserWithEmailAndPassword(auth, dummyEmail, password);
+                    // บันทึก Username และ Phone เข้า Firestore 
                     await setDoc(doc(db, "users", userCredential.user.uid), {
-                        username: username || email.split('@')[0],
-                        email: email,
+                        username: username || phone,
+                        phone: phone,
+                        email: dummyEmail, 
                         role: role,
                         createdAt: new Date().toISOString()
                     });
                     showToast("สมัครสมาชิกและล็อกอินสำเร็จ!");
                 } else {
-                    await signInWithEmailAndPassword(auth, email, password);
+                    await signInWithEmailAndPassword(auth, dummyEmail, password);
                     showToast("ยินดีต้อนรับเข้าสู่ระบบคลาวด์!");
                 }
             } catch (err) {
                 console.error("Auth Exception Caught:", err);
                 let msg = "เกิดข้อผิดพลาดในการยืนยันสิทธิ์";
                 if (err.code === "auth/wrong-password") msg = "รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่";
-                if (err.code === "auth/user-not-found") msg = "ไม่พบอีเมลผู้ใช้งานนี้ในระบบ";
-                if (err.code === "auth/email-already-in-use") msg = "อีเมลนี้ถูกเปิดใช้งานในระบบแล้ว";
-                if (err.code === "auth/invalid-email") msg = "รูปแบบอีเมลไม่ถูกต้อง";
+                if (err.code === "auth/user-not-found") msg = "ไม่พบเบอร์โทรศัพท์นี้ในระบบ";
+                if (err.code === "auth/email-already-in-use") msg = "เบอร์โทรศัพท์นี้ถูกเปิดใช้งานในระบบแล้ว";
                 showToast(msg, "error");
                 document.getElementById('loading-screen').classList.add('hidden');
             } finally {
@@ -1431,11 +1434,12 @@
                 const dateObj = u.createdAt ? new Date(u.createdAt) : null;
                 const dateStr = dateObj ? `${dateObj.toLocaleDateString('th-TH')} ${dateObj.toLocaleTimeString('th-TH').slice(0,5)}` : '-';
                 const displayName = u.username || 'ไม่มีชื่อผู้ใช้';
+                const phoneDisplay = u.phone || '-';
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition-colors">
                         <td class="p-4 font-bold text-slate-800">${displayName}</td>
-                        <td class="p-4 font-medium text-slate-500">${u.email}</td>
+                        <td class="p-4 font-medium text-slate-500">${phoneDisplay}</td>
                         <td class="p-4 text-center">${roleBadge}</td>
                         <td class="p-4 text-center font-mono text-slate-400 text-[11px]">${dateStr}</td>
                         <td class="p-4 text-center">
@@ -1451,7 +1455,7 @@
             if(!user) return;
             document.getElementById('edit-user-uid').value = user.uid;
             document.getElementById('edit-user-username').value = user.username || '';
-            document.getElementById('edit-user-email').value = user.email;
+            document.getElementById('edit-user-phone').value = user.phone || '';
             document.getElementById('edit-user-role').value = user.role || 'staff';
             window.openModal('modal-user');
         };
