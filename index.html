@@ -31,6 +31,12 @@
             </div>
 
             <form id="auth-form" class="space-y-4 text-xs">
+                <!-- ชื่อผู้ใช้งาน (จะแสดงเฉพาะตอนสมัครสมาชิก) -->
+                <div id="auth-username-group" class="hidden">
+                    <label class="block text-slate-500 font-bold mb-1">ชื่อผู้ใช้งาน (Username)</label>
+                    <input type="text" id="auth-username" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-slate-700 font-medium" placeholder="เช่น: สมชาย หรือ Somchai">
+                </div>
+
                 <div>
                     <label class="block text-slate-500 font-bold mb-1">อีเมลผู้ใช้งาน</label>
                     <input type="email" id="auth-email" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-slate-700 font-medium" placeholder="owner@ihavewater.com" required>
@@ -85,7 +91,6 @@
                     <button id="nav-inventory" onclick="window.switchTab('inventory', this)" class="nav-btn w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white text-sm text-left transition-all"><i class="fas fa-boxes w-4 text-center"></i> <span>คลังวัตถุดิบ & ซื้อของ</span><i class="fas fa-lock text-[10px] ml-auto text-rose-500/70 hidden lock-icon"></i></button>
                     <button id="nav-menus" onclick="window.switchTab('menus', this)" class="nav-btn w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white text-sm text-left transition-all"><i class="fas fa-utensils w-4 text-center"></i> <span>ตั้งค่าเมนู & สูตรชง</span><i class="fas fa-lock text-[10px] ml-auto text-rose-500/70 hidden lock-icon"></i></button>
                     <button id="nav-dashboard" onclick="window.switchTab('dashboard', this)" class="nav-btn w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white text-sm text-left transition-all"><i class="fas fa-chart-pie w-4 text-center"></i> <span>แดชบอร์ด & บัญชี</span><i class="fas fa-lock text-[10px] ml-auto text-rose-500/70 hidden lock-icon"></i></button>
-                    <!-- ปุ่มใหม่: การจัดการผู้ใช้งาน -->
                     <button id="nav-users" onclick="window.switchTab('users', this)" class="nav-btn w-full flex items-center space-x-3 px-4 py-2.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white text-sm text-left transition-all"><i class="fas fa-users-cog w-4 text-center"></i> <span>จัดการผู้ใช้งาน</span><i class="fas fa-lock text-[10px] ml-auto text-rose-500/70 hidden lock-icon"></i></button>
                 </nav>
             </div>
@@ -96,7 +101,7 @@
                 </button>
                 <div class="text-[10px] text-slate-500 flex items-center justify-between font-mono">
                     <span><i class="fas fa-circle text-emerald-500 animate-pulse mr-1"></i> Sec-Auth</span>
-                    <span>v5.5 RBAC</span>
+                    <span>v5.5 RBAC + Username</span>
                 </div>
             </div>
         </aside>
@@ -305,7 +310,7 @@
                     </div>
                 </section>
 
-                <!-- TAB: USERS MANAGEMENT (ใหม่) -->
+                <!-- TAB: USERS MANAGEMENT -->
                 <section id="tab-users" class="tab-content hidden space-y-6">
                     <div class="bg-white p-5 rounded-xl border shadow-sm space-y-4">
                         <div class="flex justify-between items-center flex-wrap gap-2">
@@ -318,6 +323,7 @@
                             <table class="w-full text-left text-sm">
                                 <thead class="bg-slate-50 border-b text-slate-500 font-bold">
                                     <tr>
+                                        <th class="p-4">ชื่อผู้ใช้งาน (Username)</th>
                                         <th class="p-4">อีเมล (Email)</th>
                                         <th class="p-4 text-center">ระดับสิทธิ์ (Role)</th>
                                         <th class="p-4 text-center">วันที่สมัคร</th>
@@ -398,9 +404,13 @@
     <!-- Modal จัดการผู้ใช้งาน -->
     <div id="modal-user" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-xl p-6 w-full max-w-sm shadow-2xl">
-            <h3 class="text-sm font-bold text-slate-800 mb-4">👤 แก้ไขสิทธิ์ผู้ใช้งาน</h3>
+            <h3 class="text-sm font-bold text-slate-800 mb-4">👤 แก้ไขข้อมูลและสิทธิ์ผู้ใช้งาน</h3>
             <form id="user-form" class="space-y-4 text-xs">
                 <input type="hidden" id="edit-user-uid">
+                <div>
+                    <label class="block text-slate-500 font-bold mb-1">ชื่อผู้ใช้งาน (Username)</label>
+                    <input type="text" id="edit-user-username" class="w-full p-2 border rounded-lg focus:ring-2 focus:ring-blue-500 outline-none" required>
+                </div>
                 <div>
                     <label class="block text-slate-500 font-bold mb-1">อีเมลผู้ใช้งาน</label>
                     <input type="text" id="edit-user-email" class="w-full p-2 border rounded-lg bg-slate-100 text-slate-500 cursor-not-allowed" disabled>
@@ -414,7 +424,7 @@
                 </div>
                 <div class="flex justify-end space-x-2 pt-3 border-t">
                     <button type="button" onclick="window.closeModal('modal-user')" class="px-4 py-2 bg-slate-100 rounded-lg font-bold">ยกเลิก</button>
-                    <button type="submit" id="btn-save-user" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 transition text-white rounded-lg font-bold">บันทึกสิทธิ์</button>
+                    <button type="submit" id="btn-save-user" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 transition text-white rounded-lg font-bold">บันทึกข้อมูล</button>
                 </div>
             </form>
         </div>
@@ -520,6 +530,8 @@
             const button = document.getElementById('btn-auth-submit');
             const toggleBtn = document.getElementById('btn-toggle-auth');
             const roleGroup = document.getElementById('auth-role-group');
+            const usernameGroup = document.getElementById('auth-username-group');
+            const usernameInput = document.getElementById('auth-username');
             
             if (isSignUpMode) {
                 title.innerText = "ลงทะเบียนเจ้าของร้านใหม่";
@@ -527,17 +539,22 @@
                 button.innerText = "🆕 สมัครสมาชิกและเปิดระบบ";
                 toggleBtn.innerText = "มีบัญชีอยู่แล้วใช่ไหม? กลับไปหน้าเข้าสู่ระบบ";
                 roleGroup.classList.remove('hidden'); 
+                usernameGroup.classList.remove('hidden');
+                usernameInput.required = true;
             } else {
                 title.innerText = "เข้าสู่ระบบ I Have Water";
                 subtitle.innerText = "กรุณาเข้าสู่ระบบเพื่อเข้าจัดการระบบคลังและ POS";
                 button.innerText = "🔓 เข้าสู่ระบบจัดการร้าน";
                 toggleBtn.innerText = "ยังไม่มีบัญชีใช่ไหม? สมัครสมาชิกเข้าใช้งานใหม่ที่นี่";
                 roleGroup.classList.add('hidden');
+                usernameGroup.classList.add('hidden');
+                usernameInput.required = false;
             }
         };
 
         document.getElementById('auth-form').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const username = document.getElementById('auth-username').value.trim();
             const email = document.getElementById('auth-email').value.trim();
             const password = document.getElementById('auth-password').value;
             const role = document.getElementById('auth-role').value;
@@ -549,7 +566,9 @@
             try {
                 if (isSignUpMode) {
                     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    // บันทึก Username เข้า Firestore 
                     await setDoc(doc(db, "users", userCredential.user.uid), {
+                        username: username || email.split('@')[0],
                         email: email,
                         role: role,
                         createdAt: new Date().toISOString()
@@ -1195,6 +1214,7 @@
         }
 
         window.resetDashboardData = async () => {
+            // เช็คสิทธิ์ก่อนทำงาน
             if (window.userRole !== 'admin') {
                 showToast("🔒 สงวนสิทธิ์การรีเซ็ตเฉพาะ Admin เท่านั้น", "error");
                 return;
@@ -1410,14 +1430,16 @@
                 
                 const dateObj = u.createdAt ? new Date(u.createdAt) : null;
                 const dateStr = dateObj ? `${dateObj.toLocaleDateString('th-TH')} ${dateObj.toLocaleTimeString('th-TH').slice(0,5)}` : '-';
-                
+                const displayName = u.username || 'ไม่มีชื่อผู้ใช้';
+
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="p-4 font-medium text-slate-700">${u.email}</td>
+                        <td class="p-4 font-bold text-slate-800">${displayName}</td>
+                        <td class="p-4 font-medium text-slate-500">${u.email}</td>
                         <td class="p-4 text-center">${roleBadge}</td>
-                        <td class="p-4 text-center font-mono text-slate-500 text-[11px]">${dateStr}</td>
+                        <td class="p-4 text-center font-mono text-slate-400 text-[11px]">${dateStr}</td>
                         <td class="p-4 text-center">
-                            <button type="button" onclick="window.openEditUserModal('${u.uid}')" class="text-blue-600 bg-blue-50 border border-blue-200 px-3 py-1.5 hover:bg-blue-600 hover:text-white transition rounded-lg font-medium text-xs"><i class="fas fa-edit mr-1"></i> แก้ไขสิทธิ์</button>
+                            <button type="button" onclick="window.openEditUserModal('${u.uid}')" class="text-blue-600 bg-blue-50 border border-blue-200 px-3 py-1.5 hover:bg-blue-600 hover:text-white transition rounded-lg font-medium text-xs"><i class="fas fa-edit mr-1"></i> แก้ไข</button>
                         </td>
                     </tr>
                 `;
@@ -1428,6 +1450,7 @@
             const user = usersList.find(u => u.uid === uid);
             if(!user) return;
             document.getElementById('edit-user-uid').value = user.uid;
+            document.getElementById('edit-user-username').value = user.username || '';
             document.getElementById('edit-user-email').value = user.email;
             document.getElementById('edit-user-role').value = user.role || 'staff';
             window.openModal('modal-user');
@@ -1435,17 +1458,19 @@
 
         document.getElementById('user-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const originalText = `บันทึกสิทธิ์`;
+            const originalText = `บันทึกข้อมูล`;
             setLoadingButton('btn-save-user', true, originalText);
             try {
                 const uid = document.getElementById('edit-user-uid').value;
+                const newUsername = document.getElementById('edit-user-username').value.trim();
                 const newRole = document.getElementById('edit-user-role').value;
                 
                 await updateDoc(doc(db, "users", uid), {
+                    username: newUsername,
                     role: newRole
                 });
                 
-                showToast("อัปเดตสิทธิ์ผู้ใช้งานสำเร็จ");
+                showToast("อัปเดตข้อมูลผู้ใช้งานสำเร็จ");
                 window.closeModal('modal-user');
             } catch (err) {
                 showToast(err.message, "error");
