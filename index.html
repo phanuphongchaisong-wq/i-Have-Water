@@ -10,13 +10,18 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col overflow-hidden">
 
+    <!-- Alerts Container -->
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2"></div>
     
+    <!-- Loading Screen -->
     <div id="loading-screen" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex flex-col items-center justify-center text-white hidden">
         <div class="animate-spin rounded-full h-12 w-12 border-4 border-emerald-500 border-t-transparent mb-4"></div>
         <p class="font-medium" id="loading-text">กำลังโหลดข้อมูล Cloud Firebase...</p>
     </div>
 
+    <!-- =================================================== -->
+    <!-- AUTHENTICATION LAYER: หน้าจอล็อกอิน / สมัครสมาชิก -->
+    <!-- =================================================== -->
     <div id="auth-container" class="fixed inset-0 bg-slate-900 z-40 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md space-y-6 border border-slate-200">
             <div class="text-center space-y-2">
@@ -26,6 +31,7 @@
             </div>
 
             <form id="auth-form" class="space-y-4 text-xs">
+                <!-- ชื่อผู้ใช้งาน (จะแสดงเฉพาะตอนสมัครสมาชิก) -->
                 <div id="auth-username-group" class="hidden">
                     <label class="block text-slate-500 font-bold mb-1">ชื่อผู้ใช้งาน (Username)</label>
                     <input type="text" id="auth-username" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-slate-700 font-medium" placeholder="เช่น: สมชาย หรือ Somchai">
@@ -40,6 +46,7 @@
                     <input type="password" id="auth-password" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-slate-700 font-medium" placeholder="••••••••" minlength="6" required>
                 </div>
                 
+                <!-- ระดับผู้ใช้งาน (จะแสดงเฉพาะตอนสมัครสมาชิก) -->
                 <div id="auth-role-group" class="hidden">
                     <label class="block text-slate-500 font-bold mb-1">ระดับผู้ใช้งาน</label>
                     <select id="auth-role" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-slate-700 font-bold bg-slate-50">
@@ -61,10 +68,15 @@
         </div>
     </div>
 
+    <!-- =================================================== -->
+    <!-- MAIN WORKSPACE LAYER: หน้าตาแอปพลิเคชันระบบงานหลัก -->
+    <!-- =================================================== -->
     <div id="app-workspace" class="flex h-screen w-full overflow-hidden opacity-0 invisible transition-all duration-300 relative">
         
+        <!-- Mobile Menu Backdrop -->
         <div id="mobile-menu-backdrop" onclick="window.toggleMobileMenu()" class="fixed inset-0 bg-slate-900/60 z-40 hidden backdrop-blur-sm transition-opacity opacity-0 duration-300"></div>
 
+        <!-- Sidebar Menu -->
         <aside id="sidebar" class="w-64 bg-slate-900 text-white flex flex-col justify-between shrink-0 fixed inset-y-0 left-0 z-50 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none">
             <div class="p-5 overflow-y-auto flex-1 space-y-6">
                 <div class="flex items-center justify-between">
@@ -80,6 +92,7 @@
                             </div>
                         </div>
                     </div>
+                    <!-- ปุ่มปิดเมนูบนมือถือ -->
                     <button onclick="window.toggleMobileMenu()" class="md:hidden text-slate-400 hover:text-white p-2 rounded-lg bg-slate-800">
                         <i class="fas fa-times"></i>
                     </button>
@@ -101,12 +114,14 @@
                 </button>
                 <div class="text-[10px] text-slate-500 flex items-center justify-between font-mono">
                     <span><i class="fas fa-circle text-emerald-500 animate-pulse mr-1"></i> Sec-Auth</span>
-                    <span>v6.6 Complete</span>
+                    <span>v6.7 Restore Fix</span>
                 </div>
             </div>
         </aside>
 
+        <!-- Main Workspace -->
         <main class="flex-1 flex flex-col overflow-hidden bg-slate-50">
+            <!-- Header Bar -->
             <header class="bg-white border-b p-4 flex justify-between items-center shadow-sm shrink-0 z-10 sticky top-0">
                 <div class="flex items-center space-x-3">
                     <button onclick="window.toggleMobileMenu()" class="md:hidden text-slate-500 hover:text-emerald-600 focus:outline-none p-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition">
@@ -117,8 +132,10 @@
                 <div id="notification-bar" class="flex items-center space-x-2 overflow-x-auto max-w-xl"></div>
             </header>
 
+            <!-- Viewports -->
             <div class="flex-1 overflow-y-auto p-4 md:p-6 scroll-smooth">
                 
+                <!-- TAB: POS -->
                 <section id="tab-pos" class="tab-content flex flex-col lg:grid lg:grid-cols-12 gap-6 h-full">
                     <div class="lg:col-span-8 flex flex-col space-y-4">
                         <div class="flex items-center justify-between bg-white p-3 rounded-xl border shadow-sm shrink-0">
@@ -138,6 +155,7 @@
                             <div class="flex justify-between text-xs text-slate-500"><span>ต้นทุน COGS ของออเดอร์:</span><span id="cart-cost" class="font-mono">฿0.00</span></div>
                             <div class="flex justify-between text-base font-bold text-slate-800"><span>ยอดรวมทั้งสิ้น:</span><span id="cart-total" class="text-xl text-emerald-600 font-black">฿0.00</span></div>
                             
+                            <!-- แยก 2 ปุ่มสำหรับร้าน 1 และ ร้าน 2 -->
                             <div class="grid grid-cols-2 gap-2 mt-2">
                                 <button id="btn-checkout-1" onclick="window.checkout('ร้าน 1')" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl shadow-md transition transform active:scale-95 flex flex-col items-center justify-center leading-tight">
                                     <span>💵 จ่ายเงิน</span>
@@ -153,6 +171,7 @@
                     </div>
                 </section>
 
+                <!-- TAB: PRODUCTION -->
                 <section id="tab-production" class="tab-content hidden space-y-6">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="bg-white p-5 rounded-xl border shadow-sm space-y-4">
@@ -216,7 +235,7 @@
                                         <th class="p-3 text-center">ของเสีย</th>
                                         <th class="p-3 text-right">ต้นทุนรวมล็อต</th>
                                         <th class="p-3 text-right">ต้นทุน/หน่วย</th>
-                                        <th class="p-3 text-center">จัดการประวัติ</th> 
+                                        <th class="p-3 text-center">จัดการประวัติ</th>
                                     </tr>
                                 </thead>
                                 <tbody id="prod-history-body" class="divide-y"></tbody>
@@ -225,6 +244,7 @@
                     </div>
                 </section>
 
+                <!-- TAB: INVENTORY -->
                 <section id="tab-inventory" class="tab-content hidden space-y-6">
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                         <div class="lg:col-span-4 bg-white p-5 rounded-xl border shadow-sm space-y-4">
@@ -271,6 +291,7 @@
                     </div>
                 </section>
 
+                <!-- TAB: MENUS -->
                 <section id="tab-menus" class="tab-content hidden space-y-6">
                     <div class="flex justify-between items-center bg-white p-4 rounded-xl border shadow-sm">
                         <div>
@@ -281,6 +302,7 @@
                     <div id="menus-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
                 </section>
 
+                <!-- TAB: DASHBOARD -->
                 <section id="tab-dashboard" class="tab-content hidden space-y-6">
                     <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
                         <div class="bg-white p-4 rounded-xl border shadow-sm"><span class="text-[10px] font-bold text-slate-400 uppercase">💰 รายรับรวม</span><div class="text-lg font-black text-slate-800 mt-1 truncate" id="dash-revenue">฿0.00</div></div>
@@ -318,6 +340,7 @@
                     </div>
                 </section>
 
+                <!-- TAB: USERS MANAGEMENT -->
                 <section id="tab-users" class="tab-content hidden space-y-6">
                     <div class="bg-white p-5 rounded-xl border shadow-sm space-y-4">
                         <div class="flex justify-between items-center flex-wrap gap-2">
@@ -346,6 +369,7 @@
         </main>
     </div>
 
+    <!-- Modals -->
     <div id="modal-item" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-xl p-5 w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh]">
             <h3 class="text-sm font-bold text-slate-800 mb-4" id="modal-item-title">เพิ่มวัตถุดิบชิ้นใหม่</h3>
@@ -434,6 +458,7 @@
         </div>
     </div>
 
+    <!-- Firebase Script Engine Core Framework -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot, runTransaction, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -908,7 +933,7 @@
                 }
             });
 
-            // 🎯 แสดงประวัติการผลิต พร้อมปุ่ม [คืนสต๊อก]
+            // 🎯 แสดงประวัติการผลิต พร้อมปุ่ม [คืนสต๊อก] 
             productionHistory.forEach(p => {
                 if (prodHistoryTbody) {
                     const isDisposal = p.menuName.startsWith('🔥');
@@ -998,7 +1023,7 @@
             }
         });
 
-        // 👉 🎯 ฟังก์ชันใหม่: ลบประวัติการผลิตและคืนวัตถุดิบที่ใช้ทำ (หรือคืนสินค้าเข้าตู้แช่กรณีลบของเสีย)
+        // 👉 🎯 ฟังก์ชันใหม่: ลบประวัติการผลิตและคืนวัตถุดิบที่ใช้ทำ (แก้บั๊ก Transaction Read/Write เรียบร้อย)
         window.deleteProductionLog = async (prodId) => {
             if (window.userRole !== 'admin') {
                 showToast("🔒 สงวนสิทธิ์เฉพาะ Admin เท่านั้น", "error");
@@ -1011,6 +1036,7 @@
 
             try {
                 await runTransaction(db, async (transaction) => {
+                    // --- 1. อ่านข้อมูลทั้งหมดก่อน (READ Phase) ---
                     const prodRef = doc(db, "production", prodId.toString());
                     const prodSnap = await transaction.get(prodRef);
                     if (!prodSnap.exists()) throw new Error("ไม่พบข้อมูลการผลิตนี้");
@@ -1020,49 +1046,60 @@
                     const realMenuName = isDisposal ? prodData.menuName.replace('🔥 [ทิ้งตู้แช่] ', '') : prodData.menuName;
                     
                     const menu = menus.find(m => m.name === realMenuName);
+                    
+                    let menuRef = null;
+                    let mSnap = null;
+                    const invSnaps = {};
 
                     if (menu) {
-                        const menuRef = doc(db, "menus", menu.id.toString());
-                        const mSnap = await transaction.get(menuRef);
+                        menuRef = doc(db, "menus", menu.id.toString());
+                        mSnap = await transaction.get(menuRef);
                         
-                        if (isDisposal) {
-                            // กรณีลบรายการ "ทิ้งของเสียออกจากตู้แช่" -> ต้องคืนของกลับเข้าไปในล็อตของตู้แช่ (Finished Goods)
-                            if (mSnap.exists()) {
-                                let lots = mSnap.data().lots || [];
-                                lots.push({
-                                    lotNo: "RESTORE-" + Date.now().toString().slice(-4),
-                                    productionDate: new Date().toLocaleDateString('th-TH'),
-                                    expDate: prodData.expDate || '-',
-                                    qty: prodData.wasteQty,
-                                    costPerCup: prodData.wasteQty > 0 ? (prodData.wasteValue / prodData.wasteQty) : 0
-                                });
-                                transaction.update(menuRef, { lots: lots });
+                        // อ่านข้อมูลวัตถุดิบเตรียมไว้คืนค่า (ถ้าไม่ใช่การลบทิ้งตู้แช่)
+                        if (!isDisposal && menu.recipe && menu.recipe.length > 0) {
+                            for (let r of menu.recipe) {
+                                const invRef = doc(db, "inventory", r.itemId.toString());
+                                invSnaps[r.itemId] = {
+                                    ref: invRef,
+                                    snap: await transaction.get(invRef)
+                                };
                             }
+                        }
+                    }
+
+                    // --- 2. เขียนข้อมูล (WRITE Phase) ห้ามมี Read ต่อจากนี้เด็ดขาด ---
+                    if (menu && mSnap && mSnap.exists()) {
+                        if (isDisposal) {
+                            // กรณีลบรายการ "ทิ้งของเสียออกจากตู้แช่" -> ต้องคืนของกลับเข้าไปในล็อตของตู้แช่
+                            let lots = mSnap.data().lots || [];
+                            lots.push({
+                                lotNo: "RESTORE-" + Date.now().toString().slice(-4),
+                                productionDate: new Date().toLocaleDateString('th-TH'),
+                                expDate: prodData.expDate || '-',
+                                qty: Number(prodData.wasteQty),
+                                costPerCup: Number(prodData.wasteQty) > 0 ? (Number(prodData.wasteValue) / Number(prodData.wasteQty)) : 0
+                            });
+                            transaction.update(menuRef, { lots: lots });
                         } else {
-                            // กรณีลบรายการ "ผลิตน้ำใหม่" -> คืนวัตถุดิบเข้าคลัง และ หักน้ำออกจากตู้แช่
-                            const totalQtyUsed = prodData.qtyProduced + prodData.wasteQty; // จำนวนแก้วตอนสั่งผลิต (รวมของเสีย)
+                            // กรณีลบรายการ "ผลิตใหม่" 
+                            const totalQtyUsed = Number(prodData.qtyProduced || 0) + Number(prodData.wasteQty || 0);
                             
-                            // 1. คืนวัตถุดิบ (Refund Raw Materials to Inventory)
+                            // 2.1 คืนวัตถุดิบกลับเข้าคลัง
                             if (menu.recipe && menu.recipe.length > 0) {
                                 for (let r of menu.recipe) {
-                                    const invRef = doc(db, "inventory", r.itemId.toString());
-                                    const invSnap = await transaction.get(invRef);
-                                    if (invSnap.exists()) {
-                                        // คำนวณวัตถุดิบที่ใช้ไป
-                                        const neededToRefund = menu.mode === 'batch' ? r.quantity : (r.quantity * totalQtyUsed);
-                                        const currentStock = Number(invSnap.data().stock || 0);
-                                        // บวกกลับเข้าคลัง
-                                        transaction.update(invRef, { stock: currentStock + neededToRefund });
+                                    if (invSnaps[r.itemId] && invSnaps[r.itemId].snap.exists()) {
+                                        const neededToRefund = menu.mode === 'batch' ? Number(r.quantity) : (Number(r.quantity) * totalQtyUsed);
+                                        const currentStock = Number(invSnaps[r.itemId].snap.data().stock || 0);
+                                        transaction.update(invSnaps[r.itemId].ref, { stock: currentStock + neededToRefund });
                                     }
                                 }
                             }
 
-                            // 2. หักสินค้าสำเร็จรูปออกจากตู้แช่ (Remove from Finished Goods Lots)
-                            if (menu.mode === 'batch' && mSnap.exists()) {
+                            // 2.2 หักสินค้าสำเร็จรูปออกจากตู้แช่
+                            if (menu.mode === 'batch') {
                                 let lots = mSnap.data().lots || [];
-                                let remainingToRemove = prodData.qtyProduced; // หักเฉพาะที่ได้จริง
+                                let remainingToRemove = Number(prodData.qtyProduced || 0);
                                 
-                                // ย้อนศรจากท้าย (ล็อตล่าสุด) ไปหาหน้า เพื่อหักล็อตใหม่สุดออกก่อน
                                 for (let i = lots.length - 1; i >= 0; i--) {
                                     if (remainingToRemove <= 0) break;
                                     if (lots[i].qty >= remainingToRemove) {
@@ -1073,14 +1110,13 @@
                                         lots[i].qty = 0;
                                     }
                                 }
-                                // เคลียร์ Lot ที่โดนหักจนเหลือ 0 ทิ้งไปเลย
                                 lots = lots.filter(l => l.qty > 0);
                                 transaction.update(menuRef, { lots: lots });
                             }
                         }
                     }
 
-                    // 3. ลบประวัติการผลิตนี้ทิ้ง
+                    // ลบ log การผลิตทิ้ง (ทำให้ทุนของเสียในแดชบอร์ดลดลงอัตโนมัติ)
                     transaction.delete(prodRef);
                 });
                 showToast("ลบประวัติและจัดการคืนสต๊อกเรียบร้อยแล้ว");
