@@ -101,7 +101,7 @@
                 </button>
                 <div class="text-[10px] text-slate-500 flex items-center justify-between font-mono">
                     <span><i class="fas fa-circle text-emerald-500 animate-pulse mr-1"></i> Sec-Auth</span>
-                    <span>v6.5 Restock Fix</span>
+                    <span>v6.6 Complete</span>
                 </div>
             </div>
         </aside>
@@ -216,8 +216,7 @@
                                         <th class="p-3 text-center">ของเสีย</th>
                                         <th class="p-3 text-right">ต้นทุนรวมล็อต</th>
                                         <th class="p-3 text-right">ต้นทุน/หน่วย</th>
-                                        <th class="p-3 text-center">จัดการประวัติ</th>
-                                    </tr>
+                                        <th class="p-3 text-center">จัดการประวัติ</th> </tr>
                                 </thead>
                                 <tbody id="prod-history-body" class="divide-y"></tbody>
                             </table>
@@ -735,7 +734,7 @@
                     selectOptions.innerHTML += `<option value="${item.id}">${item.name} (${item.unit})</option>`;
                 }
                 tbody.innerHTML += `
-                    <tr class="border-b last:border-b-0">
+                    <tr class="border-b last:border-b-0 hover:bg-slate-50">
                         <td class="p-3 font-bold text-slate-700">${item.name}</td>
                         <td class="p-3"><span class="px-2 py-0.5 text-[10px] rounded ${item.type === 'fixed'?'bg-blue-50 text-blue-600':'bg-amber-50 text-amber-600'}">${item.type === 'fixed'?'อุปกรณ์':'วัตถุดิบ'}</span></td>
                         <td class="p-3 text-right font-mono">฿${Number(item.price || 0).toFixed(2)}</td>
@@ -894,18 +893,28 @@
                     } else {
                         lots.forEach(lot => {
                             if (fgTbody) {
-                                fgTbody.innerHTML += `<tr><td class="p-3 font-bold text-slate-700">${m.name} <span class="text-[10px] font-mono bg-slate-200 text-slate-600 px-1 rounded">Lot: ${lot.lotNo}</span></td><td class="p-3 text-center font-mono text-sm"><span class="px-2.5 py-0.5 rounded ${alertClass}">${lot.qty} แก้ว</span></td><td class="p-3 text-right font-mono text-slate-500">฿${Number(lot.costPerCup || 0).toFixed(2)}</td><td class="p-3 text-center font-mono text-[10px] text-slate-500">P: ${lot.productionDate}<br><span class="text-red-500">E: ${lot.expDate}</span></td><td class="p-3 text-center"><button type="button" onclick="window.disposeFGLot(${m.id}, '${lot.lotNo}')" class="text-amber-600 p-2 hover:bg-amber-50 rounded"><i class="fas fa-trash"></i> ทิ้ง</button></td></tr>`;
+                                fgTbody.innerHTML += `
+                                <tr class="hover:bg-slate-50 transition">
+                                    <td class="p-3 font-bold text-slate-700">${m.name} <span class="text-[10px] font-mono bg-slate-200 text-slate-600 px-1 rounded">Lot: ${lot.lotNo}</span></td>
+                                    <td class="p-3 text-center font-mono text-sm"><span class="px-2.5 py-0.5 rounded ${alertClass}">${lot.qty} แก้ว</span></td>
+                                    <td class="p-3 text-right font-mono text-slate-500">฿${Number(lot.costPerCup || 0).toFixed(2)}</td>
+                                    <td class="p-3 text-center font-mono text-[10px] text-slate-500">P: ${lot.productionDate}<br><span class="text-red-500">E: ${lot.expDate}</span></td>
+                                    <td class="p-3 text-center"><button type="button" onclick="window.disposeFGLot(${m.id}, '${lot.lotNo}')" class="text-amber-600 p-2 hover:bg-amber-50 rounded"><i class="fas fa-trash"></i> ทิ้ง</button></td>
+                                </tr>`;
                             }
                         });
                     }
                 }
             });
 
-            // 🎯 แสดงประวัติการผลิต พร้อมปุ่ม [คืนสต๊อก] 
             productionHistory.forEach(p => {
                 if (prodHistoryTbody) {
+                    const isDisposal = p.menuName.startsWith('🔥');
+                    const btnLabel = isDisposal ? 'คืนสินค้าเข้าตู้' : 'คืนวัตถุดิบ';
+                    const btnIcon = isDisposal ? 'fa-box' : 'fa-undo';
+                    
                     prodHistoryTbody.innerHTML += `
-                    <tr>
+                    <tr class="hover:bg-slate-50 transition">
                         <td class="p-3 font-mono text-slate-500 text-[11px]">${p.timestamp}</td>
                         <td class="p-3 font-bold text-slate-700">${p.menuName}</td>
                         <td class="p-3 text-center font-bold text-emerald-600">${p.qtyProduced}</td>
@@ -913,8 +922,8 @@
                         <td class="p-3 text-right font-mono">฿${Number(p.totalCost || 0).toFixed(2)}</td>
                         <td class="p-3 text-right font-mono">฿${Number(p.costPerUnit || 0).toFixed(2)}</td>
                         <td class="p-3 text-center">
-                            <button type="button" onclick="window.deleteProductionLog('${p.id}')" class="text-red-500 bg-red-50 px-2 py-1 rounded hover:bg-red-100 transition text-[10px] font-bold shadow-sm">
-                                <i class="fas fa-undo mr-1"></i> คืนสต๊อก
+                            <button type="button" onclick="window.deleteProductionLog('${p.id}')" class="text-red-500 bg-red-50 px-2 py-1.5 rounded hover:bg-red-100 transition text-[10px] font-bold shadow-sm whitespace-nowrap">
+                                <i class="fas ${btnIcon} mr-1"></i> ลบ & ${btnLabel}
                             </button>
                         </td>
                     </tr>`;
@@ -987,7 +996,7 @@
             }
         });
 
-        // 🎯 ฟังก์ชันใหม่: ลบประวัติการผลิตและคืนสต๊อกแบบสมบูรณ์
+        // 👉 🎯 ฟังก์ชันลบประวัติการผลิตและคืนวัตถุดิบที่ใช้ทำ (หรือคืนสินค้าเข้าตู้แช่กรณีลบของเสีย)
         window.deleteProductionLog = async (prodId) => {
             if (window.userRole !== 'admin') {
                 showToast("🔒 สงวนสิทธิ์เฉพาะ Admin เท่านั้น", "error");
@@ -995,7 +1004,7 @@
             }
             if (!confirm("⚠️ ยืนยันการลบประวัติการผลิตนี้?\nระบบจะทำการคืนสต๊อกวัตถุดิบที่ใช้ไป หรือคืนสินค้ากลับเข้าตู้แช่ให้โดยอัตโนมัติ")) return;
 
-            document.getElementById('loading-text').innerText = "กำลังคำนวณและคืนสต๊อกวัตถุดิบ...";
+            document.getElementById('loading-text').innerText = "กำลังคำนวณและคืนสต๊อก...";
             document.getElementById('loading-screen').classList.remove('hidden');
 
             try {
@@ -1005,7 +1014,7 @@
                     if (!prodSnap.exists()) throw new Error("ไม่พบข้อมูลการผลิตนี้");
 
                     const prodData = prodSnap.data();
-                    const isDisposal = prodData.menuName.startsWith('🔥 [ทิ้งตู้แช่]');
+                    const isDisposal = prodData.menuName.startsWith('🔥');
                     const realMenuName = isDisposal ? prodData.menuName.replace('🔥 [ทิ้งตู้แช่] ', '') : prodData.menuName;
                     
                     const menu = menus.find(m => m.name === realMenuName);
@@ -1015,7 +1024,7 @@
                         const mSnap = await transaction.get(menuRef);
                         
                         if (isDisposal) {
-                            // กรณีลบรายการ "ทิ้งของเสียออกจากตู้แช่" -> ต้องคืนของกลับเข้าไปในล็อตของตู้แช่
+                            // กรณีลบรายการ "ทิ้งของเสียออกจากตู้แช่" -> ต้องคืนของกลับเข้าไปในล็อตของตู้แช่ (Finished Goods)
                             if (mSnap.exists()) {
                                 let lots = mSnap.data().lots || [];
                                 lots.push({
@@ -1028,28 +1037,30 @@
                                 transaction.update(menuRef, { lots: lots });
                             }
                         } else {
-                            // กรณีลบรายการ "ผลิตใหม่" -> คืนวัตถุดิบเข้าคลัง และ หักน้ำออกจากตู้แช่
-                            const totalQtyUsed = prodData.qtyProduced + prodData.wasteQty;
+                            // กรณีลบรายการ "ผลิตน้ำใหม่" -> คืนวัตถุดิบเข้าคลัง และ หักน้ำออกจากตู้แช่
+                            const totalQtyUsed = prodData.qtyProduced + prodData.wasteQty; // จำนวนแก้วตอนสั่งผลิต (รวมของเสีย)
                             
-                            // 1. คืนวัตถุดิบ (Refund Raw Materials)
+                            // 1. คืนวัตถุดิบ (Refund Raw Materials to Inventory)
                             if (menu.recipe && menu.recipe.length > 0) {
                                 for (let r of menu.recipe) {
                                     const invRef = doc(db, "inventory", r.itemId.toString());
                                     const invSnap = await transaction.get(invRef);
                                     if (invSnap.exists()) {
+                                        // คำนวณวัตถุดิบที่ใช้ไป
                                         const neededToRefund = menu.mode === 'batch' ? r.quantity : (r.quantity * totalQtyUsed);
                                         const currentStock = Number(invSnap.data().stock || 0);
+                                        // บวกกลับเข้าคลัง
                                         transaction.update(invRef, { stock: currentStock + neededToRefund });
                                     }
                                 }
                             }
 
-                            // 2. หักสินค้าสำเร็จรูปออกจากตู้แช่ (Remove FG from Batch Lots)
+                            // 2. หักสินค้าสำเร็จรูปออกจากตู้แช่ (Remove from Finished Goods Lots)
                             if (menu.mode === 'batch' && mSnap.exists()) {
                                 let lots = mSnap.data().lots || [];
-                                let remainingToRemove = prodData.qtyProduced;
+                                let remainingToRemove = prodData.qtyProduced; // หักเฉพาะที่ได้จริง
                                 
-                                // ย้อนศรจากท้าย (ล่าสุด) ไปหาหน้า เพื่อหักล็อตใหม่สุดออกก่อน
+                                // ย้อนศรจากท้าย (ล็อตล่าสุด) ไปหาหน้า เพื่อหักล็อตใหม่สุดออกก่อน
                                 for (let i = lots.length - 1; i >= 0; i--) {
                                     if (remainingToRemove <= 0) break;
                                     if (lots[i].qty >= remainingToRemove) {
@@ -1060,14 +1071,14 @@
                                         lots[i].qty = 0;
                                     }
                                 }
-                                // ลบ Lot ที่โดนหักจนเหลือ 0 ทิ้ง
+                                // เคลียร์ Lot ที่โดนหักจนเหลือ 0 ทิ้งไปเลย
                                 lots = lots.filter(l => l.qty > 0);
                                 transaction.update(menuRef, { lots: lots });
                             }
                         }
                     }
 
-                    // 3. ลบประวัติเอกสาร
+                    // 3. ลบประวัติการผลิตนี้ทิ้ง
                     transaction.delete(prodRef);
                 });
                 showToast("ลบประวัติและจัดการคืนสต๊อกเรียบร้อยแล้ว");
@@ -1524,7 +1535,7 @@
                 const dateStr = dateObj ? `${dateObj.toLocaleDateString('th-TH')} ${dateObj.toLocaleTimeString('th-TH').slice(0,5)}` : '-';
 
                 tbody.innerHTML += `
-                    <tr class="hover:bg-slate-50 transition-colors">
+                    <tr class="hover:bg-slate-50 transition-colors border-b last:border-b-0">
                         <td class="p-4 font-bold text-slate-800">${u.username || 'ไม่มีชื่อ'}</td>
                         <td class="p-4 font-medium text-slate-500">${u.phone || '-'}</td>
                         <td class="p-4 text-center">${roleBadge}</td>
