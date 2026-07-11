@@ -216,7 +216,8 @@
                                         <th class="p-3 text-center">ของเสีย</th>
                                         <th class="p-3 text-right">ต้นทุนรวมล็อต</th>
                                         <th class="p-3 text-right">ต้นทุน/หน่วย</th>
-                                        <th class="p-3 text-center">จัดการประวัติ</th> </tr>
+                                        <th class="p-3 text-center">จัดการประวัติ</th> 
+                                    </tr>
                                 </thead>
                                 <tbody id="prod-history-body" class="divide-y"></tbody>
                             </table>
@@ -907,6 +908,7 @@
                 }
             });
 
+            // 🎯 แสดงประวัติการผลิต พร้อมปุ่ม [คืนสต๊อก]
             productionHistory.forEach(p => {
                 if (prodHistoryTbody) {
                     const isDisposal = p.menuName.startsWith('🔥');
@@ -996,7 +998,7 @@
             }
         });
 
-        // 👉 🎯 ฟังก์ชันลบประวัติการผลิตและคืนวัตถุดิบที่ใช้ทำ (หรือคืนสินค้าเข้าตู้แช่กรณีลบของเสีย)
+        // 👉 🎯 ฟังก์ชันใหม่: ลบประวัติการผลิตและคืนวัตถุดิบที่ใช้ทำ (หรือคืนสินค้าเข้าตู้แช่กรณีลบของเสีย)
         window.deleteProductionLog = async (prodId) => {
             if (window.userRole !== 'admin') {
                 showToast("🔒 สงวนสิทธิ์เฉพาะ Admin เท่านั้น", "error");
