@@ -10,18 +10,13 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans min-h-screen flex flex-col overflow-hidden">
 
-    <!-- Alerts Container -->
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2"></div>
     
-    <!-- Loading Screen -->
     <div id="loading-screen" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex flex-col items-center justify-center text-white hidden">
         <div class="animate-spin rounded-full h-12 w-12 border-4 border-emerald-500 border-t-transparent mb-4"></div>
-        <p class="font-medium">กำลังโหลดข้อมูล Cloud Firebase...</p>
+        <p class="font-medium" id="loading-text">กำลังโหลดข้อมูล Cloud Firebase...</p>
     </div>
 
-    <!-- =================================================== -->
-    <!-- AUTHENTICATION LAYER: หน้าจอล็อกอิน / สมัครสมาชิก -->
-    <!-- =================================================== -->
     <div id="auth-container" class="fixed inset-0 bg-slate-900 z-40 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md space-y-6 border border-slate-200">
             <div class="text-center space-y-2">
@@ -31,7 +26,6 @@
             </div>
 
             <form id="auth-form" class="space-y-4 text-xs">
-                <!-- ชื่อผู้ใช้งาน (จะแสดงเฉพาะตอนสมัครสมาชิก) -->
                 <div id="auth-username-group" class="hidden">
                     <label class="block text-slate-500 font-bold mb-1">ชื่อผู้ใช้งาน (Username)</label>
                     <input type="text" id="auth-username" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-slate-700 font-medium" placeholder="เช่น: สมชาย หรือ Somchai">
@@ -46,7 +40,6 @@
                     <input type="password" id="auth-password" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-slate-700 font-medium" placeholder="••••••••" minlength="6" required>
                 </div>
                 
-                <!-- ระดับผู้ใช้งาน (จะแสดงเฉพาะตอนสมัครสมาชิก) -->
                 <div id="auth-role-group" class="hidden">
                     <label class="block text-slate-500 font-bold mb-1">ระดับผู้ใช้งาน</label>
                     <select id="auth-role" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 text-slate-700 font-bold bg-slate-50">
@@ -68,15 +61,10 @@
         </div>
     </div>
 
-    <!-- =================================================== -->
-    <!-- MAIN WORKSPACE LAYER: หน้าตาแอปพลิเคชันระบบงานหลัก -->
-    <!-- =================================================== -->
     <div id="app-workspace" class="flex h-screen w-full overflow-hidden opacity-0 invisible transition-all duration-300 relative">
         
-        <!-- Mobile Menu Backdrop (พื้นหลังดำเบลอเมื่อเปิดเมนูบนมือถือ) -->
-        <div id="mobile-menu-backdrop" onclick="window.toggleMobileMenu()" class="fixed inset-0 bg-slate-900/60 z-40 hidden md:hidden backdrop-blur-sm transition-opacity opacity-0 duration-300"></div>
+        <div id="mobile-menu-backdrop" onclick="window.toggleMobileMenu()" class="fixed inset-0 bg-slate-900/60 z-40 hidden backdrop-blur-sm transition-opacity opacity-0 duration-300"></div>
 
-        <!-- Sidebar Menu (อัปเดตให้รองรับการ Slide บนมือถือ) -->
         <aside id="sidebar" class="w-64 bg-slate-900 text-white flex flex-col justify-between shrink-0 fixed inset-y-0 left-0 z-50 transform -translate-x-full md:relative md:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none">
             <div class="p-5 overflow-y-auto flex-1 space-y-6">
                 <div class="flex items-center justify-between">
@@ -92,7 +80,6 @@
                             </div>
                         </div>
                     </div>
-                    <!-- ปุมปิดเมนู (เฉพาะในมือถือ) -->
                     <button onclick="window.toggleMobileMenu()" class="md:hidden text-slate-400 hover:text-white p-2 rounded-lg bg-slate-800">
                         <i class="fas fa-times"></i>
                     </button>
@@ -114,17 +101,14 @@
                 </button>
                 <div class="text-[10px] text-slate-500 flex items-center justify-between font-mono">
                     <span><i class="fas fa-circle text-emerald-500 animate-pulse mr-1"></i> Sec-Auth</span>
-                    <span>v6.1 Mobile UI</span>
+                    <span>v6.5 Restock Fix</span>
                 </div>
             </div>
         </aside>
 
-        <!-- Main Workspace -->
         <main class="flex-1 flex flex-col overflow-hidden bg-slate-50">
-            <!-- Header Bar (อัปเดตปุ่มแฮมเบอร์เกอร์สำหรับมือถือ) -->
             <header class="bg-white border-b p-4 flex justify-between items-center shadow-sm shrink-0 z-10 sticky top-0">
                 <div class="flex items-center space-x-3">
-                    <!-- ปุ่มเปิดเมนูบนมือถือ -->
                     <button onclick="window.toggleMobileMenu()" class="md:hidden text-slate-500 hover:text-emerald-600 focus:outline-none p-2 rounded-lg bg-slate-100 hover:bg-slate-200 transition">
                         <i class="fas fa-bars text-lg"></i>
                     </button>
@@ -133,23 +117,18 @@
                 <div id="notification-bar" class="flex items-center space-x-2 overflow-x-auto max-w-xl"></div>
             </header>
 
-            <!-- Viewports -->
             <div class="flex-1 overflow-y-auto p-4 md:p-6 scroll-smooth">
                 
-                <!-- TAB: POS -->
                 <section id="tab-pos" class="tab-content flex flex-col lg:grid lg:grid-cols-12 gap-6 h-full">
                     <div class="lg:col-span-8 flex flex-col space-y-4">
                         <div class="flex items-center justify-between bg-white p-3 rounded-xl border shadow-sm shrink-0">
                             <input type="text" id="search-pos-menu" oninput="window.renderPOS()" placeholder="🔍 ค้นหาเมนูขาย..." class="p-2 border rounded-lg w-full md:w-72 text-xs focus:outline-none focus:ring-2 focus:ring-emerald-500">
-                            <div class="hidden md:block text-xs text-slate-400 font-medium ml-4">✨ เมนูแบบ Batch หักสต๊อกสำเร็จรูป / Made to Order หักวัตถุดิบ</div>
                         </div>
-                        <!-- โซนรายการเมนู (ปรับให้เลื่อนได้อิสระ) -->
                         <div class="flex-1 overflow-y-auto pr-1 pb-4">
                             <div id="pos-menu-grid" class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-4 gap-3 md:gap-4"></div>
                         </div>
                     </div>
                     
-                    <!-- โซนตะกร้าสินค้า (ให้คงที่ในหน้าจอ) -->
                     <div class="lg:col-span-4 bg-white rounded-xl shadow-sm border p-4 flex flex-col justify-between shrink-0 min-h-[400px] lg:h-[550px]">
                         <div class="flex flex-col h-full">
                             <h3 class="font-bold text-sm pb-2 border-b flex items-center text-slate-700 shrink-0"><i class="fas fa-shopping-basket text-emerald-600 mr-2"></i> รายการสั่งซื้อหน้าร้าน</h3>
@@ -158,12 +137,22 @@
                         <div class="border-t pt-4 space-y-2 shrink-0">
                             <div class="flex justify-between text-xs text-slate-500"><span>ต้นทุน COGS ของออเดอร์:</span><span id="cart-cost" class="font-mono">฿0.00</span></div>
                             <div class="flex justify-between text-base font-bold text-slate-800"><span>ยอดรวมทั้งสิ้น:</span><span id="cart-total" class="text-xl text-emerald-600 font-black">฿0.00</span></div>
-                            <button id="btn-checkout" onclick="window.checkout()" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl shadow-md transition transform active:scale-95">💵 ยืนยันการขาย & ตัดสต๊อก</button>
+                            
+                            <div class="grid grid-cols-2 gap-2 mt-2">
+                                <button id="btn-checkout-1" onclick="window.checkout('ร้าน 1')" class="w-full py-3 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold rounded-xl shadow-md transition transform active:scale-95 flex flex-col items-center justify-center leading-tight">
+                                    <span>💵 จ่ายเงิน</span>
+                                    <span class="text-[10px] font-medium opacity-90">(ร้าน 1)</span>
+                                </button>
+                                <button id="btn-checkout-2" onclick="window.checkout('ร้าน 2')" class="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl shadow-md transition transform active:scale-95 flex flex-col items-center justify-center leading-tight">
+                                    <span>💵 จ่ายเงิน</span>
+                                    <span class="text-[10px] font-medium opacity-90">(ร้าน 2)</span>
+                                </button>
+                            </div>
+
                         </div>
                     </div>
                 </section>
 
-                <!-- TAB: PRODUCTION -->
                 <section id="tab-production" class="tab-content hidden space-y-6">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="bg-white p-5 rounded-xl border shadow-sm space-y-4">
@@ -227,7 +216,7 @@
                                         <th class="p-3 text-center">ของเสีย</th>
                                         <th class="p-3 text-right">ต้นทุนรวมล็อต</th>
                                         <th class="p-3 text-right">ต้นทุน/หน่วย</th>
-                                        <th class="p-3 text-center">วันหมดอายุ</th>
+                                        <th class="p-3 text-center">จัดการประวัติ</th>
                                     </tr>
                                 </thead>
                                 <tbody id="prod-history-body" class="divide-y"></tbody>
@@ -236,7 +225,6 @@
                     </div>
                 </section>
 
-                <!-- TAB: INVENTORY -->
                 <section id="tab-inventory" class="tab-content hidden space-y-6">
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
                         <div class="lg:col-span-4 bg-white p-5 rounded-xl border shadow-sm space-y-4">
@@ -283,7 +271,6 @@
                     </div>
                 </section>
 
-                <!-- TAB: MENUS -->
                 <section id="tab-menus" class="tab-content hidden space-y-6">
                     <div class="flex justify-between items-center bg-white p-4 rounded-xl border shadow-sm">
                         <div>
@@ -294,7 +281,6 @@
                     <div id="menus-grid" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4"></div>
                 </section>
 
-                <!-- TAB: DASHBOARD -->
                 <section id="tab-dashboard" class="tab-content hidden space-y-6">
                     <div class="grid grid-cols-2 lg:grid-cols-5 gap-3 md:gap-4">
                         <div class="bg-white p-4 rounded-xl border shadow-sm"><span class="text-[10px] font-bold text-slate-400 uppercase">💰 รายรับรวม</span><div class="text-lg font-black text-slate-800 mt-1 truncate" id="dash-revenue">฿0.00</div></div>
@@ -332,7 +318,6 @@
                     </div>
                 </section>
 
-                <!-- TAB: USERS MANAGEMENT -->
                 <section id="tab-users" class="tab-content hidden space-y-6">
                     <div class="bg-white p-5 rounded-xl border shadow-sm space-y-4">
                         <div class="flex justify-between items-center flex-wrap gap-2">
@@ -361,7 +346,6 @@
         </main>
     </div>
 
-    <!-- Modals (ย่อขนาดฟอร์มให้เหมาะกับมือถือ) -->
     <div id="modal-item" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-xl p-5 w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh]">
             <h3 class="text-sm font-bold text-slate-800 mb-4" id="modal-item-title">เพิ่มวัตถุดิบชิ้นใหม่</h3>
@@ -422,7 +406,6 @@
         </div>
     </div>
 
-    <!-- Modal จัดการผู้ใช้งาน -->
     <div id="modal-user" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50">
         <div class="bg-white rounded-xl p-5 w-full max-w-sm shadow-2xl overflow-y-auto max-h-[90vh]">
             <h3 class="text-sm font-bold text-slate-800 mb-4">👤 แก้ไขข้อมูลและสิทธิ์ผู้ใช้งาน</h3>
@@ -451,92 +434,7 @@
         </div>
     </div>
 
-    <!-- Firebase Script Engine Core Framework -->
     <script type="module">
-        // Utils Functions
-        window.validateInput = (val, name, allowZero = false) => {
-            const num = parseFloat(val);
-            if (isNaN(num) || (!allowZero && num <= 0) || (allowZero && num < 0)) {
-                throw new Error(`ข้อมูล ${name} ไม่ถูกต้อง`);
-            }
-            return num;
-        };
-
-        window.setLoadingButton = (btnId, isLoading, originalText) => {
-            const btn = document.getElementById(btnId);
-            if (!btn) return;
-            if (isLoading) {
-                btn.disabled = true;
-                btn.innerHTML = `<i class="fas fa-spinner fa-spin mr-2"></i> กำลังดำเนินการ...`;
-            } else {
-                btn.disabled = false;
-                btn.innerHTML = originalText;
-            }
-        };
-
-        // ฟังก์ชัน Toggle เมนูบนมือถือ (Slide effect)
-        window.toggleMobileMenu = () => {
-            const sidebar = document.getElementById('sidebar');
-            const backdrop = document.getElementById('mobile-menu-backdrop');
-            
-            if (sidebar.classList.contains('-translate-x-full')) {
-                // เปิดเมนู
-                sidebar.classList.remove('-translate-x-full');
-                backdrop.classList.remove('hidden');
-                setTimeout(() => backdrop.classList.remove('opacity-0'), 10);
-            } else {
-                // ปิดเมนู
-                sidebar.classList.add('-translate-x-full');
-                backdrop.classList.add('opacity-0');
-                setTimeout(() => backdrop.classList.add('hidden'), 300);
-            }
-        };
-
-        window.switchTab = (tabId, btnElement) => {
-            // --- 🔒 RBAC Check ป้องกันการเข้าถึงของ Staff ---
-            const restrictedTabs = ['inventory', 'menus', 'dashboard', 'users'];
-            if (window.userRole !== 'admin' && restrictedTabs.includes(tabId)) {
-                showToast("🔒 เมนูนี้เข้าถึงได้เฉพาะ Admin", "error");
-                return;
-            }
-
-            // 1. ซ่อนทุก Tab Content
-            document.querySelectorAll('.tab-content').forEach(tab => {
-                tab.classList.add('hidden');
-            });
-
-            // 2. แสดง Tab ที่เลือก
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-
-            // 3. ปรับสถานะปุ่มใน Sidebar
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('bg-emerald-600', 'text-white');
-                btn.classList.add('text-slate-400');
-            });
-            btnElement.classList.add('bg-emerald-600', 'text-white');
-            btnElement.classList.remove('text-slate-400');
-
-            // 4. อัปเดตชื่อหน้าใน Header
-            const titles = {
-                'pos': '🛒 หน้าขายหน้าร้าน (POS)',
-                'production': '⚙️ การผลิต (Production)',
-                'inventory': '📦 คลังวัตถุดิบ & ซื้อของ',
-                'menus': '🍹 ตั้งค่าเมนู & สูตรชง',
-                'dashboard': '📈 แดชบอร์ด & บัญชี',
-                'users': '👥 จัดการผู้ใช้งานระบบ'
-            };
-            document.getElementById('page-title').innerText = titles[tabId];
-
-            // 5. ปิดแถบเมนูด้านซ้ายอัตโนมัติหากกดผ่านมือถือ
-            if (window.innerWidth < 768) {
-                const sidebar = document.getElementById('sidebar');
-                if (!sidebar.classList.contains('-translate-x-full')) {
-                    window.toggleMobileMenu();
-                }
-            }
-        };
-
-        // Firebase Imports 
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot, runTransaction, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -564,12 +462,79 @@
         let salesChartInstance = null;
         let isSignUpMode = false;
         
-        // ตัวแปรเก็บ Role ของผู้ใช้ปัจจุบัน
         window.userRole = 'staff'; 
 
-        // ===================================================
-        // 👉 CORE AUTH MODULE
-        // ===================================================
+        // --- UTILS ---
+        window.validateInput = (val, name, allowZero = false) => {
+            const num = parseFloat(val);
+            if (isNaN(num) || (!allowZero && num <= 0) || (allowZero && num < 0)) {
+                throw new Error(`ข้อมูล ${name} ไม่ถูกต้อง`);
+            }
+            return num;
+        };
+
+        window.setLoadingButton = (btnId, isLoading, originalText) => {
+            const btn = document.getElementById(btnId);
+            if (!btn) return;
+            if (isLoading) {
+                btn.disabled = true;
+                btn.innerHTML = `<i class="fas fa-spinner fa-spin mb-1 text-base"></i><span>กำลังดำเนินการ...</span>`;
+            } else {
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+            }
+        };
+
+        // --- MOBILE MENU TOGGLE ---
+        window.toggleMobileMenu = () => {
+            const sidebar = document.getElementById('sidebar');
+            const backdrop = document.getElementById('mobile-menu-backdrop');
+            
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                backdrop.classList.remove('hidden');
+                setTimeout(() => backdrop.classList.remove('opacity-0'), 10);
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('opacity-0');
+                setTimeout(() => backdrop.classList.add('hidden'), 300);
+            }
+        };
+
+        window.switchTab = (tabId, btnElement) => {
+            const restrictedTabs = ['inventory', 'menus', 'dashboard', 'users'];
+            if (window.userRole !== 'admin' && restrictedTabs.includes(tabId)) {
+                showToast("🔒 เมนูนี้เข้าถึงได้เฉพาะ Admin", "error");
+                return;
+            }
+
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.nav-btn').forEach(btn => {
+                btn.classList.remove('bg-emerald-600', 'text-white');
+                btn.classList.add('text-slate-400');
+            });
+            btnElement.classList.add('bg-emerald-600', 'text-white');
+            btnElement.classList.remove('text-slate-400');
+
+            const titles = {
+                'pos': '🛒 หน้าขายหน้าร้าน (POS)',
+                'production': '⚙️ การผลิต (Production)',
+                'inventory': '📦 คลังวัตถุดิบ & ซื้อของ',
+                'menus': '🍹 ตั้งค่าเมนู & สูตรชง',
+                'dashboard': '📈 แดชบอร์ด & บัญชี',
+                'users': '👥 จัดการผู้ใช้งานระบบ'
+            };
+            document.getElementById('page-title').innerText = titles[tabId];
+
+            if (window.innerWidth < 768) {
+                const sidebar = document.getElementById('sidebar');
+                if (!sidebar.classList.contains('-translate-x-full')) window.toggleMobileMenu();
+            }
+        };
+
+        // --- AUTH CONTROL ---
         window.toggleAuthMode = () => {
             isSignUpMode = !isSignUpMode;
             const title = document.getElementById('auth-title');
@@ -610,13 +575,11 @@
             submitBtn.disabled = true;
             document.getElementById('loading-screen').classList.remove('hidden');
 
-            // ทริค: แปลงเบอร์โทรเป็น Dummy Email ของระบบเราเองเพื่อส่งให้ Firebase Auth ทำงานต่อ
             const dummyEmail = `${phone}@ihavewater.system`;
 
             try {
                 if (isSignUpMode) {
                     const userCredential = await createUserWithEmailAndPassword(auth, dummyEmail, password);
-                    // บันทึก Username และ Phone เข้า Firestore 
                     await setDoc(doc(db, "users", userCredential.user.uid), {
                         username: username || phone,
                         phone: phone,
@@ -634,7 +597,7 @@
                 let msg = "เกิดข้อผิดพลาดในการยืนยันสิทธิ์";
                 if (err.code === "auth/wrong-password") msg = "รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่";
                 if (err.code === "auth/user-not-found") msg = "ไม่พบเบอร์โทรศัพท์นี้ในระบบ";
-                if (err.code === "auth/email-already-in-use") msg = "เบอร์โทรศัพท์นี้ถูกเปิดใช้งานในระบบแล้ว";
+                if (err.code === "auth/email-already-in-use") msg = "เบอร์โทรศัพท์นี้ถูกลงทะเบียนแล้ว";
                 showToast(msg, "error");
                 document.getElementById('loading-screen').classList.add('hidden');
             } finally {
@@ -643,7 +606,7 @@
         });
 
         window.handleSignOut = async () => {
-            if (!confirm("คุณแน่ใจใช่ไหมที่จะลงชื่อออกจากระบบการทำงาน?")) return;
+            if (!confirm("คุณแน่ใจใช่ไหมที่จะลงชื่อออกจากระบบ?")) return;
             try {
                 await signOut(auth);
                 showToast("ออกจากระบบเรียบร้อย สต็อกคลังถูกปิดล็อกเพื่อความปลอดภัย", "error");
@@ -652,7 +615,6 @@
             }
         };
 
-        // ฟังก์ชันจัดการแสดงผลเมนูตาม Role (ล็อก UI สวยๆ แทนการซ่อน)
         function applyRoleRestrictions() {
             const roleBadge = document.getElementById('user-role-badge');
             const lockIcons = document.querySelectorAll('.lock-icon');
@@ -660,26 +622,20 @@
             if (window.userRole === 'admin') {
                 if(roleBadge) {
                     roleBadge.innerHTML = '👑 Admin';
-                    roleBadge.className = 'ml-2 px-1.5 py-0.5 rounded-md bg-emerald-500 text-[9px] text-white font-bold shadow-sm transition-all';
+                    roleBadge.className = 'ml-2 px-1.5 py-0.5 rounded-md bg-emerald-500 text-[9px] text-white font-bold shadow-sm transition-all inline-block';
                 }
-                // ซ่อนแม่กุญแจสำหรับ Admin
                 lockIcons.forEach(icon => icon.classList.add('hidden'));
-                
                 const resetBtn = document.getElementById('btn-reset-dashboard');
                 if(resetBtn) resetBtn.classList.remove('hidden');
-                
             } else {
                 if(roleBadge) {
                     roleBadge.innerHTML = '👤 Staff';
-                    roleBadge.className = 'ml-2 px-1.5 py-0.5 rounded-md bg-slate-600 text-[9px] text-white font-bold shadow-sm transition-all';
+                    roleBadge.className = 'ml-2 px-1.5 py-0.5 rounded-md bg-slate-600 text-[9px] text-white font-bold shadow-sm transition-all inline-block';
                 }
-                // แสดงแม่กุญแจสำหรับ Staff ที่ปุ่มที่ไม่มีสิทธิ์
                 lockIcons.forEach(icon => icon.classList.remove('hidden'));
-                
                 const resetBtn = document.getElementById('btn-reset-dashboard');
                 if(resetBtn) resetBtn.classList.add('hidden');
 
-                // บังคับเปลี่ยนหน้าเป็น POS หาก Staff ค้างอยู่ในหน้าของ Admin
                 const currentTitle = document.getElementById('page-title').innerText;
                 if(currentTitle.includes('คลัง') || currentTitle.includes('เมนู') || currentTitle.includes('แดชบอร์ด') || currentTitle.includes('ผู้ใช้งาน')) {
                     window.switchTab('pos', document.getElementById('nav-pos'));
@@ -687,13 +643,16 @@
             }
         }
 
-        // ดักจับสถานะ Auth
         onAuthStateChanged(auth, async (user) => {
             const authContainer = document.getElementById('auth-container');
             const appWorkspace = document.getElementById('app-workspace');
+            const loadingScreen = document.getElementById('loading-screen');
             
             if (user) {
                 try {
+                    document.getElementById('loading-text').innerText = "กำลังซิงค์สิทธิ์และข้อมูลระบบคลาวด์...";
+                    loadingScreen.classList.remove('hidden');
+                    
                     const userDoc = await getDoc(doc(db, "users", user.uid));
                     if (userDoc.exists()) {
                         window.userRole = userDoc.data().role || 'staff';
@@ -706,72 +665,60 @@
                 }
 
                 applyRoleRestrictions();
-
                 authContainer.classList.add('hidden');
                 appWorkspace.classList.remove('hidden', 'opacity-0', 'invisible');
                 initGlobalCloudSync();
             } else {
                 authContainer.classList.remove('hidden');
                 appWorkspace.classList.add('hidden', 'opacity-0', 'invisible');
-                document.getElementById('loading-screen').classList.add('hidden');
+                loadingScreen.classList.add('hidden');
             }
         });
 
-        // ===================================================
-        // BUSINESS CORE LOGIC
-        // ===================================================
-
+        // --- SYNC ENGINE ---
         function initGlobalCloudSync() {
             try {
                 onSnapshot(collection(db, "inventory"), (snapshot) => {
                     inventory = [];
                     snapshot.forEach(doc => inventory.push(doc.data()));
-                    refreshApplicationUI();
+                    window.renderInventory();
+                    buildRealtimeNotificationBar();
                 });
 
                 onSnapshot(collection(db, "menus"), (snapshot) => {
                     menus = [];
                     snapshot.forEach(doc => menus.push(doc.data()));
-                    refreshApplicationUI();
+                    window.renderPOS();
+                    window.renderMenus();
+                    renderProductionTab();
                 });
 
                 onSnapshot(collection(db, "production"), (snapshot) => {
                     productionHistory = [];
                     snapshot.forEach(doc => productionHistory.push(doc.data()));
                     productionHistory.sort((a,b) => b.id - a.id);
-                    refreshApplicationUI();
+                    renderProductionTab();
+                    renderDashboard();
                 });
 
                 onSnapshot(collection(db, "sales"), (snapshot) => {
                     salesHistory = [];
-                    snapshot.forEach(doc => {
-                        salesHistory.push(doc.data());
-                    });
+                    snapshot.forEach(doc => salesHistory.push(doc.data()));
                     salesHistory.sort((a,b) => b.id - a.id);
-                    refreshApplicationUI();
+                    window.renderPOS();
+                    renderDashboard();
+                    
                     document.getElementById('loading-screen').classList.add('hidden');
                 });
 
                 onSnapshot(collection(db, "users"), (snapshot) => {
                     usersList = [];
-                    snapshot.forEach(doc => {
-                        usersList.push({ uid: doc.id, ...doc.data() });
-                    });
+                    snapshot.forEach(doc => usersList.push({ uid: doc.id, ...doc.data() }));
                     if (window.userRole === 'admin') window.renderUsers();
                 });
-
             } catch (err) {
                 console.error("Cloud Sync System Failed:", err);
             }
-        }
-
-        function refreshApplicationUI() {
-            window.renderPOS();
-            window.renderInventory();
-            window.renderMenus();
-            renderProductionTab();
-            renderDashboard();
-            buildRealtimeNotificationBar();
         }
 
         // --- INVENTORY ---
@@ -954,9 +901,23 @@
                 }
             });
 
+            // 🎯 แสดงประวัติการผลิต พร้อมปุ่ม [คืนสต๊อก] 
             productionHistory.forEach(p => {
                 if (prodHistoryTbody) {
-                    prodHistoryTbody.innerHTML += `<tr><td class="p-3 font-mono text-slate-500 text-[11px]">${p.timestamp}</td><td class="p-3 font-bold text-slate-700">${p.menuName}</td><td class="p-3 text-center font-bold text-emerald-600">${p.qtyProduced}</td><td class="p-3 text-center text-red-500">${p.wasteQty}</td><td class="p-3 text-right font-mono">฿${Number(p.totalCost || 0).toFixed(2)}</td><td class="p-3 text-right font-mono">฿${Number(p.costPerUnit || 0).toFixed(2)}</td><td class="p-3 text-center font-mono text-[11px]">${p.expDate || '-'}</td></tr>`;
+                    prodHistoryTbody.innerHTML += `
+                    <tr>
+                        <td class="p-3 font-mono text-slate-500 text-[11px]">${p.timestamp}</td>
+                        <td class="p-3 font-bold text-slate-700">${p.menuName}</td>
+                        <td class="p-3 text-center font-bold text-emerald-600">${p.qtyProduced}</td>
+                        <td class="p-3 text-center text-red-500">${p.wasteQty}</td>
+                        <td class="p-3 text-right font-mono">฿${Number(p.totalCost || 0).toFixed(2)}</td>
+                        <td class="p-3 text-right font-mono">฿${Number(p.costPerUnit || 0).toFixed(2)}</td>
+                        <td class="p-3 text-center">
+                            <button type="button" onclick="window.deleteProductionLog('${p.id}')" class="text-red-500 bg-red-50 px-2 py-1 rounded hover:bg-red-100 transition text-[10px] font-bold shadow-sm">
+                                <i class="fas fa-undo mr-1"></i> คืนสต๊อก
+                            </button>
+                        </td>
+                    </tr>`;
                 }
             });
         }
@@ -1026,6 +987,98 @@
             }
         });
 
+        // 🎯 ฟังก์ชันใหม่: ลบประวัติการผลิตและคืนสต๊อกแบบสมบูรณ์
+        window.deleteProductionLog = async (prodId) => {
+            if (window.userRole !== 'admin') {
+                showToast("🔒 สงวนสิทธิ์เฉพาะ Admin เท่านั้น", "error");
+                return;
+            }
+            if (!confirm("⚠️ ยืนยันการลบประวัติการผลิตนี้?\nระบบจะทำการคืนสต๊อกวัตถุดิบที่ใช้ไป หรือคืนสินค้ากลับเข้าตู้แช่ให้โดยอัตโนมัติ")) return;
+
+            document.getElementById('loading-text').innerText = "กำลังคำนวณและคืนสต๊อกวัตถุดิบ...";
+            document.getElementById('loading-screen').classList.remove('hidden');
+
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const prodRef = doc(db, "production", prodId.toString());
+                    const prodSnap = await transaction.get(prodRef);
+                    if (!prodSnap.exists()) throw new Error("ไม่พบข้อมูลการผลิตนี้");
+
+                    const prodData = prodSnap.data();
+                    const isDisposal = prodData.menuName.startsWith('🔥 [ทิ้งตู้แช่]');
+                    const realMenuName = isDisposal ? prodData.menuName.replace('🔥 [ทิ้งตู้แช่] ', '') : prodData.menuName;
+                    
+                    const menu = menus.find(m => m.name === realMenuName);
+
+                    if (menu) {
+                        const menuRef = doc(db, "menus", menu.id.toString());
+                        const mSnap = await transaction.get(menuRef);
+                        
+                        if (isDisposal) {
+                            // กรณีลบรายการ "ทิ้งของเสียออกจากตู้แช่" -> ต้องคืนของกลับเข้าไปในล็อตของตู้แช่
+                            if (mSnap.exists()) {
+                                let lots = mSnap.data().lots || [];
+                                lots.push({
+                                    lotNo: "RESTORE-" + Date.now().toString().slice(-4),
+                                    productionDate: new Date().toLocaleDateString('th-TH'),
+                                    expDate: prodData.expDate || '-',
+                                    qty: prodData.wasteQty,
+                                    costPerCup: prodData.wasteQty > 0 ? (prodData.wasteValue / prodData.wasteQty) : 0
+                                });
+                                transaction.update(menuRef, { lots: lots });
+                            }
+                        } else {
+                            // กรณีลบรายการ "ผลิตใหม่" -> คืนวัตถุดิบเข้าคลัง และ หักน้ำออกจากตู้แช่
+                            const totalQtyUsed = prodData.qtyProduced + prodData.wasteQty;
+                            
+                            // 1. คืนวัตถุดิบ (Refund Raw Materials)
+                            if (menu.recipe && menu.recipe.length > 0) {
+                                for (let r of menu.recipe) {
+                                    const invRef = doc(db, "inventory", r.itemId.toString());
+                                    const invSnap = await transaction.get(invRef);
+                                    if (invSnap.exists()) {
+                                        const neededToRefund = menu.mode === 'batch' ? r.quantity : (r.quantity * totalQtyUsed);
+                                        const currentStock = Number(invSnap.data().stock || 0);
+                                        transaction.update(invRef, { stock: currentStock + neededToRefund });
+                                    }
+                                }
+                            }
+
+                            // 2. หักสินค้าสำเร็จรูปออกจากตู้แช่ (Remove FG from Batch Lots)
+                            if (menu.mode === 'batch' && mSnap.exists()) {
+                                let lots = mSnap.data().lots || [];
+                                let remainingToRemove = prodData.qtyProduced;
+                                
+                                // ย้อนศรจากท้าย (ล่าสุด) ไปหาหน้า เพื่อหักล็อตใหม่สุดออกก่อน
+                                for (let i = lots.length - 1; i >= 0; i--) {
+                                    if (remainingToRemove <= 0) break;
+                                    if (lots[i].qty >= remainingToRemove) {
+                                        lots[i].qty -= remainingToRemove;
+                                        remainingToRemove = 0;
+                                    } else {
+                                        remainingToRemove -= lots[i].qty;
+                                        lots[i].qty = 0;
+                                    }
+                                }
+                                // ลบ Lot ที่โดนหักจนเหลือ 0 ทิ้ง
+                                lots = lots.filter(l => l.qty > 0);
+                                transaction.update(menuRef, { lots: lots });
+                            }
+                        }
+                    }
+
+                    // 3. ลบประวัติเอกสาร
+                    transaction.delete(prodRef);
+                });
+                showToast("ลบประวัติและจัดการคืนสต๊อกเรียบร้อยแล้ว");
+            } catch (err) {
+                console.error(err);
+                showToast("เกิดข้อผิดพลาด: " + err.message, "error");
+            } finally {
+                document.getElementById('loading-screen').classList.add('hidden');
+            }
+        };
+
         window.disposeFGLot = async (menuId, lotNo) => {
             if (!confirm(`ยืนยันการตัดทิ้งล็อต [${lotNo}]?`)) return;
             try {
@@ -1046,7 +1099,7 @@
             } catch (e) { showToast("เกิดข้อผิดพลาดในการทิ้งของ", "error"); }
         };
 
-        // --- POS CASHIER (FIFO SALES ENGINE) ---
+        // --- POS CASHIER & CART SYSTEM ---
         window.renderPOS = () => {
             const query = document.getElementById('search-pos-menu').value.toLowerCase();
             const grid = document.getElementById('pos-menu-grid');
@@ -1062,7 +1115,7 @@
                 const cost = calculateSingleRecipeCostByAvg(menu);
 
                 grid.innerHTML += `
-                    <button type="button" onclick="window.addToCart(${menu.id})" class="bg-white p-3 md:p-3.5 rounded-xl border text-left shadow-sm hover:border-emerald-500 hover:shadow-md transition flex flex-col justify-between h-28 md:h-32 relative overflow-hidden focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                    <button type="button" onclick="window.addToCart(${menu.id})" class="bg-white p-3 md:p-3.5 rounded-xl border text-left shadow-sm hover:border-emerald-500 hover:shadow-md transition flex flex-col justify-between h-28 md:h-32 relative overflow-hidden focus:outline-none">
                         <span class="absolute top-2 right-2 px-1.5 py-0.5 rounded text-[9px] font-bold ${badgeColor}">${isBatch?'Batch':'ชงสด'}</span>
                         <span class="font-bold text-xs md:text-sm text-slate-800 block pr-8 line-clamp-2 leading-tight">${menu.name}</span>
                         <div class="w-full mt-2">
@@ -1130,9 +1183,9 @@
                             <span class="text-[10px] text-emerald-600 font-medium mt-0.5 inline-block">฿${menu.price} x ${c.qty}</span>
                         </div>
                         <div class="flex items-center space-x-2 shrink-0">
-                            <button type="button" onclick="window.updateCartQty(${c.menuId}, -1)" class="w-6 h-6 bg-white border shadow-sm rounded text-slate-600 font-bold active:bg-slate-100">-</button>
+                            <button type="button" onclick="window.updateCartQty(${c.menuId}, -1)" class="w-6 h-6 bg-white border shadow-sm rounded text-slate-600 font-bold font-mono">-</button>
                             <span class="font-mono font-bold w-4 text-center">${c.qty}</span>
-                            <button type="button" onclick="window.updateCartQty(${c.menuId}, 1)" class="w-6 h-6 bg-white border shadow-sm rounded text-slate-600 font-bold active:bg-slate-100">+</button>
+                            <button type="button" onclick="window.updateCartQty(${c.menuId}, 1)" class="w-6 h-6 bg-white border shadow-sm rounded text-slate-600 font-bold font-mono">+</button>
                         </div>
                     </div>`;
             });
@@ -1140,10 +1193,13 @@
             document.getElementById('cart-cost').innerText = `฿${costCOGS.toFixed(2)}`;
         };
 
-        window.checkout = async () => {
+        window.checkout = async (shopName) => {
             if (cart.length === 0) return;
-            const originalText = `💵 ยืนยันการขาย & ตัดสต๊อก`;
-            setLoadingButton('btn-checkout', true, originalText);
+            
+            const btnId = shopName === 'ร้าน 2' ? 'btn-checkout-2' : 'btn-checkout-1';
+            const originalText = document.getElementById(btnId).innerHTML;
+            setLoadingButton(btnId, true, ''); 
+
             try {
                 await runTransaction(db, async (transaction) => {
                     const menuSnaps = {};
@@ -1208,16 +1264,23 @@
 
                     const saleId = Date.now().toString();
                     transaction.set(doc(db, "sales", saleId), {
-                        id: parseInt(saleId), timestamp: new Date().toLocaleString('th-TH'), items: logs.join(', '), qty: totalQty, revenue: rev, profit: rev - cogs, cogsValue: cogs
+                        id: parseInt(saleId), 
+                        timestamp: new Date().toLocaleString('th-TH'), 
+                        items: logs.join(', '), 
+                        qty: totalQty, 
+                        revenue: rev, 
+                        profit: rev - cogs, 
+                        cogsValue: cogs,
+                        shop: shopName
                     });
                 });
-                showToast("บันทึกการจำหน่ายสำเร็จ");
+                showToast(`บันทึกการขายสำเร็จ (${shopName})`);
                 cart = [];
                 window.renderPOS();
             } catch (err) {
                 showToast(err.message, "error");
             } finally {
-                setLoadingButton('btn-checkout', false, originalText);
+                setLoadingButton(btnId, false, originalText);
             }
         };
 
@@ -1251,7 +1314,11 @@
                 if (tbody) {
                     tbody.innerHTML = '';
                     salesHistory.forEach(s => {
-                        tbody.innerHTML += `<tr><td class="p-3 font-mono text-slate-500 text-[11px]">${s.timestamp}</td><td class="p-3 font-medium text-slate-700">${s.items}</td><td class="p-3 text-center font-bold">${s.qty}</td><td class="p-3 text-right font-mono">฿${Number(s.revenue || 0).toFixed(2)}</td><td class="p-3 text-right text-emerald-600 font-bold font-mono">฿${Number(s.profit || 0).toFixed(2)}</td></tr>`;
+                        const shopBadge = s.shop === 'ร้าน 2' 
+                            ? `<span class="bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded text-[9px] ml-1 font-bold">ร้าน 2</span>` 
+                            : `<span class="bg-emerald-100 text-emerald-700 px-1.5 py-0.5 rounded text-[9px] ml-1 font-bold">ร้าน 1</span>`;
+
+                        tbody.innerHTML += `<tr><td class="p-3 font-mono text-slate-500 text-[11px]">${s.timestamp}</td><td class="p-3 font-medium text-slate-700 whitespace-nowrap">${s.items} ${shopBadge}</td><td class="p-3 text-center font-bold">${s.qty}</td><td class="p-3 text-right font-mono">฿${Number(s.revenue || 0).toFixed(2)}</td><td class="p-3 text-right text-emerald-600 font-bold font-mono">฿${Number(s.profit || 0).toFixed(2)}</td></tr>`;
                     });
                 }
 
@@ -1270,13 +1337,11 @@
         }
 
         window.resetDashboardData = async () => {
-            // เช็คสิทธิ์ก่อนทำงาน
             if (window.userRole !== 'admin') {
                 showToast("🔒 สงวนสิทธิ์การรีเซ็ตเฉพาะ Admin เท่านั้น", "error");
                 return;
             }
-
-            if (!confirm("⚠️ คำเตือน: ระบบจะทำการลบประวัติการขาย (Sales) และประวัติของเสีย (Production Logs) ทั้งหมดเพื่อเริ่มนับบัญชีใหม่ โดยไม่ส่งผลกระทบกับโครงสร้างเมนูและวัตถุดิบในคลัง ยืนยันที่จะรีเซ็ตหรือไม่?")) return;
+            if (!confirm("⚠️ ต้องการลบประวัติบัญชีเพื่อเริ่มรอบใหม่ทั้งหมดหรือไม่?")) return;
             
             const btn = document.getElementById('btn-reset-dashboard');
             if (btn) btn.disabled = true;
@@ -1284,19 +1349,14 @@
 
             try {
                 const salesSnap = await getDocs(collection(db, "sales"));
-                for (const docObj of salesSnap.docs) {
-                    await deleteDoc(doc(db, "sales", docObj.id));
-                }
+                for (const docObj of salesSnap.docs) await deleteDoc(doc(db, "sales", docObj.id));
 
                 const prodSnap = await getDocs(collection(db, "production"));
-                for (const docObj of prodSnap.docs) {
-                    await deleteDoc(doc(db, "production", docObj.id));
-                }
+                for (const docObj of prodSnap.docs) await deleteDoc(doc(db, "production", docObj.id));
 
-                showToast("♻️ รีเซ็ตบัญชีและล้างประวัติบนคลาวด์เสร็จสิ้น", "error");
+                showToast("♻️ รีเซ็ตบัญชีและล้างประวัติเสร็จสิ้น", "error");
             } catch (err) {
-                console.error("Reset Dashboard Failure:", err);
-                showToast("ไม่สามารถทำการรีเซ็ตข้อมูลได้", "error");
+                showToast("ไม่สามารถรีเซ็ตข้อมูลได้", "error");
             } finally {
                 if (btn) btn.disabled = false;
                 document.getElementById('loading-screen').classList.add('hidden');
@@ -1310,21 +1370,12 @@
 
             inventory.forEach(i => {
                 if (i.type === 'variable' && Number(i.stock || 0) < 50) {
-                    bar.innerHTML += `<span class="bg-red-50 text-red-700 border border-red-200 text-[10px] px-2 py-1 rounded-full whitespace-nowrap"><i class="fas fa-exclamation-triangle mr-1"></i> คลังเหลือน้อย: ${i.name}</span>`;
-                }
-            });
-
-            menus.forEach(m => {
-                if (m.mode === 'batch') {
-                    const totalAvail = (m.lots || []).reduce((sum, l) => sum + Number(l.qty || 0), 0);
-                    if (totalAvail <= (m.minAlert || 0)) {
-                        bar.innerHTML += `<span class="bg-amber-50 text-amber-700 border border-amber-200 text-[10px] px-2 py-1 rounded-full whitespace-nowrap animate-pulse"><i class="fas fa-blender mr-1"></i> ผลิตด่วน: ${m.name} เหลือ ${totalAvail}</span>`;
-                    }
+                    bar.innerHTML += `<span class="bg-red-50 text-red-700 border border-red-200 text-[10px] px-2 py-1 rounded-full whitespace-nowrap"><i class="fas fa-exclamation-triangle mr-1"></i> ต่ำ: ${i.name}</span>`;
                 }
             });
         }
 
-        // --- MANAGE MENUS ---
+        // --- MENUS MANAGEMENT ---
         window.renderMenus = () => {
             const grid = document.getElementById('menus-grid');
             if (!grid) return;
@@ -1388,9 +1439,7 @@
                 if (selectedId) {
                     const matched = inventory.find(i => parseInt(i.id) === parseInt(selectedId));
                     labelSpan.innerText = matched ? (matched.unit || 'หน่วย') : 'หน่วย';
-                } else {
-                    labelSpan.innerText = 'หน่วย';
-                }
+                } else { labelSpan.innerText = 'หน่วย'; }
             }
         };
 
@@ -1398,11 +1447,7 @@
             const mode = document.getElementById('menu-mode').value;
             const container = document.getElementById('batch-qty-configuration');
             if (container) {
-                if (mode === 'batch') {
-                    container.classList.remove('hidden');
-                } else {
-                    container.classList.add('hidden');
-                }
+                if (mode === 'batch') { container.classList.remove('hidden'); } else { container.classList.add('hidden'); }
             }
         };
 
@@ -1428,21 +1473,14 @@
                 const currentMenu = menus.find(m => m.id == id);
                 
                 await setDoc(doc(db, "menus", id.toString()), { 
-                    id: parseInt(id), 
-                    name: name, 
-                    price: price, 
-                    mode: mode, 
-                    minAlert: minAlert, 
-                    batchSize: batchSize, 
-                    lots: currentMenu ? (currentMenu.lots || []) : [], 
-                    recipe: recipe 
+                    id: parseInt(id), name, price, mode, minAlert, batchSize, 
+                    lots: currentMenu ? (currentMenu.lots || []) : [], recipe 
                 });
                 
                 window.closeModal('modal-menu');
-                showToast("🍹 บันทึกและคำนวณโครงสร้างสูตรลงคลาวด์เสร็จสมบูรณ์!");
+                showToast("🍹 บันทึกโครงสร้างสูตรเรียบร้อย!");
             } catch (err) {
-                console.error("Critical Form Save Error:", err);
-                showToast(err.message || "เกิดข้อผิดพลาดขึ้นในการส่งข้อมูล", "error");
+                showToast(err.message || "เกิดข้อผิดพลาด", "error");
             } finally {
                 setLoadingButton('btn-save-menu', false, originalText);
             }
@@ -1465,15 +1503,13 @@
             container.innerHTML = '';
             if (menu.recipe && menu.recipe.length > 0) {
                 menu.recipe.forEach(r => window.addRecipeBuilderRow(r.itemId, r.quantity));
-            } else {
-                window.addRecipeBuilderRow('', 1);
-            }
+            } else { window.addRecipeBuilderRow('', 1); }
             window.openModal('modal-menu');
         };
 
         window.deleteMenu = async (id) => { if (confirm("ต้องการลบเมนูนี้?")) await deleteDoc(doc(db, "menus", id.toString())); };
 
-        // --- USERS MANAGEMENT (ฟังก์ชันใหม่) ---
+        // --- USERS MANAGEMENT ---
         window.renderUsers = () => {
             const tbody = document.getElementById('users-table-body');
             if (!tbody) return;
@@ -1486,20 +1522,17 @@
                 
                 const dateObj = u.createdAt ? new Date(u.createdAt) : null;
                 const dateStr = dateObj ? `${dateObj.toLocaleDateString('th-TH')} ${dateObj.toLocaleTimeString('th-TH').slice(0,5)}` : '-';
-                const displayName = u.username || 'ไม่มีชื่อผู้ใช้';
-                const phoneDisplay = u.phone || '-';
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="p-4 font-bold text-slate-800">${displayName}</td>
-                        <td class="p-4 font-medium text-slate-500">${phoneDisplay}</td>
+                        <td class="p-4 font-bold text-slate-800">${u.username || 'ไม่มีชื่อ'}</td>
+                        <td class="p-4 font-medium text-slate-500">${u.phone || '-'}</td>
                         <td class="p-4 text-center">${roleBadge}</td>
                         <td class="p-4 text-center font-mono text-slate-400 text-[11px]">${dateStr}</td>
                         <td class="p-4 text-center">
-                            <button type="button" onclick="window.openEditUserModal('${u.uid}')" class="text-blue-600 bg-blue-50 border border-blue-200 px-3 py-1.5 hover:bg-blue-600 hover:text-white transition rounded-lg font-medium text-xs"><i class="fas fa-edit mr-1"></i> แก้ไข</button>
+                            <button type="button" onclick="window.openEditUserModal('${u.uid}')" class="text-blue-600 bg-blue-50 border border-blue-200 px-3 py-1.5 hover:bg-blue-600 hover:text-white transition rounded-lg font-medium text-xs">แก้ไข</button>
                         </td>
-                    </tr>
-                `;
+                    </tr>`;
             });
         };
 
@@ -1522,12 +1555,8 @@
                 const newUsername = document.getElementById('edit-user-username').value.trim();
                 const newRole = document.getElementById('edit-user-role').value;
                 
-                await updateDoc(doc(db, "users", uid), {
-                    username: newUsername,
-                    role: newRole
-                });
-                
-                showToast("อัปเดตข้อมูลผู้ใช้งานสำเร็จ");
+                await updateDoc(doc(db, "users", uid), { username: newUsername, role: newRole });
+                showToast("อัปเดตผู้ใช้งานสำเร็จ");
                 window.closeModal('modal-user');
             } catch (err) {
                 showToast(err.message, "error");
