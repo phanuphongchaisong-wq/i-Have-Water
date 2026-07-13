@@ -157,7 +157,7 @@
                 </button>
                 <div class="mt-4 flex items-center justify-center gap-1.5 text-[10px] text-slate-500 font-medium">
                     <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span>Cloud Sync Active • v7.4 Pro UI</span>
+                    <span>Cloud Sync Active • v7.5 Fast-Sync</span>
                 </div>
             </div>
         </aside>
@@ -374,35 +374,60 @@
                             </form>
                         </div>
                         
-                        <div class="xl:col-span-8 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col">
-                            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-4 mb-4 shrink-0">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-600 flex items-center justify-center shadow-inner"><i class="fas fa-boxes text-lg"></i></div>
-                                    <div>
-                                        <h3 class="font-bold text-slate-800 leading-tight">คลังวัตถุดิบ & ทรัพย์สิน</h3>
-                                        <p class="text-[10px] text-slate-500 font-medium">จัดการรายการตั้งต้นของร้าน</p>
+                        <div class="xl:col-span-8 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col space-y-6">
+                            
+                            <div>
+                                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-4 mb-4 shrink-0">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-10 h-10 rounded-xl bg-teal-100 text-teal-600 flex items-center justify-center shadow-inner"><i class="fas fa-boxes text-lg"></i></div>
+                                        <div>
+                                            <h3 class="font-bold text-slate-800 leading-tight">คลังวัตถุดิบ & ทรัพย์สิน</h3>
+                                            <p class="text-[10px] text-slate-500 font-medium">จัดการรายการตั้งต้นของร้าน</p>
+                                        </div>
                                     </div>
+                                    <button onclick="window.openItemModal()" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-white text-xs px-4 py-2.5 rounded-lg font-bold shadow-md transition-all active:scale-95 flex items-center justify-center">
+                                        <i class="fas fa-plus mr-1.5"></i> สร้างรายการใหม่
+                                    </button>
                                 </div>
-                                <button onclick="window.openItemModal()" class="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-white text-xs px-4 py-2.5 rounded-lg font-bold shadow-md transition-all active:scale-95 flex items-center justify-center">
-                                    <i class="fas fa-plus mr-1.5"></i> สร้างรายการใหม่
-                                </button>
+                                
+                                <div class="overflow-x-auto custom-scrollbar">
+                                    <table class="w-full text-left text-sm whitespace-nowrap">
+                                        <thead class="bg-slate-50 text-slate-500 font-bold">
+                                            <tr>
+                                                <th class="p-3 rounded-l-lg">ชื่อรายการ</th>
+                                                <th class="p-3">ประเภท</th>
+                                                <th class="p-3 text-right">ทุนรวมสะสม</th>
+                                                <th class="p-3 text-center">คงเหลือสุทธิ</th>
+                                                <th class="p-3 text-right">ทุนเฉลี่ย/หน่วย</th>
+                                                <th class="p-3 text-center rounded-r-lg">จัดการ</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="inventory-table-body" class="divide-y divide-slate-50"></tbody>
+                                    </table>
+                                </div>
                             </div>
                             
-                            <div class="overflow-x-auto custom-scrollbar flex-1">
-                                <table class="w-full text-left text-sm whitespace-nowrap">
-                                    <thead class="bg-slate-50 text-slate-500 font-bold">
-                                        <tr>
-                                            <th class="p-3 rounded-l-lg">ชื่อรายการ</th>
-                                            <th class="p-3">ประเภท</th>
-                                            <th class="p-3 text-right">ทุนรวมสะสม</th>
-                                            <th class="p-3 text-center">คงเหลือสุทธิ</th>
-                                            <th class="p-3 text-right">ทุนเฉลี่ย/หน่วย</th>
-                                            <th class="p-3 text-center rounded-r-lg">จัดการ</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="inventory-table-body" class="divide-y divide-slate-50"></tbody>
-                                </table>
+                            <div class="pt-6 border-t border-slate-100">
+                                <div class="flex items-center gap-3 mb-4">
+                                    <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center"><i class="fas fa-list-alt"></i></div>
+                                    <h3 class="font-bold text-slate-700 text-sm">ประวัติการเติมสต๊อก (Purchase Logs)</h3>
+                                </div>
+                                <div class="overflow-x-auto custom-scrollbar max-h-60 border rounded-xl border-slate-100">
+                                    <table class="w-full text-left text-xs whitespace-nowrap">
+                                        <thead class="bg-slate-50 text-slate-500 font-bold sticky top-0">
+                                            <tr>
+                                                <th class="p-3">วัน-เวลา</th>
+                                                <th class="p-3">รายการที่ซื้อ</th>
+                                                <th class="p-3 text-right">จำนวนเงิน (฿)</th>
+                                                <th class="p-3 text-center">ปริมาณที่ได้</th>
+                                                <th class="p-3 text-right">ต้นทุน/หน่วยล็อตนี้</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="inventory-log-body" class="divide-y divide-slate-50"></tbody>
+                                    </table>
+                                </div>
                             </div>
+
                         </div>
                     </div>
                 </section>
@@ -723,6 +748,7 @@
         let salesHistory = [];
         let productionHistory = [];
         let usersList = [];
+        let purchaseLogs = []; // เก็บล็อกการซื้อ
         let cart = [];
         let salesChartInstance = null;
         let isSignUpMode = false;
@@ -779,7 +805,6 @@
             
             const activeTab = document.getElementById(`tab-${tabId}`);
             activeTab.classList.remove('hidden');
-            // Force reflow
             void activeTab.offsetWidth;
             activeTab.classList.add('animate-fade-in');
 
@@ -806,7 +831,7 @@
             const subTitle = document.getElementById('page-subtitle');
             if(subTitle) subTitle.innerText = titles[tabId].sub;
 
-            if (window.innerWidth < 1024) { // lg breakpoint
+            if (window.innerWidth < 1024) { 
                 const sidebar = document.getElementById('sidebar');
                 if (!sidebar.classList.contains('-translate-x-full')) window.toggleMobileMenu();
             }
@@ -854,7 +879,6 @@
             const originalBtnHTML = submitBtn.innerHTML;
             submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin text-lg"></i> <span class="ml-2">กำลังตรวจสอบ...</span>`;
             
-            // UI Trick: Show loading screen with delay for smooth transition
             setTimeout(() => {
                 const ls = document.getElementById('loading-screen');
                 ls.classList.remove('hidden');
@@ -879,7 +903,6 @@
                     showToast("ล็อกอินสำเร็จ ยินดีต้อนรับกลับมา!", "success");
                 }
             } catch (err) {
-                console.error("Auth Exception:", err);
                 let msg = "เกิดข้อผิดพลาดในการเชื่อมต่อ";
                 if (err.code === "auth/wrong-password") msg = "รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่";
                 if (err.code === "auth/user-not-found") msg = "ไม่พบเบอร์โทรศัพท์นี้ในระบบ";
@@ -949,7 +972,6 @@
 
                 applyRoleRestrictions();
                 
-                // Switch UI
                 authContainer.classList.add('hidden');
                 appWorkspace.classList.remove('hidden', 'invisible');
                 setTimeout(() => appWorkspace.classList.remove('opacity-0'), 50);
@@ -972,6 +994,14 @@
                     snapshot.forEach(doc => inventory.push(doc.data()));
                     window.renderInventory();
                     buildRealtimeNotificationBar();
+                });
+                
+                // สตรีมสำหรับดึงข้อมูลประวัติการเติมสต๊อก
+                onSnapshot(collection(db, "purchases"), (snapshot) => {
+                    purchaseLogs = [];
+                    snapshot.forEach(doc => purchaseLogs.push(doc.data()));
+                    purchaseLogs.sort((a,b) => b.id - a.id);
+                    window.renderPurchaseLogs();
                 });
 
                 onSnapshot(collection(db, "menus"), (snapshot) => {
@@ -997,7 +1027,6 @@
                     window.renderPOS();
                     window.renderDashboard();
                     
-                    // Fade out loader gently
                     const ls = document.getElementById('loading-screen');
                     ls.classList.add('opacity-0');
                     setTimeout(() => ls.classList.add('hidden'), 500);
@@ -1039,6 +1068,29 @@
                             <button type="button" onclick="window.editItem(${item.id})" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-blue-500 hover:bg-blue-50 hover:border-blue-200 transition-colors shadow-sm"><i class="fas fa-edit"></i></button>
                             <button type="button" onclick="window.deleteItem(${item.id})" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-rose-500 hover:bg-rose-50 hover:border-rose-200 transition-colors shadow-sm"><i class="fas fa-trash-alt"></i></button>
                         </td>
+                    </tr>`;
+            });
+        };
+
+        // ฟังก์ชันใหม่: แสดงประวัติการเติมของ
+        window.renderPurchaseLogs = () => {
+            const tbody = document.getElementById('inventory-log-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            
+            if(purchaseLogs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 font-medium">ยังไม่มีประวัติการเติมสต๊อก</td></tr>`;
+                return;
+            }
+
+            purchaseLogs.forEach(log => {
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50 transition-colors">
+                        <td class="p-3 font-mono text-slate-400 text-[10px] tracking-tight">${log.timestamp}</td>
+                        <td class="p-3 font-bold text-slate-700">${log.itemName}</td>
+                        <td class="p-3 text-right font-mono font-bold text-rose-500">฿${Number(log.addedPrice).toLocaleString('th-TH', {minimumFractionDigits:2})}</td>
+                        <td class="p-3 text-center font-black text-emerald-600">+${Number(log.addedStock).toLocaleString()} <span class="text-[9px] text-slate-400 ml-0.5">${log.unit}</span></td>
+                        <td class="p-3 text-right font-mono text-slate-500">฿${Number(log.costPerUnit).toLocaleString('th-TH', {minimumFractionDigits:2})}</td>
                     </tr>`;
             });
         };
@@ -1089,8 +1141,23 @@
                     const totalNewPrice = oldPrice + addedPrice;
                     const totalNewStock = oldStock + addedStock;
                     const finalAvg = totalNewStock > 0 ? (((oldStock * oldAvg) + addedPrice) / totalNewStock) : 0;
+                    
+                    const costPerUnitThisLot = addedStock > 0 ? (addedPrice / addedStock) : 0;
 
+                    // 1. อัปเดตคลัง
                     transaction.update(itemRef, { price: totalNewPrice, stock: totalNewStock, avgCost: finalAvg });
+                    
+                    // 2. เก็บประวัติลง Log
+                    transaction.set(doc(db, "purchases", Date.now().toString()), {
+                        id: Date.now(),
+                        timestamp: new Date().toLocaleString('th-TH'),
+                        itemId: itemId,
+                        itemName: data.name,
+                        addedPrice: addedPrice,
+                        addedStock: addedStock,
+                        unit: data.unit || 'ชิ้น',
+                        costPerUnit: costPerUnitThisLot
+                    });
                 });
                 showToast("อัปเดตสต๊อกและทุนเฉลี่ยสำเร็จ", "success");
                 document.getElementById('purchase-form').reset();
@@ -1257,6 +1324,7 @@
             finally { setLoadingButton('btn-submit-production', false, originalText); }
         });
 
+        // 🎯 แก้ไขฟังก์ชันลบการผลิตและคืนสต๊อก (Fix Data Sync Issue)
         window.deleteProductionLog = async (prodId) => {
             if (window.userRole !== 'admin') { showToast("🔒 สิทธิ์เฉพาะ Admin", "error"); return; }
             if (!confirm("⚠️ ยืนยันการลบประวัติและคืนสต๊อก?")) return;
@@ -1266,61 +1334,94 @@
 
             try {
                 await runTransaction(db, async (transaction) => {
+                    // 1. อ่านข้อมูลประวัติผลิต
                     const prodRef = doc(db, "production", prodId.toString());
                     const prodSnap = await transaction.get(prodRef);
-                    if (!prodSnap.exists()) throw new Error("ไม่พบประวัติ");
+                    if (!prodSnap.exists()) throw new Error("ไม่พบประวัติการผลิตนี้ในฐานข้อมูลแล้ว");
 
                     const prodData = prodSnap.data();
                     const isDisposal = prodData.menuName.startsWith('🔥');
                     const realMenuName = isDisposal ? prodData.menuName.replace('🔥 [ทิ้งตู้แช่] ', '') : prodData.menuName;
-                    const menu = menus.find(m => m.name === realMenuName);
                     
-                    let menuRef = null, mSnap = null;
+                    // 2. ดึงข้อมูลเมนู
+                    // หา ID จาก menus ปัจจุบัน
+                    const menu = menus.find(m => m.name === realMenuName);
+                    if (!menu) throw new Error("ไม่พบโครงสร้างเมนูเดิมแล้ว");
+                    
+                    const menuRef = doc(db, "menus", menu.id.toString());
+                    const mSnap = await transaction.get(menuRef);
+                    if (!mSnap.exists()) throw new Error("ไม่พบข้อมูลเมนูในฐานข้อมูล");
+
+                    // 3. ดึงข้อมูลวัตถุดิบทั้งหมดที่ใช้ในสูตร (ถ้าเป็นการผลิตใหม่ ไม่ใช่การทิ้ง)
                     const invSnaps = {};
+                    if (!isDisposal && menu.recipe && menu.recipe.length > 0) {
+                        for (let r of menu.recipe) {
+                            const invRef = doc(db, "inventory", r.itemId.toString());
+                            invSnaps[r.itemId] = {
+                                ref: invRef,
+                                snap: await transaction.get(invRef)
+                            };
+                        }
+                    }
 
-                    if (menu) {
-                        menuRef = doc(db, "menus", menu.id.toString());
-                        mSnap = await transaction.get(menuRef);
-                        if (!isDisposal && menu.recipe) {
+                    // ====== สิ้นสุดการ Read -> เริ่มต้น Write ======
+
+                    if (isDisposal) {
+                        // 4.A กรณีลบประวัติ "ทิ้งของเสีย" -> คืนสินค้าสำเร็จรูปกลับเข้าตู้แช่
+                        let lots = mSnap.data().lots || [];
+                        lots.push({ 
+                            lotNo: "RESTORE-" + Date.now().toString().slice(-4), 
+                            productionDate: new Date().toLocaleDateString('th-TH'), 
+                            expDate: prodData.expDate || '-', 
+                            qty: Number(prodData.wasteQty), 
+                            costPerCup: Number(prodData.wasteQty) > 0 ? (Number(prodData.wasteValue) / Number(prodData.wasteQty)) : 0 
+                        });
+                        transaction.update(menuRef, { lots: lots });
+                    } else {
+                        // 4.B กรณีลบประวัติ "ต้มน้ำ" -> คืนวัตถุดิบเข้าคลัง และ หักสินค้าในตู้แช่ออก
+                        const totalQtyUsed = Number(prodData.qtyProduced || 0) + Number(prodData.wasteQty || 0);
+                        
+                        // คืนวัตถุดิบ (Raw Materials) กลับเข้า Inventory
+                        if (menu.recipe && menu.recipe.length > 0) {
                             for (let r of menu.recipe) {
-                                const invRef = doc(db, "inventory", r.itemId.toString());
-                                invSnaps[r.itemId] = { ref: invRef, snap: await transaction.get(invRef) };
+                                if (invSnaps[r.itemId] && invSnaps[r.itemId].snap.exists()) {
+                                    const neededToRefund = menu.mode === 'batch' ? Number(r.quantity) : (Number(r.quantity) * totalQtyUsed);
+                                    const currentStock = Number(invSnaps[r.itemId].snap.data().stock || 0);
+                                    transaction.update(invSnaps[r.itemId].ref, { stock: currentStock + neededToRefund });
+                                }
                             }
                         }
-                    }
 
-                    if (menu && mSnap && mSnap.exists()) {
-                        if (isDisposal) {
+                        // หักน้ำในตู้แช่ออก (ถ้ามี)
+                        if (menu.mode === 'batch') {
                             let lots = mSnap.data().lots || [];
-                            lots.push({ lotNo: "RESTORE-" + Date.now().toString().slice(-4), productionDate: new Date().toLocaleDateString('th-TH'), expDate: prodData.expDate || '-', qty: Number(prodData.wasteQty), costPerCup: Number(prodData.wasteQty) > 0 ? (Number(prodData.wasteValue) / Number(prodData.wasteQty)) : 0 });
-                            transaction.update(menuRef, { lots: lots });
-                        } else {
-                            const totalQtyUsed = Number(prodData.qtyProduced || 0) + Number(prodData.wasteQty || 0);
-                            if (menu.recipe) {
-                                for (let r of menu.recipe) {
-                                    if (invSnaps[r.itemId] && invSnaps[r.itemId].snap.exists()) {
-                                        const neededToRefund = menu.mode === 'batch' ? Number(r.quantity) : (Number(r.quantity) * totalQtyUsed);
-                                        transaction.update(invSnaps[r.itemId].ref, { stock: Number(invSnaps[r.itemId].snap.data().stock || 0) + neededToRefund });
-                                    }
+                            let remainingToRemove = Number(prodData.qtyProduced || 0);
+                            // หักจาก Lot ล่าสุดก่อน
+                            for (let i = lots.length - 1; i >= 0; i--) {
+                                if (remainingToRemove <= 0) break;
+                                if (lots[i].qty >= remainingToRemove) { 
+                                    lots[i].qty -= remainingToRemove; 
+                                    remainingToRemove = 0; 
+                                } else { 
+                                    remainingToRemove -= lots[i].qty; 
+                                    lots[i].qty = 0; 
                                 }
                             }
-                            if (menu.mode === 'batch') {
-                                let lots = mSnap.data().lots || [];
-                                let remainingToRemove = Number(prodData.qtyProduced || 0);
-                                for (let i = lots.length - 1; i >= 0; i--) {
-                                    if (remainingToRemove <= 0) break;
-                                    if (lots[i].qty >= remainingToRemove) { lots[i].qty -= remainingToRemove; remainingToRemove = 0; } 
-                                    else { remainingToRemove -= lots[i].qty; lots[i].qty = 0; }
-                                }
-                                transaction.update(menuRef, { lots: lots.filter(l => l.qty > 0) });
-                            }
+                            transaction.update(menuRef, { lots: lots.filter(l => l.qty > 0) });
                         }
                     }
+                    
+                    // 5. ลบประวัติออก
                     transaction.delete(prodRef);
+
                 });
                 showToast("จัดการประวัติและสต๊อกเรียบร้อย", "success");
-            } catch (err) { showToast(err.message, "error"); } 
-            finally { document.getElementById('loading-screen').classList.add('hidden'); }
+            } catch (err) { 
+                console.error(err);
+                showToast(err.message, "error"); 
+            } finally { 
+                document.getElementById('loading-screen').classList.add('hidden'); 
+            }
         };
 
         window.disposeFGLot = async (menuId, lotNo) => {
@@ -1400,7 +1501,6 @@
             
             if (!container) return;
             
-            // Clean up dynamically added items
             Array.from(container.children).forEach(child => { if(child.id !== 'empty-cart-msg') child.remove(); });
             
             let total = 0, costCOGS = 0, totalItems = 0;
@@ -1526,7 +1626,7 @@
         window.renderDashboard = () => {
             try {
                 const selectedDate = document.getElementById('filter-date') ? document.getElementById('filter-date').value : '';
-                let filteredSales = salesHistory, filteredProd = productionHistory, dateLabel = "";
+                let filteredSales = salesHistory, filteredProd = productionHistory, dateLabel = "ทั้งหมด";
 
                 if (selectedDate) {
                     const [y, m, d] = selectedDate.split('-');
@@ -1589,7 +1689,7 @@
                         data: { 
                             labels: recent.map(s => s.timestamp.split(' ')[1].slice(0,5)), 
                             datasets: [{ 
-                                label: 'ยอดรับ (฿)', 
+                                label: 'ยอดขายหน้าร้าน (฿)', 
                                 data: recent.map(s => s.revenue), 
                                 backgroundColor: 'rgba(16, 185, 129, 0.2)',
                                 borderColor: '#10b981', 
@@ -1720,7 +1820,7 @@
                 window.closeModal('modal-refund');
             } catch (err) { showToast("เกิดข้อผิดพลาด: " + err.message, "error"); } 
             finally { setLoadingButton('btn-submit-refund', false, originalText); document.getElementById('loading-screen').classList.add('hidden'); }
-        });
+        };
 
         window.resetDashboardData = async () => {
             if (window.userRole !== 'admin') return;
@@ -1919,7 +2019,6 @@
         window.openModal = (id) => {
             const modal = document.getElementById(id);
             modal.classList.remove('hidden');
-            // Animate In
             setTimeout(() => {
                 modal.classList.remove('opacity-0');
                 modal.children[0].classList.add('scale-100');
@@ -1966,10 +2065,7 @@
             t.innerHTML = `${icon} <span>${msg}</span>`;
             container.appendChild(t);
             
-            // Animate In
             setTimeout(() => { t.classList.remove('translate-y-10', 'opacity-0'); }, 10);
-            
-            // Animate Out
             setTimeout(() => {
                 t.classList.add('translate-y-10', 'opacity-0');
                 setTimeout(() => t.remove(), 500);
