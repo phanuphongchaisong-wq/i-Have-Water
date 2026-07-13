@@ -95,7 +95,7 @@
                 </button>
                 <div class="mt-4 flex items-center justify-center gap-1.5 text-[10px] text-slate-500 font-medium">
                     <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span>Cloud Sync Active • v8.5 No-Auth</span>
+                    <span>Cloud Sync Active • v9.1 Smart-Yield</span>
                 </div>
             </div>
         </aside>
@@ -192,20 +192,33 @@
                                 </div>
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block font-bold text-slate-600 mb-1.5">จำนวน (แก้ว)</label>
-                                        <input type="number" id="prod-qty" oninput="window.updateProductionCostPreview()" value="20" min="1" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl text-center font-bold text-slate-800 focus:border-orange-500 focus:ring-2 focus:ring-orange-500/20 outline-none transition-colors">
+                                        <label class="block font-bold text-slate-600 mb-1.5" title="จำนวนเป้าหมายตามสูตรเต็มที่ตั้งไว้">สูตรผลิตได้ (เป้าหมาย)</label>
+                                        <div class="relative">
+                                            <input type="number" id="prod-recipe-yield" disabled class="w-full p-3 bg-slate-100 border border-slate-200 rounded-xl text-center font-bold text-slate-400 cursor-not-allowed">
+                                            <span class="absolute right-3 top-3 text-xs text-slate-400">แก้ว</span>
+                                        </div>
                                     </div>
                                     <div>
-                                        <label class="block font-bold text-rose-600 mb-1.5">ของเสีย (แก้ว)</label>
-                                        <input type="number" id="prod-waste" oninput="window.updateProductionCostPreview()" value="0" min="0" class="w-full p-3 bg-rose-50 border border-rose-200 rounded-xl text-center font-bold text-rose-600 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-colors">
+                                        <label class="block font-bold text-emerald-600 mb-1.5" title="จำนวนที่คุณแบ่งใส่แก้วได้จริงๆ ในรอบนี้">ตักใส่แก้วจริงได้</label>
+                                        <div class="relative">
+                                            <input type="number" id="prod-actual-qty" oninput="window.updateProductionCostPreview()" value="" min="1" placeholder="เช่น 15" class="w-full p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-center font-bold text-emerald-600 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-colors" required>
+                                            <span class="absolute right-3 top-3 text-xs text-emerald-600">แก้ว</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="block font-bold text-rose-600 mb-1.5">ของเสียระหว่างตัก/ทำ</label>
+                                    <div class="relative">
+                                        <input type="number" id="prod-waste" oninput="window.updateProductionCostPreview()" value="0" min="0" class="w-full p-3 bg-rose-50 border border-rose-200 rounded-xl text-center font-bold text-rose-600 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-colors" required>
+                                        <span class="absolute right-3 top-3 text-xs text-rose-600">แก้ว</span>
                                     </div>
                                 </div>
                                 
                                 <div class="bg-slate-900 rounded-xl p-4 text-xs font-medium space-y-2 shadow-inner my-2">
-                                    <div class="flex justify-between text-slate-300"><span>ทุนวัตถุดิบรวาม:</span><span id="prod-preview-cost" class="text-white font-mono">฿0.00</span></div>
-                                    <div class="flex justify-between text-rose-400"><span>มูลค่าของเสีย:</span><span id="prod-preview-waste" class="font-mono">฿0.00</span></div>
+                                    <div class="flex justify-between text-slate-300"><span>ทุนวัตถุดิบ (ตามสัดส่วนที่ตัก):</span><span id="prod-preview-cost" class="text-white font-mono">฿0.00</span></div>
+                                    <div class="flex justify-between text-rose-400"><span>มูลค่าของเสีย (โดยประมาณ):</span><span id="prod-preview-waste" class="font-mono">฿0.00</span></div>
                                     <div class="pt-2 mt-2 border-t border-slate-700 flex justify-between items-center">
-                                        <span class="text-slate-300">ทุนเฉลี่ยต่อแก้ว:</span>
+                                        <span class="text-slate-300">ทุนเฉลี่ยต่อแก้ว (ที่ตักได้):</span>
                                         <span id="prod-preview-per-cup" class="text-emerald-400 font-bold text-sm font-mono">฿0.00</span>
                                     </div>
                                 </div>
@@ -264,8 +277,8 @@
                                             <tr>
                                                 <th class="p-3 rounded-l-lg">วัน-เวลา</th>
                                                 <th class="p-3">เมนู</th>
-                                                <th class="p-3 text-center">ดี/เสีย</th>
-                                                <th class="p-3 text-right">ทุนรวม</th>
+                                                <th class="p-3 text-center">ตักได้จริง</th>
+                                                <th class="p-3 text-right">ทุนรวมที่ใช้</th>
                                                 <th class="p-3 text-center rounded-r-lg">จัดการ</th>
                                             </tr>
                                         </thead>
@@ -681,10 +694,8 @@
         let cart = [];
         let salesChartInstance = null;
         
-        // 🎯 บังคับให้เป็น Admin เสมอแบบไม่ต้องล็อกอิน
         window.userRole = 'admin'; 
 
-        // --- Core UI Utils ---
         window.validateInput = (val, name, allowZero = false) => {
             const num = parseFloat(val);
             if (isNaN(num) || (!allowZero && num <= 0) || (allowZero && num < 0)) throw new Error(`ข้อมูล ${name} ไม่ถูกต้อง`);
@@ -705,7 +716,6 @@
             }
         };
 
-        // --- GLOBAL MODAL CONTROLLERS ---
         window.openModal = (id) => {
             const modal = document.getElementById(id);
             modal.classList.remove('hidden');
@@ -785,7 +795,6 @@
             }
         };
 
-        // 🎯 สลับสิทธิ์จำลองทันทีโดยไม่ต้องล็อกเอาท์
         window.toggleRole = () => {
             window.userRole = window.userRole === 'admin' ? 'staff' : 'admin';
             applyRoleRestrictions();
@@ -825,7 +834,6 @@
             }
         }
 
-        // 🎯 เริ่มทำงานทันทีเมื่อหน้าเว็บโหลดเสร็จ (No Auth Needed)
         document.addEventListener("DOMContentLoaded", () => {
             const ls = document.getElementById('loading-screen');
             ls.classList.remove('hidden');
@@ -839,14 +847,12 @@
             initGlobalCloudSync();
         });
 
-        // --- CLOUD SYNC ENGINE ---
         function initGlobalCloudSync() {
             try {
                 onSnapshot(collection(db, "inventory"), (snapshot) => {
                     inventory = [];
                     snapshot.forEach(doc => inventory.push(doc.data()));
                     window.renderInventory();
-                    buildRealtimeNotificationBar();
                 });
                 
                 onSnapshot(collection(db, "purchases"), (snapshot) => {
@@ -887,12 +893,10 @@
                 onSnapshot(collection(db, "users"), (snapshot) => {
                     usersList = [];
                     snapshot.forEach(doc => usersList.push({ uid: doc.id, ...doc.data() }));
-                    // Not rendering users since auth is bypassed, but keeping state
                 });
             } catch (err) { console.error("Cloud Sync Error"); }
         }
 
-        // --- INVENTORY MANAGEMENT ---
         window.renderInventory = () => {
             const tbody = document.getElementById('inventory-table-body');
             const selectOptions = document.getElementById('purch-item-id');
@@ -909,7 +913,6 @@
                     ? `<span class="px-2.5 py-1 text-[10px] rounded-md font-bold bg-indigo-50 text-indigo-600 border border-indigo-100">📌 อุปกรณ์</span>`
                     : `<span class="px-2.5 py-1 text-[10px] rounded-md font-bold bg-teal-50 text-teal-600 border border-teal-100">♻️ วัตถุดิบ</span>`;
                 
-                // 🎯 เพิ่มปุ่มปรับยอดสต๊อก (ไอคอนตาชั่ง)
                 tbody.innerHTML += `
                     <tr class="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/50 transition-colors">
                         <td class="p-4 font-bold text-slate-700">${item.name}</td>
@@ -950,7 +953,6 @@
             });
         };
 
-        // 🎯 ฟังก์ชันสำหรับ Modal ปรับสต๊อก (Adjust Stock)
         window.openAdjustStockModal = (id) => {
             const item = inventory.find(i => i.id.toString() === id.toString());
             if (!item) return;
@@ -1037,10 +1039,8 @@
                     
                     const costPerUnitThisLot = addedStock > 0 ? (addedPrice / addedStock) : 0;
 
-                    // 1. อัปเดตคลัง
                     transaction.update(itemRef, { price: totalNewPrice, stock: totalNewStock, avgCost: finalAvg });
                     
-                    // 2. เก็บประวัติลง Log
                     transaction.set(doc(db, "purchases", Date.now().toString()), {
                         id: Date.now(),
                         timestamp: new Date().toLocaleString('th-TH'),
@@ -1086,23 +1086,34 @@
                 const item = inventory.find(i => parseInt(i.id) === targetId);
                 if (item) totalTotalIngredientsCost += Number(item.avgCost || 0) * Number(r.quantity);
             });
-            return menu.mode === 'batch' ? (totalTotalIngredientsCost / Number(menu.batchSize || 1)) : totalTotalIngredientsCost;
+            return totalTotalIngredientsCost; 
         }
 
         window.updateProductionCostPreview = () => {
             const menuId = document.getElementById('prod-menu-id').value;
-            const qty = parseInt(document.getElementById('prod-qty').value) || 0;
-            const waste = parseInt(document.getElementById('prod-waste').value) || 0;
             const menu = menus.find(m => m.id == menuId);
-            if (!menu) return;
+            if (!menu) {
+                document.getElementById('prod-recipe-yield').value = '';
+                return;
+            }
 
-            const baseCostPerCup = calculateSingleRecipeCostByAvg(menu);
-            const totalRaw = baseCostPerCup * qty;
-            const usable = qty - waste;
-            const perCup = usable > 0 ? (totalRaw / usable) : 0;
+            const batchSize = Number(menu.batchSize) || 1;
+            document.getElementById('prod-recipe-yield').value = batchSize;
 
-            document.getElementById('prod-preview-cost').innerText = `฿${totalRaw.toFixed(2)}`;
-            document.getElementById('prod-preview-waste').innerText = `฿${(baseCostPerCup * waste).toFixed(2)}`;
+            const actualQty = parseInt(document.getElementById('prod-actual-qty').value) || 0;
+            const waste = parseInt(document.getElementById('prod-waste').value) || 0;
+
+            const fullRecipeCost = calculateSingleRecipeCostByAvg(menu);
+            const costPerCupTheoretical = fullRecipeCost / batchSize;
+            
+            const totalRawForThisRun = costPerCupTheoretical * actualQty;
+            const usable = actualQty - waste;
+            
+            const perCup = usable > 0 ? (totalRawForThisRun / usable) : 0;
+            const wasteValue = waste > 0 ? (costPerCupTheoretical * waste) : 0;
+
+            document.getElementById('prod-preview-cost').innerText = `฿${totalRawForThisRun.toFixed(2)}`;
+            document.getElementById('prod-preview-waste').innerText = `฿${wasteValue.toFixed(2)}`;
             document.getElementById('prod-preview-per-cup').innerText = `฿${perCup.toFixed(2)} / แก้ว`;
         };
 
@@ -1111,13 +1122,19 @@
             const fgTbody = document.getElementById('fg-table-body');
             const prodHistoryTbody = document.getElementById('prod-history-body');
             
-            if (select) select.innerHTML = '<option value="">-- เลือกเมนู --</option>';
+            if (select) {
+                const prevVal = select.value;
+                select.innerHTML = '<option value="">-- เลือกเมนู --</option>';
+                menus.forEach(m => {
+                    if (m.mode === 'batch') select.innerHTML += `<option value="${m.id}">${m.name}</option>`;
+                });
+                if(prevVal) select.value = prevVal;
+            }
             if (fgTbody) fgTbody.innerHTML = '';
             if (prodHistoryTbody) prodHistoryTbody.innerHTML = '';
 
             menus.forEach(m => {
                 if (m.mode === 'batch') {
-                    if (select) select.innerHTML += `<option value="${m.id}">${m.name}</option>`;
                     const lots = m.lots || [];
                     const totalFG = lots.reduce((s, l) => s + Number(l.qty || 0), 0);
                     const alertClass = totalFG <= (m.minAlert || 0) 
@@ -1175,16 +1192,20 @@
             if (!menuId) { showToast("กรุณาเลือกเมนู", "error"); setLoadingButton('btn-submit-production', false, originalText); return; }
             
             try {
-                const qty = validateInput(document.getElementById('prod-qty').value, "จำนวน");
-                const waste = validateInput(document.getElementById('prod-waste').value, "ของเสีย", true);
+                const actualQty = validateInput(document.getElementById('prod-actual-qty').value, "จำนวนแก้วที่ตักได้จริง");
+                const waste = parseInt(document.getElementById('prod-waste').value) || 0;
                 const expDate = document.getElementById('prod-exp-date').value;
-                if (waste >= qty) throw new Error("ของเสียต้องน้อยกว่ายอดรวมที่ผลิต");
+                if (waste >= actualQty) throw new Error("ของเสียต้องน้อยกว่าจำนวนที่ตักได้จริง");
 
                 const menu = menus.find(m => m.id == menuId);
-                const baseCostPerCup = calculateSingleRecipeCostByAvg(menu);
-                const totalCost = baseCostPerCup * qty;
-                const usable = qty - waste;
+                const batchSize = Number(menu.batchSize) || 1;
+                const fullRecipeCost = calculateSingleRecipeCostByAvg(menu);
+                const costPerCupTheoretical = fullRecipeCost / batchSize;
+                
+                const totalCost = costPerCupTheoretical * actualQty;
+                const usable = actualQty - waste;
                 const costPerCupActual = usable > 0 ? (totalCost / usable) : 0;
+                const wasteValue = waste > 0 ? (costPerCupTheoretical * waste) : 0;
                 const lotNo = "LOT-" + Date.now().toString().slice(-6);
 
                 await runTransaction(db, async (transaction) => {
@@ -1194,12 +1215,12 @@
                     for (let r of menu.recipe) invSnaps.push(await transaction.get(doc(db, "inventory", r.itemId.toString())));
                     
                     for (let idx = 0; idx < menu.recipe.length; idx++) {
-                        const needed = menu.mode === 'batch' ? menu.recipe[idx].quantity : (menu.recipe[idx].quantity * qty);
+                        const needed = (menu.recipe[idx].quantity / batchSize) * actualQty;
                         if (Number(invSnaps[idx].data().stock || 0) < needed) throw new Error(`วัตถุดิบ [${invSnaps[idx].data().name}] ไม่พอ`);
                     }
 
                     for (let idx = 0; idx < menu.recipe.length; idx++) {
-                        const needed = menu.mode === 'batch' ? menu.recipe[idx].quantity : (menu.recipe[idx].quantity * qty);
+                        const needed = (menu.recipe[idx].quantity / batchSize) * actualQty;
                         transaction.update(doc(db, "inventory", menu.recipe[idx].itemId.toString()), { stock: Number(invSnaps[idx].data().stock || 0) - needed });
                     }
 
@@ -1208,16 +1229,24 @@
                     transaction.update(menuRef, { lots: currentLots });
                     
                     transaction.set(doc(db, "production", Date.now().toString()), {
-                        id: Date.now(), timestamp: new Date().toLocaleString('th-TH'), menuName: menu.name, qtyProduced: usable, wasteQty: waste, totalCost, costPerUnit: costPerCupActual, expDate, wasteValue: waste * baseCostPerCup
+                        id: Date.now(), 
+                        timestamp: new Date().toLocaleString('th-TH'), 
+                        menuName: menu.name, 
+                        qtyProduced: usable, 
+                        wasteQty: waste, 
+                        totalCost: totalCost, 
+                        costPerUnit: costPerCupActual, 
+                        expDate, 
+                        wasteValue: wasteValue
                     });
                 });
                 showToast("บันทึกสินค้าเข้าตู้แช่สำเร็จ", "success");
                 document.getElementById('production-form').reset();
+                window.updateProductionCostPreview();
             } catch (err) { showToast(err.message, "error"); } 
             finally { setLoadingButton('btn-submit-production', false, originalText); }
         });
 
-        // 🎯 แก้ไขฟังก์ชันลบการผลิตและคืนสต๊อก (Fix Data Sync Issue & Name Change Handle)
         window.deleteProductionLog = async (prodId) => {
             if (window.userRole !== 'admin') { showToast("🔒 สิทธิ์เฉพาะ Admin", "error"); return; }
             if (!confirm("⚠️ ยืนยันการลบประวัติและคืนสต๊อก?")) return;
@@ -1236,7 +1265,7 @@
                     const realMenuName = isDisposal ? prodData.menuName.replace('🔥 [ทิ้งตู้แช่] ', '') : prodData.menuName;
                     
                     const menu = menus.find(m => m.name === realMenuName);
-                    if (!menu) throw new Error(`ไม่พบเมนู [${realMenuName}] ในระบบ อาจถูกลบไปแล้ว ไม่สามารถคำนวณและคืนสต๊อกได้ ระบบจะยกเลิกการทำงานเพื่อป้องกันข้อผิดพลาดทางบัญชี`);
+                    if (!menu) throw new Error(`ไม่พบเมนู [${realMenuName}] ในระบบ อาจถูกลบไปแล้ว ไม่สามารถคืนสต๊อกได้ ระบบจะยกเลิกการทำงานเพื่อป้องกันข้อผิดพลาดทางบัญชี`);
                     
                     let menuRef = null, mSnap = null;
                     const invSnaps = {};
@@ -1271,9 +1300,10 @@
                             const totalQtyUsed = Number(prodData.qtyProduced || 0) + Number(prodData.wasteQty || 0);
                             
                             if (menu.recipe && menu.recipe.length > 0) {
+                                const batchSize = Number(menu.batchSize) || 1;
                                 for (let r of menu.recipe) {
                                     if (invSnaps[r.itemId] && invSnaps[r.itemId].snap.exists()) {
-                                        const neededToRefund = menu.mode === 'batch' ? Number(r.quantity) : (Number(r.quantity) * totalQtyUsed);
+                                        const neededToRefund = (Number(r.quantity) / batchSize) * totalQtyUsed;
                                         const currentStock = Number(invSnaps[r.itemId].snap.data().stock || 0);
                                         transaction.update(invSnaps[r.itemId].ref, { stock: currentStock + neededToRefund });
                                     }
@@ -1347,6 +1377,18 @@
                 
                 const cardClass = isOutOfStock ? 'opacity-60 grayscale filter' : 'hover:border-emerald-400 card-hover cursor-pointer';
 
+                let displayCost = 0;
+                if (isBatch) {
+                    if (lots.length > 0) {
+                        displayCost = lots[0].costPerCup;
+                    } else {
+                        const totalRaw = calculateSingleRecipeCostByAvg(menu);
+                        displayCost = totalRaw / (Number(menu.batchSize) || 1);
+                    }
+                } else {
+                    displayCost = calculateSingleRecipeCostByAvg(menu);
+                }
+
                 grid.innerHTML += `
                     <div onclick="${isOutOfStock ? '' : `window.addToCart(${menu.id})`}" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between relative overflow-hidden ${cardClass} min-h-[140px]">
                         <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-emerald-50 to-transparent rounded-bl-full -z-10"></div>
@@ -1355,7 +1397,7 @@
                         </div>
                         <h4 class="font-bold text-sm text-slate-800 leading-tight mb-2 line-clamp-2">${menu.name}</h4>
                         <div class="mt-auto pt-2 border-t border-slate-100 flex justify-between items-end">
-                            <span class="text-[9px] text-slate-400 font-medium">ทุน ฿${calculateSingleRecipeCostByAvg(menu).toFixed(1)}</span>
+                            <span class="text-[9px] text-slate-400 font-medium">ทุน ฿${displayCost.toFixed(1)}</span>
                             <span class="font-black text-lg text-emerald-500 leading-none">฿${menu.price}</span>
                         </div>
                     </div>`;
@@ -1681,16 +1723,19 @@
 
                     for (let mId in menuSnaps) {
                         const mObj = menuSnaps[mId], m = mObj.menuData, rQty = mObj.returnQty;
-                        const mCost = calculateSingleRecipeCostByAvg(m);
-                        tQty += rQty; tRev += (m.price * rQty); tCogs += (mCost * rQty);
-
+                        
+                        let mCost = 0;
                         if (m.mode === 'batch') {
+                            const totalRaw = calculateSingleRecipeCostByAvg(m);
+                            mCost = totalRaw / (Number(m.batchSize) || 1); 
+                            
                             if (mObj.snap.exists()) {
                                 let lots = mObj.snap.data().lots || [];
                                 lots.push({ lotNo: "REFUND-" + Date.now().toString().slice(-4), productionDate: new Date().toLocaleDateString('th-TH'), expDate: "รับคืน", qty: rQty, costPerCup: mCost });
                                 transaction.update(mObj.ref, { lots: lots });
                             }
                         } else {
+                            mCost = calculateSingleRecipeCostByAvg(m);
                             if (m.recipe) {
                                 for (let r of m.recipe) {
                                     if (invSnaps[r.itemId] && invSnaps[r.itemId].snap.exists()) {
@@ -1702,6 +1747,8 @@
                                 }
                             }
                         }
+                        
+                        tQty += rQty; tRev += (m.price * rQty); tCogs += (mCost * rQty);
                     }
 
                     if (newItemsParts.length === 0) transaction.delete(saleRef);
@@ -1734,7 +1781,9 @@
             grid.innerHTML = '';
             
             menus.sort((a,b) => a.id - b.id).forEach(m => {
-                const cost = calculateSingleRecipeCostByAvg(m);
+                let cost = calculateSingleRecipeCostByAvg(m);
+                if(m.mode === 'batch') cost = cost / (Number(m.batchSize) || 1);
+
                 const badge = m.mode === 'batch' 
                     ? `<span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider">📦 Batch</span>` 
                     : `<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider">🌱 MTO</span>`;
