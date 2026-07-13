@@ -31,6 +31,9 @@
         <p class="font-medium text-lg tracking-wide animate-pulse" id="loading-text">กำลังโหลดข้อมูล...</p>
     </div>
 
+    <!-- =================================================== -->
+    <!-- AUTHENTICATION LAYER -->
+    <!-- =================================================== -->
     <div id="auth-container" class="fixed inset-0 bg-[url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center z-40 flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
         <div class="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl p-8 md:p-10 w-full max-w-md relative border border-white/20">
@@ -93,10 +96,14 @@
         </div>
     </div>
 
+    <!-- =================================================== -->
+    <!-- MAIN WORKSPACE LAYER -->
+    <!-- =================================================== -->
     <div id="app-workspace" class="flex h-screen w-full overflow-hidden opacity-0 invisible transition-opacity duration-500 relative">
         
         <div id="mobile-menu-backdrop" onclick="window.toggleMobileMenu()" class="fixed inset-0 bg-slate-900/40 z-40 hidden backdrop-blur-sm transition-opacity opacity-0 duration-300 lg:hidden"></div>
 
+        <!-- Sidebar -->
         <aside id="sidebar" class="w-64 sidebar-glass text-slate-300 flex flex-col justify-between shrink-0 fixed inset-y-0 left-0 z-50 transform -translate-x-full lg:relative lg:translate-x-0 transition-transform duration-300 ease-out shadow-2xl lg:shadow-none">
             <div class="p-6 overflow-y-auto flex-1 custom-scrollbar">
                 <div class="flex items-center justify-between mb-8">
@@ -157,7 +164,7 @@
                 </button>
                 <div class="mt-4 flex items-center justify-center gap-1.5 text-[10px] text-slate-500 font-medium">
                     <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span>Cloud Sync Active • v7.6 Stock Adjust</span>
+                    <span>Cloud Sync Active • v8.0 Enterprise</span>
                 </div>
             </div>
         </aside>
@@ -178,8 +185,10 @@
 
             <div class="flex-1 overflow-y-auto custom-scrollbar p-4 lg:p-8 scroll-smooth pb-24 lg:pb-8">
                 
+                <!-- ================= TAB: POS ================= -->
                 <section id="tab-pos" class="tab-content flex flex-col lg:grid lg:grid-cols-12 gap-6 h-full">
                     
+                    <!-- Left: Menu Selection -->
                     <div class="lg:col-span-8 flex flex-col space-y-5 h-[50vh] lg:h-full">
                         <div class="relative group shrink-0">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors"><i class="fas fa-search"></i></span>
@@ -188,10 +197,12 @@
                         
                         <div class="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-2">
                             <div id="pos-menu-grid" class="pos-grid-container">
-                                </div>
+                                <!-- Cards injected via JS -->
+                            </div>
                         </div>
                     </div>
                     
+                    <!-- Right: Cart & Checkout -->
                     <div class="lg:col-span-4 flex flex-col bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 shrink-0 h-[60vh] lg:h-full relative overflow-hidden">
                         
                         <div class="p-5 border-b border-slate-100 bg-slate-50/50 shrink-0">
@@ -235,6 +246,7 @@
                     </div>
                 </section>
 
+                <!-- ================= TAB: PRODUCTION ================= -->
                 <section id="tab-production" class="tab-content hidden space-y-6">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         
@@ -339,8 +351,10 @@
                     </div>
                 </section>
 
+                <!-- ================= TAB: INVENTORY ================= -->
                 <section id="tab-inventory" class="tab-content hidden space-y-6">
                     <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
+                        
                         <div class="xl:col-span-4 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-5 flex flex-col">
                             <div class="flex items-center gap-3 border-b border-slate-100 pb-4">
                                 <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shadow-inner"><i class="fas fa-shopping-cart text-lg"></i></div>
@@ -407,6 +421,7 @@
                                 </div>
                             </div>
                             
+                            <!-- Logs ของคลัง -->
                             <div class="pt-6 border-t border-slate-100">
                                 <div class="flex items-center gap-3 mb-4">
                                     <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center"><i class="fas fa-list-alt"></i></div>
@@ -432,6 +447,7 @@
                     </div>
                 </section>
 
+                <!-- ================= TAB: MENUS ================= -->
                 <section id="tab-menus" class="tab-content hidden h-full flex flex-col">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-3xl border border-slate-100 shadow-sm shrink-0 mb-6">
                         <div class="flex items-center gap-3">
@@ -448,10 +464,11 @@
                     
                     <div class="flex-1 overflow-y-auto custom-scrollbar pr-1 pb-4">
                         <div id="menus-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-                            </div>
+                        </div>
                     </div>
                 </section>
 
+                <!-- ================= TAB: DASHBOARD ================= -->
                 <section id="tab-dashboard" class="tab-content hidden space-y-6">
                     
                     <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -536,13 +553,13 @@
                         </div>
                         <div class="overflow-x-auto custom-scrollbar">
                             <table class="w-full text-left text-sm whitespace-nowrap">
-                                <thead class="bg-slate-50 text-slate-500 font-bold">
+                                <thead class="bg-slate-50 border-b text-slate-500">
                                     <tr>
-                                        <th class="p-3 rounded-l-lg">วัน-เวลา</th>
-                                        <th class="p-3">รายการ</th>
-                                        <th class="p-3 text-center">รวมแก้ว</th>
-                                        <th class="p-3 text-right">ยอดรับ</th>
-                                        <th class="p-3 text-right">กำไร</th>
+                                        <th class="p-3 rounded-l-lg">วัน-เวลาขาย</th>
+                                        <th class="p-3">รายการเครื่องดื่ม</th>
+                                        <th class="p-3 text-center">แก้ว</th>
+                                        <th class="p-3 text-right">ยอดขาย</th>
+                                        <th class="p-3 text-right">กำไรบิล</th>
                                         <th class="p-3 text-center rounded-r-lg">จัดการ</th>
                                     </tr>
                                 </thead>
@@ -552,6 +569,7 @@
                     </div>
                 </section>
 
+                <!-- ================= TAB: USERS ================= -->
                 <section id="tab-users" class="tab-content hidden space-y-6">
                     <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col h-[80vh]">
                         <div class="flex items-center gap-3 border-b border-slate-100 pb-4 mb-4 shrink-0">
@@ -583,6 +601,11 @@
         </main>
     </div>
 
+    <!-- =================================================== -->
+    <!-- MODALS -->
+    <!-- =================================================== -->
+    
+    <!-- Modal: Add Item -->
     <div id="modal-item" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50 transition-opacity">
         <div class="bg-white rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh] transform transition-transform scale-100">
             <h3 class="text-lg font-black text-slate-800 mb-6 flex items-center border-b pb-4"><i class="fas fa-cube text-emerald-500 mr-2"></i> สร้างรายการคลังใหม่</h3>
@@ -623,6 +646,7 @@
         </div>
     </div>
 
+    <!-- Modal: Adjust Stock -->
     <div id="modal-adjust-stock" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50 transition-opacity">
         <div class="bg-white rounded-3xl p-6 md:p-8 w-full max-w-sm shadow-2xl transform transition-transform scale-100">
             <h3 class="text-lg font-black text-slate-800 mb-2 flex items-center"><i class="fas fa-balance-scale text-orange-500 mr-2"></i> ปรับยอดสต๊อกจริง</h3>
@@ -644,6 +668,7 @@
         </div>
     </div>
 
+    <!-- Modal: Menu -->
     <div id="modal-menu" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50 transition-opacity">
         <div class="bg-white rounded-3xl p-6 md:p-8 w-full max-w-lg shadow-2xl overflow-y-auto max-h-[90vh] custom-scrollbar">
             <h3 class="text-lg font-black text-slate-800 mb-6 flex items-center border-b pb-4"><i class="fas fa-cocktail text-pink-500 mr-2"></i> ตั้งค่าโครงสร้างสูตรเมนู</h3>
@@ -701,6 +726,7 @@
         </div>
     </div>
 
+    <!-- Modal: Edit User -->
     <div id="modal-user" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50 transition-opacity">
         <div class="bg-white rounded-3xl p-6 md:p-8 w-full max-w-sm shadow-2xl transform transition-transform scale-100">
             <h3 class="text-lg font-black text-slate-800 mb-6 flex items-center border-b pb-4"><i class="fas fa-user-edit text-blue-500 mr-2"></i> แก้ไขสิทธิ์ผู้ใช้งาน</h3>
@@ -729,6 +755,7 @@
         </div>
     </div>
 
+    <!-- Modal: Refund -->
     <div id="modal-refund" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50 transition-opacity">
         <div class="bg-white rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh]">
             <h3 class="text-lg font-black text-rose-600 mb-2 flex items-center"><i class="fas fa-history mr-2"></i> ยกเลิกออเดอร์</h3>
@@ -736,7 +763,8 @@
             <form id="refund-form" class="space-y-4 text-sm">
                 <input type="hidden" id="refund-sale-id">
                 <div id="refund-items-container" class="space-y-3 custom-scrollbar pr-2 max-h-60 overflow-y-auto p-1">
-                    </div>
+                    <!-- Dynamic Items -->
+                </div>
                 <div class="flex justify-end gap-3 pt-6 border-t mt-2">
                     <button type="button" onclick="window.closeModal('modal-refund')" class="px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold transition-colors active:scale-95">ปิด</button>
                     <button type="submit" id="btn-submit-refund" class="px-6 py-3 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-bold shadow-lg shadow-rose-500/30 transition-all active:scale-95">ยืนยันคืนเงิน</button>
@@ -745,6 +773,7 @@
         </div>
     </div>
 
+    <!-- Firebase Script Engine Core Framework -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot, runTransaction, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -919,11 +948,10 @@
             const originalBtnHTML = submitBtn.innerHTML;
             submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin text-lg"></i> <span class="ml-2">กำลังตรวจสอบ...</span>`;
             
-            setTimeout(() => {
-                const ls = document.getElementById('loading-screen');
-                ls.classList.remove('hidden');
-                setTimeout(() => ls.classList.remove('opacity-0'), 10);
-            }, 300);
+            const ls = document.getElementById('loading-screen');
+            document.getElementById('loading-text').innerText = "กำลังตรวจสอบสิทธิ์...";
+            ls.classList.remove('hidden');
+            ls.classList.remove('opacity-0');
 
             const dummyEmail = `${phone}@ihavewater.system`;
 
@@ -944,12 +972,11 @@
                 }
             } catch (err) {
                 let msg = "เกิดข้อผิดพลาดในการเชื่อมต่อ";
-                if (err.code === "auth/wrong-password") msg = "รหัสผ่านไม่ถูกต้อง กรุณาลองใหม่";
+                if (err.code === "auth/wrong-password" || err.code === "auth/invalid-credential" || err.code === "auth/invalid-login-credentials") msg = "เบอร์โทรศัพท์หรือรหัสผ่านไม่ถูกต้อง";
                 if (err.code === "auth/user-not-found") msg = "ไม่พบเบอร์โทรศัพท์นี้ในระบบ";
                 if (err.code === "auth/email-already-in-use") msg = "เบอร์นี้เปิดใช้งานไปแล้ว กรุณาเข้าสู่ระบบ";
                 showToast(msg, "error");
                 
-                const ls = document.getElementById('loading-screen');
                 ls.classList.add('opacity-0');
                 setTimeout(() => ls.classList.add('hidden'), 300);
             } finally {
@@ -1096,7 +1123,6 @@
                     ? `<span class="px-2.5 py-1 text-[10px] rounded-md font-bold bg-indigo-50 text-indigo-600 border border-indigo-100">📌 อุปกรณ์</span>`
                     : `<span class="px-2.5 py-1 text-[10px] rounded-md font-bold bg-teal-50 text-teal-600 border border-teal-100">♻️ วัตถุดิบ</span>`;
                 
-                // 🎯 เพิ่มปุ่มปรับยอดสต๊อก (ไอคอนตาชั่ง)
                 tbody.innerHTML += `
                     <tr class="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/50 transition-colors">
                         <td class="p-4 font-bold text-slate-700">${item.name}</td>
@@ -1137,7 +1163,6 @@
             });
         };
 
-        // 🎯 ฟังก์ชันสำหรับ Modal ปรับสต๊อก (Adjust Stock)
         window.openAdjustStockModal = (id) => {
             const item = inventory.find(i => i.id.toString() === id.toString());
             if (!item) return;
@@ -1415,12 +1440,14 @@
                 await runTransaction(db, async (transaction) => {
                     const prodRef = doc(db, "production", prodId.toString());
                     const prodSnap = await transaction.get(prodRef);
-                    if (!prodSnap.exists()) throw new Error("ไม่พบประวัติ");
+                    if (!prodSnap.exists()) throw new Error("ไม่พบประวัติการผลิตนี้ในฐานข้อมูลแล้ว");
 
                     const prodData = prodSnap.data();
                     const isDisposal = prodData.menuName.startsWith('🔥');
                     const realMenuName = isDisposal ? prodData.menuName.replace('🔥 [ทิ้งตู้แช่] ', '') : prodData.menuName;
+                    
                     const menu = menus.find(m => m.name === realMenuName);
+                    if (!menu) throw new Error(`ไม่พบเมนู [${realMenuName}] ในระบบ อาจถูกลบไปแล้ว ไม่สามารถคืนสต๊อกได้`);
                     
                     let menuRef = null, mSnap = null;
                     const invSnaps = {};
@@ -1428,10 +1455,14 @@
                     if (menu) {
                         menuRef = doc(db, "menus", menu.id.toString());
                         mSnap = await transaction.get(menuRef);
-                        if (!isDisposal && menu.recipe) {
+                        
+                        if (!isDisposal && menu.recipe && menu.recipe.length > 0) {
                             for (let r of menu.recipe) {
                                 const invRef = doc(db, "inventory", r.itemId.toString());
-                                invSnaps[r.itemId] = { ref: invRef, snap: await transaction.get(invRef) };
+                                invSnaps[r.itemId] = {
+                                    ref: invRef,
+                                    snap: await transaction.get(invRef)
+                                };
                             }
                         }
                     }
@@ -1439,35 +1470,55 @@
                     if (menu && mSnap && mSnap.exists()) {
                         if (isDisposal) {
                             let lots = mSnap.data().lots || [];
-                            lots.push({ lotNo: "RESTORE-" + Date.now().toString().slice(-4), productionDate: new Date().toLocaleDateString('th-TH'), expDate: prodData.expDate || '-', qty: Number(prodData.wasteQty), costPerCup: Number(prodData.wasteQty) > 0 ? (Number(prodData.wasteValue) / Number(prodData.wasteQty)) : 0 });
+                            lots.push({ 
+                                lotNo: "RESTORE-" + Date.now().toString().slice(-4), 
+                                productionDate: new Date().toLocaleDateString('th-TH'), 
+                                expDate: prodData.expDate || '-', 
+                                qty: Number(prodData.wasteQty), 
+                                costPerCup: Number(prodData.wasteQty) > 0 ? (Number(prodData.wasteValue) / Number(prodData.wasteQty)) : 0 
+                            });
                             transaction.update(menuRef, { lots: lots });
                         } else {
                             const totalQtyUsed = Number(prodData.qtyProduced || 0) + Number(prodData.wasteQty || 0);
-                            if (menu.recipe) {
+                            
+                            if (menu.recipe && menu.recipe.length > 0) {
                                 for (let r of menu.recipe) {
                                     if (invSnaps[r.itemId] && invSnaps[r.itemId].snap.exists()) {
                                         const neededToRefund = menu.mode === 'batch' ? Number(r.quantity) : (Number(r.quantity) * totalQtyUsed);
-                                        transaction.update(invSnaps[r.itemId].ref, { stock: Number(invSnaps[r.itemId].snap.data().stock || 0) + neededToRefund });
+                                        const currentStock = Number(invSnaps[r.itemId].snap.data().stock || 0);
+                                        transaction.update(invSnaps[r.itemId].ref, { stock: currentStock + neededToRefund });
                                     }
                                 }
                             }
+
                             if (menu.mode === 'batch') {
                                 let lots = mSnap.data().lots || [];
                                 let remainingToRemove = Number(prodData.qtyProduced || 0);
                                 for (let i = lots.length - 1; i >= 0; i--) {
                                     if (remainingToRemove <= 0) break;
-                                    if (lots[i].qty >= remainingToRemove) { lots[i].qty -= remainingToRemove; remainingToRemove = 0; } 
-                                    else { remainingToRemove -= lots[i].qty; lots[i].qty = 0; }
+                                    if (lots[i].qty >= remainingToRemove) { 
+                                        lots[i].qty -= remainingToRemove; 
+                                        remainingToRemove = 0; 
+                                    } else { 
+                                        remainingToRemove -= lots[i].qty; 
+                                        lots[i].qty = 0; 
+                                    }
                                 }
                                 transaction.update(menuRef, { lots: lots.filter(l => l.qty > 0) });
                             }
                         }
                     }
+                    
                     transaction.delete(prodRef);
+
                 });
                 showToast("จัดการประวัติและสต๊อกเรียบร้อย", "success");
-            } catch (err) { showToast(err.message, "error"); } 
-            finally { document.getElementById('loading-screen').classList.add('hidden'); }
+            } catch (err) { 
+                console.error(err);
+                showToast(err.message, "error"); 
+            } finally { 
+                document.getElementById('loading-screen').classList.add('hidden'); 
+            }
         };
 
         window.disposeFGLot = async (menuId, lotNo) => {
@@ -1811,11 +1862,16 @@
                     const menuSnaps = {}, invSnaps = {};
                     for (let item of itemsToRefund) {
                         const menu = menus.find(m => m.name === item.name);
-                        if (menu) {
-                            const menuRef = doc(db, "menus", menu.id.toString());
-                            menuSnaps[menu.id] = { ref: menuRef, snap: await transaction.get(menuRef), returnQty: item.returnQty, menuData: menu };
-                            if (menu.mode === 'order' && menu.recipe) {
-                                for (let r of menu.recipe) if (!invSnaps[r.itemId]) invSnaps[r.itemId] = { ref: doc(db, "inventory", r.itemId.toString()), snap: await transaction.get(doc(db, "inventory", r.itemId.toString())) };
+                        if (!menu) throw new Error(`ไม่พบเมนู [${item.name}] ในระบบ (อาจถูกลบหรือเปลี่ยนชื่อ) ไม่สามารถคำนวณยอดคืนได้`);
+                        
+                        const menuRef = doc(db, "menus", menu.id.toString());
+                        menuSnaps[menu.id] = { ref: menuRef, snap: await transaction.get(menuRef), returnQty: item.returnQty, menuData: menu };
+                        
+                        if (menu.mode === 'order' && menu.recipe) {
+                            for (let r of menu.recipe) {
+                                if (!invSnaps[r.itemId]) {
+                                    invSnaps[r.itemId] = { ref: doc(db, "inventory", r.itemId.toString()), snap: await transaction.get(doc(db, "inventory", r.itemId.toString())) };
+                                }
                             }
                         }
                     }
@@ -2061,62 +2117,6 @@
             finally { setLoadingButton('btn-save-user', false, originalText); }
         });
 
-        // --- GLOBAL UTILS ---
-        window.openModal = (id) => {
-            const modal = document.getElementById(id);
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                modal.children[0].classList.add('scale-100');
-                modal.children[0].classList.remove('scale-95');
-            }, 10);
-        };
-        
-        window.closeModal = (id) => {
-            const modal = document.getElementById(id);
-            modal.classList.add('opacity-0');
-            modal.children[0].classList.remove('scale-100');
-            modal.children[0].classList.add('scale-95');
-            setTimeout(() => modal.classList.add('hidden'), 300);
-        };
-
-        window.toggleModalYieldField = () => {
-            const type = document.getElementById('item-type').value;
-            document.getElementById('modal-yield-container').className = type === 'variable' ? 'grid grid-cols-2 gap-4 bg-emerald-50 p-4 rounded-2xl border border-emerald-100 transition-all' : 'hidden';
-        };
-
-        window.openMenuModal = () => {
-            document.getElementById('menu-form').reset();
-            document.getElementById('edit-menu-id').value = '';
-            document.getElementById('recipe-builder-rows').innerHTML = '';
-            document.getElementById('menu-mode').value = 'batch';
-            window.toggleBatchProductionFields();
-            window.addRecipeBuilderRow('', 1);
-            window.openModal('modal-menu');
-        };
-
-        window.openItemModal = () => {
-            document.getElementById('item-form').reset();
-            document.getElementById('edit-item-id').value = '';
-            document.getElementById('modal-item-title').innerHTML = `<i class="fas fa-cube text-emerald-500 mr-2"></i> สร้างรายการคลังใหม่`;
-            window.openModal('modal-item');
-        };
-
-        function showToast(msg, type = 'success') {
-            const container = document.getElementById('toast-container');
-            if (!container) return;
-            const t = document.createElement('div');
-            const icon = type === 'success' ? '<i class="fas fa-check-circle text-lg mr-2"></i>' : '<i class="fas fa-exclamation-circle text-lg mr-2"></i>';
-            t.className = `p-4 rounded-xl text-white font-medium text-sm shadow-2xl transition-all duration-500 transform translate-y-10 opacity-0 flex items-center ${type === 'success' ? 'bg-slate-800 border-l-4 border-emerald-500' : 'bg-rose-600 border-l-4 border-rose-800'}`;
-            t.innerHTML = `${icon} <span>${msg}</span>`;
-            container.appendChild(t);
-            
-            setTimeout(() => { t.classList.remove('translate-y-10', 'opacity-0'); }, 10);
-            setTimeout(() => {
-                t.classList.add('translate-y-10', 'opacity-0');
-                setTimeout(() => t.remove(), 500);
-            }, 3000);
-        }
     </script>
 </body>
 </html>
