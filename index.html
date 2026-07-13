@@ -95,7 +95,7 @@
                 </button>
                 <div class="mt-4 flex items-center justify-center gap-1.5 text-[10px] text-slate-500 font-medium">
                     <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span>Cloud Sync Active • v9.3 Text UI</span>
+                    <span>Cloud Sync Active • v9.4 Modal Fix</span>
                 </div>
             </div>
         </aside>
@@ -116,6 +116,7 @@
 
             <div class="flex-1 overflow-y-auto custom-scrollbar p-4 lg:p-8 scroll-smooth pb-24 lg:pb-8">
                 
+                <!-- ================= TAB: POS ================= -->
                 <section id="tab-pos" class="tab-content flex flex-col lg:grid lg:grid-cols-12 gap-6 h-full">
                     
                     <div class="lg:col-span-8 flex flex-col space-y-5 h-[50vh] lg:h-full">
@@ -173,6 +174,7 @@
                     </div>
                 </section>
 
+                <!-- ================= TAB: PRODUCTION ================= -->
                 <section id="tab-production" class="tab-content hidden space-y-6">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         
@@ -290,6 +292,7 @@
                     </div>
                 </section>
 
+                <!-- ================= TAB: INVENTORY ================= -->
                 <section id="tab-inventory" class="tab-content hidden space-y-6">
                     <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
                         
@@ -384,6 +387,7 @@
                     </div>
                 </section>
 
+                <!-- ================= TAB: MENUS ================= -->
                 <section id="tab-menus" class="tab-content hidden h-full flex flex-col">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-3xl border border-slate-100 shadow-sm shrink-0 mb-6">
                         <div class="flex items-center gap-3">
@@ -404,6 +408,7 @@
                     </div>
                 </section>
 
+                <!-- ================= TAB: DASHBOARD ================= -->
                 <section id="tab-dashboard" class="tab-content hidden space-y-6">
                     
                     <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -504,6 +509,7 @@
                     </div>
                 </section>
 
+                <!-- ================= TAB: USERS ================= -->
                 <section id="tab-users" class="tab-content hidden space-y-6">
                     <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col h-[80vh]">
                         <div class="flex items-center gap-3 border-b border-slate-100 pb-4 mb-4 shrink-0">
@@ -534,9 +540,14 @@
         </main>
     </div>
 
+    <!-- =================================================== -->
+    <!-- MODALS (Redesigned) -->
+    <!-- =================================================== -->
+    
+    <!-- Modal: Add Item -->
     <div id="modal-item" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50 transition-opacity">
         <div class="bg-white rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh] transform transition-transform scale-100">
-            <h3 class="text-lg font-black text-slate-800 mb-6 flex items-center border-b pb-4"><i class="fas fa-cube text-emerald-500 mr-2"></i> สร้างรายการคลังใหม่</h3>
+            <h3 id="modal-item-title" class="text-lg font-black text-slate-800 mb-6 flex items-center border-b pb-4"><i class="fas fa-cube text-emerald-500 mr-2"></i> สร้างรายการคลังใหม่</h3>
             <form id="item-form" class="space-y-5 text-sm">
                 <input type="hidden" id="edit-item-id">
                 <div>
@@ -574,6 +585,7 @@
         </div>
     </div>
 
+    <!-- Modal: Adjust Stock -->
     <div id="modal-adjust-stock" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50 transition-opacity">
         <div class="bg-white rounded-3xl p-6 md:p-8 w-full max-w-sm shadow-2xl transform transition-transform scale-100">
             <h3 class="text-lg font-black text-slate-800 mb-2 flex items-center"><i class="fas fa-balance-scale text-orange-500 mr-2"></i> ปรับยอดสต๊อกจริง</h3>
@@ -595,6 +607,7 @@
         </div>
     </div>
 
+    <!-- Modal: Menu -->
     <div id="modal-menu" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50 transition-opacity">
         <div class="bg-white rounded-3xl p-6 md:p-8 w-full max-w-lg shadow-2xl overflow-y-auto max-h-[90vh] custom-scrollbar">
             <h3 class="text-lg font-black text-slate-800 mb-6 flex items-center border-b pb-4"><i class="fas fa-cocktail text-pink-500 mr-2"></i> ตั้งค่าโครงสร้างสูตรเมนู</h3>
@@ -652,6 +665,7 @@
         </div>
     </div>
 
+    <!-- Modal: Refund -->
     <div id="modal-refund" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50 transition-opacity">
         <div class="bg-white rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh]">
             <h3 class="text-lg font-black text-rose-600 mb-2 flex items-center"><i class="fas fa-history mr-2"></i> ยกเลิกออเดอร์</h3>
@@ -659,7 +673,8 @@
             <form id="refund-form" class="space-y-4 text-sm">
                 <input type="hidden" id="refund-sale-id">
                 <div id="refund-items-container" class="space-y-3 custom-scrollbar pr-2 max-h-60 overflow-y-auto p-1">
-                    </div>
+                    <!-- Dynamic Items -->
+                </div>
                 <div class="flex justify-end gap-3 pt-6 border-t mt-2">
                     <button type="button" onclick="window.closeModal('modal-refund')" class="px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold transition-colors active:scale-95">ปิด</button>
                     <button type="submit" id="btn-submit-refund" class="px-6 py-3 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-bold shadow-lg shadow-rose-500/30 transition-all active:scale-95">ยืนยันคืนเงิน</button>
@@ -668,6 +683,7 @@
         </div>
     </div>
 
+    <!-- Firebase Script Engine Core Framework -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot, runTransaction, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -694,8 +710,10 @@
         let cart = [];
         let salesChartInstance = null;
         
+        // 🎯 บังคับให้เป็น Admin เสมอแบบไม่ต้องล็อกอิน
         window.userRole = 'admin'; 
 
+        // --- Core UI Utils ---
         window.validateInput = (val, name, allowZero = false) => {
             const num = parseFloat(val);
             if (isNaN(num) || (!allowZero && num <= 0) || (allowZero && num < 0)) throw new Error(`ข้อมูล ${name} ไม่ถูกต้อง`);
@@ -716,6 +734,7 @@
             }
         };
 
+        // --- GLOBAL MODAL CONTROLLERS ---
         window.openModal = (id) => {
             const modal = document.getElementById(id);
             modal.classList.remove('hidden');
@@ -795,6 +814,7 @@
             }
         };
 
+        // 🎯 สลับสิทธิ์จำลองทันทีโดยไม่ต้องล็อกเอาท์
         window.toggleRole = () => {
             window.userRole = window.userRole === 'admin' ? 'staff' : 'admin';
             applyRoleRestrictions();
@@ -834,6 +854,7 @@
             }
         }
 
+        // 🎯 เริ่มทำงานทันทีเมื่อหน้าเว็บโหลดเสร็จ (No Auth Needed)
         document.addEventListener("DOMContentLoaded", () => {
             const ls = document.getElementById('loading-screen');
             ls.classList.remove('hidden');
@@ -847,6 +868,7 @@
             initGlobalCloudSync();
         });
 
+        // --- CLOUD SYNC ENGINE ---
         function initGlobalCloudSync() {
             try {
                 onSnapshot(collection(db, "inventory"), (snapshot) => {
@@ -893,10 +915,12 @@
                 onSnapshot(collection(db, "users"), (snapshot) => {
                     usersList = [];
                     snapshot.forEach(doc => usersList.push({ uid: doc.id, ...doc.data() }));
+                    // Not rendering users since auth is bypassed, but keeping state
                 });
             } catch (err) { console.error("Cloud Sync Error"); }
         }
 
+        // --- INVENTORY MANAGEMENT ---
         window.renderInventory = () => {
             const tbody = document.getElementById('inventory-table-body');
             const selectOptions = document.getElementById('purch-item-id');
@@ -913,6 +937,7 @@
                     ? `<span class="px-2.5 py-1 text-[10px] rounded-md font-bold bg-indigo-50 text-indigo-600 border border-indigo-100">📌 อุปกรณ์</span>`
                     : `<span class="px-2.5 py-1 text-[10px] rounded-md font-bold bg-teal-50 text-teal-600 border border-teal-100">♻️ วัตถุดิบ</span>`;
                 
+                // 🎯 เพิ่มปุ่มปรับยอดสต๊อก (ไอคอนตาชั่ง)
                 tbody.innerHTML += `
                     <tr class="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/50 transition-colors">
                         <td class="p-4 font-bold text-slate-700">${item.name}</td>
@@ -953,6 +978,7 @@
             });
         };
 
+        // 🎯 ฟังก์ชันสำหรับ Modal ปรับสต๊อก (Adjust Stock)
         window.openAdjustStockModal = (id) => {
             const item = inventory.find(i => i.id.toString() === id.toString());
             if (!item) return;
@@ -1192,10 +1218,10 @@
             if (!menuId) { showToast("กรุณาเลือกเมนู", "error"); setLoadingButton('btn-submit-production', false, originalText); return; }
             
             try {
-                const actualQty = validateInput(document.getElementById('prod-actual-qty').value, "จำนวนแก้วที่ตักได้จริง");
+                const actualQty = validateInput(document.getElementById('prod-actual-qty').value, "จำนวนแก้วที่แบ่งขาย");
                 const waste = parseInt(document.getElementById('prod-waste').value) || 0;
                 const expDate = document.getElementById('prod-exp-date').value;
-                if (waste >= actualQty) throw new Error("ของเสียต้องน้อยกว่าจำนวนที่ตักได้จริง");
+                if (waste >= actualQty) throw new Error("ของเสียต้องน้อยกว่าจำนวนที่แบ่งใส่แก้ว");
 
                 const menu = menus.find(m => m.id == menuId);
                 const batchSize = Number(menu.batchSize) || 1;
