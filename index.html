@@ -95,7 +95,7 @@
                 </button>
                 <div class="mt-4 flex items-center justify-center gap-1.5 text-[10px] text-slate-500 font-medium">
                     <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span>Cloud Sync Active • v9.1 Smart-Yield</span>
+                    <span>Cloud Sync Active • v9.3 Text UI</span>
                 </div>
             </div>
         </aside>
@@ -192,14 +192,14 @@
                                 </div>
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block font-bold text-slate-600 mb-1.5" title="จำนวนเป้าหมายตามสูตรเต็มที่ตั้งไว้">สูตรผลิตได้ (เป้าหมาย)</label>
+                                        <label class="block font-bold text-slate-600 mb-1.5" title="จำนวนเป้าหมายตามสูตรเต็มที่ตั้งไว้">ผลิตได้ (ดึงจากสูตร)</label>
                                         <div class="relative">
                                             <input type="number" id="prod-recipe-yield" disabled class="w-full p-3 bg-slate-100 border border-slate-200 rounded-xl text-center font-bold text-slate-400 cursor-not-allowed">
                                             <span class="absolute right-3 top-3 text-xs text-slate-400">แก้ว</span>
                                         </div>
                                     </div>
                                     <div>
-                                        <label class="block font-bold text-emerald-600 mb-1.5" title="จำนวนที่คุณแบ่งใส่แก้วได้จริงๆ ในรอบนี้">ตักใส่แก้วจริงได้</label>
+                                        <label class="block font-bold text-emerald-600 mb-1.5" title="จำนวนที่คุณแบ่งใส่แก้วได้จริงๆ ในรอบนี้">แบ่งใส่แก้ว (จำนวนที่แบ่งออกมาขาย)</label>
                                         <div class="relative">
                                             <input type="number" id="prod-actual-qty" oninput="window.updateProductionCostPreview()" value="" min="1" placeholder="เช่น 15" class="w-full p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-center font-bold text-emerald-600 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-colors" required>
                                             <span class="absolute right-3 top-3 text-xs text-emerald-600">แก้ว</span>
@@ -277,7 +277,7 @@
                                             <tr>
                                                 <th class="p-3 rounded-l-lg">วัน-เวลา</th>
                                                 <th class="p-3">เมนู</th>
-                                                <th class="p-3 text-center">ตักได้จริง</th>
+                                                <th class="p-3 text-center">แบ่งขายจริง</th>
                                                 <th class="p-3 text-right">ทุนรวมที่ใช้</th>
                                                 <th class="p-3 text-center rounded-r-lg">จัดการ</th>
                                             </tr>
