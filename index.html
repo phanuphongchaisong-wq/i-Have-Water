@@ -157,7 +157,7 @@
                 </button>
                 <div class="mt-4 flex items-center justify-center gap-1.5 text-[10px] text-slate-500 font-medium">
                     <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span>Cloud Sync Active • v7.5 Fast-Sync</span>
+                    <span>Cloud Sync Active • v7.6 Stock Adjust</span>
                 </div>
             </div>
         </aside>
@@ -301,7 +301,7 @@
                                                 <th class="p-3 rounded-l-lg">รายการ (Lot)</th>
                                                 <th class="p-3 text-center">คงเหลือ</th>
                                                 <th class="p-3 text-right">ทุน/หน่วย</th>
-                                                <th class="p-3 text-center">วันหมดอายุ</th>
+                                                <th class="p-3 text-center">ผลิต/หมดอายุ</th>
                                                 <th class="p-3 text-center rounded-r-lg">ทิ้งของเสีย</th>
                                             </tr>
                                         </thead>
@@ -623,6 +623,27 @@
         </div>
     </div>
 
+    <div id="modal-adjust-stock" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50 transition-opacity">
+        <div class="bg-white rounded-3xl p-6 md:p-8 w-full max-w-sm shadow-2xl transform transition-transform scale-100">
+            <h3 class="text-lg font-black text-slate-800 mb-2 flex items-center"><i class="fas fa-balance-scale text-orange-500 mr-2"></i> ปรับยอดสต๊อกจริง</h3>
+            <p class="text-xs text-slate-500 mb-6 border-b pb-4">การปรับยอดตรงนี้ จะไม่อัปเดตต้นทุนเฉลี่ย</p>
+            <form id="adjust-stock-form" class="space-y-5 text-sm">
+                <input type="hidden" id="adjust-item-id">
+                <div>
+                    <label class="block text-slate-600 font-bold mb-1.5 ml-1" id="adjust-item-name-label">ชื่อวัตถุดิบ</label>
+                    <div class="flex items-center gap-3 mt-2">
+                        <input type="number" id="adjust-stock-val" step="0.01" class="w-full p-4 bg-orange-50 border border-orange-200 rounded-2xl text-center font-black text-orange-600 text-2xl focus:ring-2 focus:ring-orange-500 outline-none transition-colors" required>
+                        <span id="adjust-item-unit-label" class="font-bold text-slate-500 w-12 shrink-0">หน่วย</span>
+                    </div>
+                </div>
+                <div class="flex justify-end gap-3 pt-4 border-t mt-6">
+                    <button type="button" onclick="window.closeModal('modal-adjust-stock')" class="px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold transition-colors active:scale-95">ยกเลิก</button>
+                    <button type="submit" id="btn-save-adjust-stock" class="px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold shadow-lg shadow-orange-500/30 transition-all active:scale-95">ปรับยอด</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div id="modal-menu" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50 transition-opacity">
         <div class="bg-white rounded-3xl p-6 md:p-8 w-full max-w-lg shadow-2xl overflow-y-auto max-h-[90vh] custom-scrollbar">
             <h3 class="text-lg font-black text-slate-800 mb-6 flex items-center border-b pb-4"><i class="fas fa-cocktail text-pink-500 mr-2"></i> ตั้งค่าโครงสร้างสูตรเมนู</h3>
@@ -748,7 +769,7 @@
         let salesHistory = [];
         let productionHistory = [];
         let usersList = [];
-        let purchaseLogs = []; // เก็บล็อกการซื้อ
+        let purchaseLogs = [];
         let cart = [];
         let salesChartInstance = null;
         let isSignUpMode = false;
@@ -774,6 +795,25 @@
                 btn.classList.remove('opacity-70', 'cursor-not-allowed');
                 btn.innerHTML = originalText;
             }
+        };
+
+        // --- GLOBAL MODAL CONTROLLERS ---
+        window.openModal = (id) => {
+            const modal = document.getElementById(id);
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.children[0].classList.add('scale-100');
+                modal.children[0].classList.remove('scale-95');
+            }, 10);
+        };
+        
+        window.closeModal = (id) => {
+            const modal = document.getElementById(id);
+            modal.classList.add('opacity-0');
+            modal.children[0].classList.remove('scale-100');
+            modal.children[0].classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
         };
 
         window.toggleMobileMenu = () => {
@@ -996,7 +1036,6 @@
                     buildRealtimeNotificationBar();
                 });
                 
-                // สตรีมสำหรับดึงข้อมูลประวัติการเติมสต๊อก
                 onSnapshot(collection(db, "purchases"), (snapshot) => {
                     purchaseLogs = [];
                     snapshot.forEach(doc => purchaseLogs.push(doc.data()));
@@ -1057,12 +1096,16 @@
                     ? `<span class="px-2.5 py-1 text-[10px] rounded-md font-bold bg-indigo-50 text-indigo-600 border border-indigo-100">📌 อุปกรณ์</span>`
                     : `<span class="px-2.5 py-1 text-[10px] rounded-md font-bold bg-teal-50 text-teal-600 border border-teal-100">♻️ วัตถุดิบ</span>`;
                 
+                // 🎯 เพิ่มปุ่มปรับยอดสต๊อก (ไอคอนตาชั่ง)
                 tbody.innerHTML += `
                     <tr class="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/50 transition-colors">
                         <td class="p-4 font-bold text-slate-700">${item.name}</td>
                         <td class="p-4">${badge}</td>
                         <td class="p-4 text-right font-mono font-medium text-slate-600">฿${Number(item.price || 0).toLocaleString('th-TH', {minimumFractionDigits:2})}</td>
-                        <td class="p-4 text-center font-black text-slate-800">${Number(item.stock || 0).toLocaleString()} <span class="text-xs font-medium text-slate-400">${item.unit}</span></td>
+                        <td class="p-4 text-center font-black text-slate-800">
+                            ${Number(item.stock || 0).toLocaleString()} <span class="text-xs font-medium text-slate-400">${item.unit}</span>
+                            ${item.type === 'variable' ? `<button onclick="window.openAdjustStockModal('${item.id}')" class="ml-2 text-[10px] text-orange-500 bg-orange-50 hover:bg-orange-500 hover:text-white px-2 py-1 rounded border border-orange-200 transition-colors" title="ปรับยอดสต๊อกจริง"><i class="fas fa-pencil-alt"></i></button>` : ''}
+                        </td>
                         <td class="p-4 text-right font-mono font-medium text-emerald-600">฿${avg.toLocaleString('th-TH', {minimumFractionDigits:2})}</td>
                         <td class="p-4 text-center space-x-1">
                             <button type="button" onclick="window.editItem(${item.id})" class="w-8 h-8 rounded-lg bg-white border border-slate-200 text-blue-500 hover:bg-blue-50 hover:border-blue-200 transition-colors shadow-sm"><i class="fas fa-edit"></i></button>
@@ -1072,7 +1115,6 @@
             });
         };
 
-        // ฟังก์ชันใหม่: แสดงประวัติการเติมของ
         window.renderPurchaseLogs = () => {
             const tbody = document.getElementById('inventory-log-body');
             if (!tbody) return;
@@ -1094,6 +1136,44 @@
                     </tr>`;
             });
         };
+
+        // 🎯 ฟังก์ชันสำหรับ Modal ปรับสต๊อก (Adjust Stock)
+        window.openAdjustStockModal = (id) => {
+            const item = inventory.find(i => i.id.toString() === id.toString());
+            if (!item) return;
+
+            document.getElementById('adjust-item-id').value = item.id;
+            document.getElementById('adjust-item-name-label').innerText = `ปรับยอดสต๊อก: ${item.name}`;
+            document.getElementById('adjust-stock-val').value = item.stock || 0;
+            document.getElementById('adjust-item-unit-label').innerText = item.unit || 'ชิ้น';
+
+            window.openModal('modal-adjust-stock');
+        };
+
+        document.getElementById('adjust-stock-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const originalText = `ปรับยอด`;
+            setLoadingButton('btn-save-adjust-stock', true, originalText);
+            
+            try {
+                const id = document.getElementById('adjust-item-id').value;
+                const newStock = parseFloat(document.getElementById('adjust-stock-val').value);
+                
+                if(isNaN(newStock) || newStock < 0) throw new Error("จำนวนสต๊อกไม่ถูกต้อง");
+
+                await updateDoc(doc(db, "inventory", id), {
+                    stock: newStock
+                });
+                
+                showToast("ปรับยอดสต๊อกสำเร็จ (ไม่เปลี่ยนแปลงต้นทุนเฉลี่ย)", "success");
+                window.closeModal('modal-adjust-stock');
+            } catch (err) { 
+                showToast(err.message, "error"); 
+            } finally { 
+                setLoadingButton('btn-save-adjust-stock', false, originalText); 
+            }
+        });
+
 
         document.getElementById('item-form').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -1324,7 +1404,6 @@
             finally { setLoadingButton('btn-submit-production', false, originalText); }
         });
 
-        // 🎯 แก้ไขฟังก์ชันลบการผลิตและคืนสต๊อก (Fix Data Sync Issue)
         window.deleteProductionLog = async (prodId) => {
             if (window.userRole !== 'admin') { showToast("🔒 สิทธิ์เฉพาะ Admin", "error"); return; }
             if (!confirm("⚠️ ยืนยันการลบประวัติและคืนสต๊อก?")) return;
@@ -1334,94 +1413,61 @@
 
             try {
                 await runTransaction(db, async (transaction) => {
-                    // 1. อ่านข้อมูลประวัติผลิต
                     const prodRef = doc(db, "production", prodId.toString());
                     const prodSnap = await transaction.get(prodRef);
-                    if (!prodSnap.exists()) throw new Error("ไม่พบประวัติการผลิตนี้ในฐานข้อมูลแล้ว");
+                    if (!prodSnap.exists()) throw new Error("ไม่พบประวัติ");
 
                     const prodData = prodSnap.data();
                     const isDisposal = prodData.menuName.startsWith('🔥');
                     const realMenuName = isDisposal ? prodData.menuName.replace('🔥 [ทิ้งตู้แช่] ', '') : prodData.menuName;
-                    
-                    // 2. ดึงข้อมูลเมนู
-                    // หา ID จาก menus ปัจจุบัน
                     const menu = menus.find(m => m.name === realMenuName);
-                    if (!menu) throw new Error("ไม่พบโครงสร้างเมนูเดิมแล้ว");
                     
-                    const menuRef = doc(db, "menus", menu.id.toString());
-                    const mSnap = await transaction.get(menuRef);
-                    if (!mSnap.exists()) throw new Error("ไม่พบข้อมูลเมนูในฐานข้อมูล");
-
-                    // 3. ดึงข้อมูลวัตถุดิบทั้งหมดที่ใช้ในสูตร (ถ้าเป็นการผลิตใหม่ ไม่ใช่การทิ้ง)
+                    let menuRef = null, mSnap = null;
                     const invSnaps = {};
-                    if (!isDisposal && menu.recipe && menu.recipe.length > 0) {
-                        for (let r of menu.recipe) {
-                            const invRef = doc(db, "inventory", r.itemId.toString());
-                            invSnaps[r.itemId] = {
-                                ref: invRef,
-                                snap: await transaction.get(invRef)
-                            };
-                        }
-                    }
 
-                    // ====== สิ้นสุดการ Read -> เริ่มต้น Write ======
-
-                    if (isDisposal) {
-                        // 4.A กรณีลบประวัติ "ทิ้งของเสีย" -> คืนสินค้าสำเร็จรูปกลับเข้าตู้แช่
-                        let lots = mSnap.data().lots || [];
-                        lots.push({ 
-                            lotNo: "RESTORE-" + Date.now().toString().slice(-4), 
-                            productionDate: new Date().toLocaleDateString('th-TH'), 
-                            expDate: prodData.expDate || '-', 
-                            qty: Number(prodData.wasteQty), 
-                            costPerCup: Number(prodData.wasteQty) > 0 ? (Number(prodData.wasteValue) / Number(prodData.wasteQty)) : 0 
-                        });
-                        transaction.update(menuRef, { lots: lots });
-                    } else {
-                        // 4.B กรณีลบประวัติ "ต้มน้ำ" -> คืนวัตถุดิบเข้าคลัง และ หักสินค้าในตู้แช่ออก
-                        const totalQtyUsed = Number(prodData.qtyProduced || 0) + Number(prodData.wasteQty || 0);
-                        
-                        // คืนวัตถุดิบ (Raw Materials) กลับเข้า Inventory
-                        if (menu.recipe && menu.recipe.length > 0) {
+                    if (menu) {
+                        menuRef = doc(db, "menus", menu.id.toString());
+                        mSnap = await transaction.get(menuRef);
+                        if (!isDisposal && menu.recipe) {
                             for (let r of menu.recipe) {
-                                if (invSnaps[r.itemId] && invSnaps[r.itemId].snap.exists()) {
-                                    const neededToRefund = menu.mode === 'batch' ? Number(r.quantity) : (Number(r.quantity) * totalQtyUsed);
-                                    const currentStock = Number(invSnaps[r.itemId].snap.data().stock || 0);
-                                    transaction.update(invSnaps[r.itemId].ref, { stock: currentStock + neededToRefund });
-                                }
+                                const invRef = doc(db, "inventory", r.itemId.toString());
+                                invSnaps[r.itemId] = { ref: invRef, snap: await transaction.get(invRef) };
                             }
-                        }
-
-                        // หักน้ำในตู้แช่ออก (ถ้ามี)
-                        if (menu.mode === 'batch') {
-                            let lots = mSnap.data().lots || [];
-                            let remainingToRemove = Number(prodData.qtyProduced || 0);
-                            // หักจาก Lot ล่าสุดก่อน
-                            for (let i = lots.length - 1; i >= 0; i--) {
-                                if (remainingToRemove <= 0) break;
-                                if (lots[i].qty >= remainingToRemove) { 
-                                    lots[i].qty -= remainingToRemove; 
-                                    remainingToRemove = 0; 
-                                } else { 
-                                    remainingToRemove -= lots[i].qty; 
-                                    lots[i].qty = 0; 
-                                }
-                            }
-                            transaction.update(menuRef, { lots: lots.filter(l => l.qty > 0) });
                         }
                     }
-                    
-                    // 5. ลบประวัติออก
-                    transaction.delete(prodRef);
 
+                    if (menu && mSnap && mSnap.exists()) {
+                        if (isDisposal) {
+                            let lots = mSnap.data().lots || [];
+                            lots.push({ lotNo: "RESTORE-" + Date.now().toString().slice(-4), productionDate: new Date().toLocaleDateString('th-TH'), expDate: prodData.expDate || '-', qty: Number(prodData.wasteQty), costPerCup: Number(prodData.wasteQty) > 0 ? (Number(prodData.wasteValue) / Number(prodData.wasteQty)) : 0 });
+                            transaction.update(menuRef, { lots: lots });
+                        } else {
+                            const totalQtyUsed = Number(prodData.qtyProduced || 0) + Number(prodData.wasteQty || 0);
+                            if (menu.recipe) {
+                                for (let r of menu.recipe) {
+                                    if (invSnaps[r.itemId] && invSnaps[r.itemId].snap.exists()) {
+                                        const neededToRefund = menu.mode === 'batch' ? Number(r.quantity) : (Number(r.quantity) * totalQtyUsed);
+                                        transaction.update(invSnaps[r.itemId].ref, { stock: Number(invSnaps[r.itemId].snap.data().stock || 0) + neededToRefund });
+                                    }
+                                }
+                            }
+                            if (menu.mode === 'batch') {
+                                let lots = mSnap.data().lots || [];
+                                let remainingToRemove = Number(prodData.qtyProduced || 0);
+                                for (let i = lots.length - 1; i >= 0; i--) {
+                                    if (remainingToRemove <= 0) break;
+                                    if (lots[i].qty >= remainingToRemove) { lots[i].qty -= remainingToRemove; remainingToRemove = 0; } 
+                                    else { remainingToRemove -= lots[i].qty; lots[i].qty = 0; }
+                                }
+                                transaction.update(menuRef, { lots: lots.filter(l => l.qty > 0) });
+                            }
+                        }
+                    }
+                    transaction.delete(prodRef);
                 });
                 showToast("จัดการประวัติและสต๊อกเรียบร้อย", "success");
-            } catch (err) { 
-                console.error(err);
-                showToast(err.message, "error"); 
-            } finally { 
-                document.getElementById('loading-screen').classList.add('hidden'); 
-            }
+            } catch (err) { showToast(err.message, "error"); } 
+            finally { document.getElementById('loading-screen').classList.add('hidden'); }
         };
 
         window.disposeFGLot = async (menuId, lotNo) => {
