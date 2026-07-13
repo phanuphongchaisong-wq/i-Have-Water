@@ -34,9 +34,10 @@
     <!-- =================================================== -->
     <!-- AUTHENTICATION LAYER -->
     <!-- =================================================== -->
-    <div id="auth-container" class="fixed inset-0 bg-[url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center z-40 flex items-center justify-center p-4">
+    <!-- 🎯 แก้ไขเพิ่ม overflow-y-auto ให้มือถือเลื่อนได้เมื่อเปิดคีย์บอร์ด -->
+    <div id="auth-container" class="fixed inset-0 bg-[url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center z-40 flex items-center justify-center p-4 overflow-y-auto">
         <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
-        <div class="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl p-8 md:p-10 w-full max-w-md relative border border-white/20">
+        <div class="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl p-8 md:p-10 w-full max-w-md relative border border-white/20 my-auto">
             <div class="text-center space-y-3 mb-8">
                 <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-100 mb-2 shadow-inner">
                     <span class="text-5xl block animate-bounce">🥤</span>
@@ -45,7 +46,8 @@
                 <p id="auth-subtitle" class="text-sm text-slate-500 font-medium">จัดการร้านน้ำของคุณง่ายๆ บนคลาวด์</p>
             </div>
 
-            <form id="auth-form" class="space-y-5 text-sm">
+            <!-- 🎯 เพิ่ม novalidate เพื่อให้เราเช็คและเด้งแจ้งเตือนผ่าน JS ได้เอง แทนที่จะให้มือถือบล็อกเงียบๆ -->
+            <form id="auth-form" class="space-y-5 text-sm" novalidate>
                 <div id="auth-username-group" class="hidden">
                     <label class="block text-slate-600 font-bold mb-1.5 ml-1">ชื่อผู้ใช้งาน</label>
                     <div class="relative">
@@ -58,14 +60,14 @@
                     <label class="block text-slate-600 font-bold mb-1.5 ml-1">เบอร์โทรศัพท์</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400"><i class="fas fa-phone-alt"></i></span>
-                        <input type="tel" id="auth-phone" class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white text-slate-700 font-medium transition-all" placeholder="08XXXXXXXX" required pattern="[0-9]{9,10}">
+                        <input type="tel" id="auth-phone" class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white text-slate-700 font-medium transition-all" placeholder="08XXXXXXXX" required>
                     </div>
                 </div>
                 <div>
                     <label class="block text-slate-600 font-bold mb-1.5 ml-1">รหัสผ่าน</label>
                     <div class="relative">
                         <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400"><i class="fas fa-lock"></i></span>
-                        <input type="password" id="auth-password" class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white text-slate-700 font-medium transition-all" placeholder="••••••••" minlength="6" required>
+                        <input type="password" id="auth-password" class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white text-slate-700 font-medium transition-all" placeholder="••••••••" required>
                     </div>
                 </div>
                 
@@ -164,12 +166,13 @@
                 </button>
                 <div class="mt-4 flex items-center justify-center gap-1.5 text-[10px] text-slate-500 font-medium">
                     <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span>Cloud Sync Active • v8.0 Enterprise</span>
+                    <span>Cloud Sync Active • v7.7 Login Fix</span>
                 </div>
             </div>
         </aside>
 
         <main class="flex-1 flex flex-col overflow-hidden relative">
+            <!-- Header Bar -->
             <header class="glass-panel p-4 lg:px-8 flex justify-between items-center shrink-0 z-30 sticky top-0">
                 <div class="flex items-center space-x-4">
                     <button onclick="window.toggleMobileMenu()" class="lg:hidden w-10 h-10 flex items-center justify-center text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-colors focus:outline-none">
@@ -205,6 +208,7 @@
                     <!-- Right: Cart & Checkout -->
                     <div class="lg:col-span-4 flex flex-col bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 shrink-0 h-[60vh] lg:h-full relative overflow-hidden">
                         
+                        <!-- Cart Header -->
                         <div class="p-5 border-b border-slate-100 bg-slate-50/50 shrink-0">
                             <h3 class="font-bold text-slate-800 flex items-center">
                                 <span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center mr-3 shadow-inner"><i class="fas fa-shopping-basket"></i></span>
@@ -213,13 +217,16 @@
                             </h3>
                         </div>
 
+                        <!-- Cart Items -->
                         <div id="cart-items" class="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-3 bg-slate-50/30">
+                            <!-- Items injected via JS -->
                             <div id="empty-cart-msg" class="h-full flex flex-col items-center justify-center text-slate-400 space-y-3 opacity-60">
                                 <i class="fas fa-cart-arrow-down text-4xl"></i>
                                 <p class="text-sm font-medium">ยังไม่มีรายการสั่งซื้อ</p>
                             </div>
                         </div>
 
+                        <!-- Cart Footer (Summary & Pay) -->
                         <div class="p-5 bg-white border-t border-slate-100 shrink-0 shadow-[0_-10px_20px_rgba(0,0,0,0.02)] z-10 relative">
                             <div class="space-y-3 mb-5">
                                 <div class="flex justify-between text-sm text-slate-500 font-medium">
@@ -232,6 +239,7 @@
                                 </div>
                             </div>
                             
+                            <!-- แยก 2 ปุ่มสำหรับร้าน 1 และ ร้าน 2 -->
                             <div class="grid grid-cols-2 gap-3">
                                 <button id="btn-checkout-1" onclick="window.checkout('ร้าน 1')" class="group relative w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl shadow-lg shadow-emerald-500/25 transition-all transform active:scale-95 flex flex-col items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden">
                                     <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
@@ -250,6 +258,7 @@
                 <section id="tab-production" class="tab-content hidden space-y-6">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         
+                        <!-- Form -->
                         <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-5 flex flex-col">
                             <div class="flex items-center gap-3 border-b border-slate-100 pb-4">
                                 <div class="w-10 h-10 rounded-xl bg-orange-100 text-orange-500 flex items-center justify-center shadow-inner"><i class="fas fa-fire-burner text-lg"></i></div>
@@ -295,7 +304,9 @@
                             </form>
                         </div>
                         
+                        <!-- Tables Right -->
                         <div class="lg:col-span-2 flex flex-col space-y-6">
+                            <!-- FG Stock -->
                             <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex-1 flex flex-col">
                                 <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
                                     <div class="flex items-center gap-3">
@@ -313,7 +324,7 @@
                                                 <th class="p-3 rounded-l-lg">รายการ (Lot)</th>
                                                 <th class="p-3 text-center">คงเหลือ</th>
                                                 <th class="p-3 text-right">ทุน/หน่วย</th>
-                                                <th class="p-3 text-center">ผลิต/หมดอายุ</th>
+                                                <th class="p-3 text-center">วันหมดอายุ</th>
                                                 <th class="p-3 text-center rounded-r-lg">ทิ้งของเสีย</th>
                                             </tr>
                                         </thead>
@@ -322,6 +333,7 @@
                                 </div>
                             </div>
                             
+                            <!-- Prod History -->
                             <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex-1 flex flex-col">
                                 <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
                                     <div class="flex items-center gap-3">
@@ -354,7 +366,7 @@
                 <!-- ================= TAB: INVENTORY ================= -->
                 <section id="tab-inventory" class="tab-content hidden space-y-6">
                     <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
-                        
+                        <!-- Add/Buy Form -->
                         <div class="xl:col-span-4 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-5 flex flex-col">
                             <div class="flex items-center gap-3 border-b border-slate-100 pb-4">
                                 <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shadow-inner"><i class="fas fa-shopping-cart text-lg"></i></div>
@@ -388,8 +400,10 @@
                             </form>
                         </div>
                         
+                        <!-- Inventory Table -->
                         <div class="xl:col-span-8 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col space-y-6">
                             
+                            <!-- Master Inventory -->
                             <div>
                                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-4 mb-4 shrink-0">
                                     <div class="flex items-center gap-3">
@@ -421,7 +435,7 @@
                                 </div>
                             </div>
                             
-                            <!-- Logs ของคลัง -->
+                            <!-- Purchase History -->
                             <div class="pt-6 border-t border-slate-100">
                                 <div class="flex items-center gap-3 mb-4">
                                     <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center"><i class="fas fa-list-alt"></i></div>
@@ -464,6 +478,7 @@
                     
                     <div class="flex-1 overflow-y-auto custom-scrollbar pr-1 pb-4">
                         <div id="menus-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            <!-- Menu Cards Injected Here -->
                         </div>
                     </div>
                 </section>
@@ -471,6 +486,7 @@
                 <!-- ================= TAB: DASHBOARD ================= -->
                 <section id="tab-dashboard" class="tab-content hidden space-y-6">
                     
+                    <!-- Filter -->
                     <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div class="flex items-center gap-4 w-full sm:w-auto">
                             <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shadow-inner shrink-0"><i class="fas fa-calendar-alt text-lg"></i></div>
@@ -484,6 +500,7 @@
                         </button>
                     </div>
 
+                    <!-- KPI Cards -->
                     <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
                         <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group hover:border-emerald-200 transition-colors">
                             <div class="absolute top-0 right-0 p-4 opacity-5 text-4xl group-hover:scale-110 transition-transform"><i class="fas fa-money-bill-wave"></i></div>
@@ -512,6 +529,7 @@
                         </div>
                     </div>
                     
+                    <!-- Charts & Stats -->
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm lg:col-span-2 flex flex-col">
                             <h4 class="font-bold text-sm text-slate-700 flex items-center mb-4">
@@ -542,6 +560,7 @@
                         </div>
                     </div>
 
+                    <!-- Logs -->
                     <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b border-slate-100 pb-4">
                             <h4 class="font-bold text-sm text-slate-700 flex items-center">
@@ -553,13 +572,13 @@
                         </div>
                         <div class="overflow-x-auto custom-scrollbar">
                             <table class="w-full text-left text-sm whitespace-nowrap">
-                                <thead class="bg-slate-50 border-b text-slate-500">
+                                <thead class="bg-slate-50 text-slate-500 font-bold">
                                     <tr>
-                                        <th class="p-3 rounded-l-lg">วัน-เวลาขาย</th>
-                                        <th class="p-3">รายการเครื่องดื่ม</th>
-                                        <th class="p-3 text-center">แก้ว</th>
-                                        <th class="p-3 text-right">ยอดขาย</th>
-                                        <th class="p-3 text-right">กำไรบิล</th>
+                                        <th class="p-3 rounded-l-lg">วัน-เวลา</th>
+                                        <th class="p-3">รายการ</th>
+                                        <th class="p-3 text-center">รวมแก้ว</th>
+                                        <th class="p-3 text-right">ยอดรับ</th>
+                                        <th class="p-3 text-right">กำไร</th>
                                         <th class="p-3 text-center rounded-r-lg">จัดการ</th>
                                     </tr>
                                 </thead>
@@ -602,7 +621,7 @@
     </div>
 
     <!-- =================================================== -->
-    <!-- MODALS -->
+    <!-- MODALS (Redesigned) -->
     <!-- =================================================== -->
     
     <!-- Modal: Add Item -->
@@ -924,7 +943,6 @@
                 toggleBtn.innerHTML = 'มีบัญชีแล้วใช่ไหม? <span class="font-bold underline decoration-2 underline-offset-2">เข้าสู่ระบบ</span>';
                 roleGroup.classList.remove('hidden'); 
                 usernameGroup.classList.remove('hidden');
-                usernameInput.required = true;
             } else {
                 title.innerText = "เข้าสู่ระบบ";
                 subtitle.innerText = "จัดการร้านน้ำของคุณง่ายๆ บนคลาวด์";
@@ -932,17 +950,35 @@
                 toggleBtn.innerHTML = 'ยังไม่มีบัญชีใช่ไหม? <span class="font-bold underline decoration-2 underline-offset-2">สมัครสมาชิกใหม่</span>';
                 roleGroup.classList.add('hidden');
                 usernameGroup.classList.add('hidden');
-                usernameInput.required = false;
             }
         };
 
         document.getElementById('auth-form').addEventListener('submit', async (e) => {
             e.preventDefault();
+            
             const username = document.getElementById('auth-username').value.trim();
             const phone = document.getElementById('auth-phone').value.trim();
             const password = document.getElementById('auth-password').value;
             const role = document.getElementById('auth-role').value;
             const submitBtn = document.getElementById('btn-auth-submit');
+
+            // 🎯 ระบบ Custom Validation เช็คข้อผิดพลาดก่อนล็อกอิน
+            if (!phone || !password) {
+                showToast("กรุณากรอกเบอร์โทรศัพท์และรหัสผ่านให้ครบถ้วน", "error");
+                return;
+            }
+            if (phone.length < 9) {
+                showToast("เบอร์โทรศัพท์ไม่ถูกต้อง", "error");
+                return;
+            }
+            if (password.length < 6) {
+                showToast("รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร", "error");
+                return;
+            }
+            if (isSignUpMode && !username) {
+                showToast("กรุณากรอกชื่อผู้ใช้งาน", "error");
+                return;
+            }
             
             submitBtn.disabled = true;
             const originalBtnHTML = submitBtn.innerHTML;
@@ -951,7 +987,7 @@
             const ls = document.getElementById('loading-screen');
             document.getElementById('loading-text').innerText = "กำลังตรวจสอบสิทธิ์...";
             ls.classList.remove('hidden');
-            ls.classList.remove('opacity-0');
+            setTimeout(() => ls.classList.remove('opacity-0'), 10);
 
             const dummyEmail = `${phone}@ihavewater.system`;
 
@@ -1249,10 +1285,8 @@
                     
                     const costPerUnitThisLot = addedStock > 0 ? (addedPrice / addedStock) : 0;
 
-                    // 1. อัปเดตคลัง
                     transaction.update(itemRef, { price: totalNewPrice, stock: totalNewStock, avgCost: finalAvg });
                     
-                    // 2. เก็บประวัติลง Log
                     transaction.set(doc(db, "purchases", Date.now().toString()), {
                         id: Date.now(),
                         timestamp: new Date().toLocaleString('th-TH'),
@@ -2117,6 +2151,62 @@
             finally { setLoadingButton('btn-save-user', false, originalText); }
         });
 
+        // --- GLOBAL UTILS ---
+        window.openModal = (id) => {
+            const modal = document.getElementById(id);
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.children[0].classList.add('scale-100');
+                modal.children[0].classList.remove('scale-95');
+            }, 10);
+        };
+        
+        window.closeModal = (id) => {
+            const modal = document.getElementById(id);
+            modal.classList.add('opacity-0');
+            modal.children[0].classList.remove('scale-100');
+            modal.children[0].classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        };
+
+        window.toggleModalYieldField = () => {
+            const type = document.getElementById('item-type').value;
+            document.getElementById('modal-yield-container').className = type === 'variable' ? 'grid grid-cols-2 gap-4 bg-emerald-50 p-4 rounded-2xl border border-emerald-100 transition-all' : 'hidden';
+        };
+
+        window.openMenuModal = () => {
+            document.getElementById('menu-form').reset();
+            document.getElementById('edit-menu-id').value = '';
+            document.getElementById('recipe-builder-rows').innerHTML = '';
+            document.getElementById('menu-mode').value = 'batch';
+            window.toggleBatchProductionFields();
+            window.addRecipeBuilderRow('', 1);
+            window.openModal('modal-menu');
+        };
+
+        window.openItemModal = () => {
+            document.getElementById('item-form').reset();
+            document.getElementById('edit-item-id').value = '';
+            document.getElementById('modal-item-title').innerHTML = `<i class="fas fa-cube text-emerald-500 mr-2"></i> สร้างรายการคลังใหม่`;
+            window.openModal('modal-item');
+        };
+
+        function showToast(msg, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const t = document.createElement('div');
+            const icon = type === 'success' ? '<i class="fas fa-check-circle text-lg mr-2"></i>' : '<i class="fas fa-exclamation-circle text-lg mr-2"></i>';
+            t.className = `p-4 rounded-xl text-white font-medium text-sm shadow-2xl transition-all duration-500 transform translate-y-10 opacity-0 flex items-center ${type === 'success' ? 'bg-slate-800 border-l-4 border-emerald-500' : 'bg-rose-600 border-l-4 border-rose-800'}`;
+            t.innerHTML = `${icon} <span>${msg}</span>`;
+            container.appendChild(t);
+            
+            setTimeout(() => { t.classList.remove('translate-y-10', 'opacity-0'); }, 10);
+            setTimeout(() => {
+                t.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => t.remove(), 500);
+            }, 3000);
+        }
     </script>
 </body>
 </html>
