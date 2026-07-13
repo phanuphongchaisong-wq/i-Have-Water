@@ -26,82 +26,15 @@
 
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 flex flex-col items-end"></div>
     
-    <div id="loading-screen" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex flex-col items-center justify-center text-white hidden transition-opacity duration-300">
+    <div id="loading-screen" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex flex-col items-center justify-center text-white transition-opacity duration-300">
         <div class="animate-spin rounded-full h-16 w-16 border-4 border-emerald-400 border-t-transparent mb-6 shadow-[0_0_15px_rgba(52,211,153,0.5)]"></div>
-        <p class="font-medium text-lg tracking-wide animate-pulse" id="loading-text">กำลังโหลดข้อมูล...</p>
-    </div>
-
-    <!-- =================================================== -->
-    <!-- AUTHENTICATION LAYER -->
-    <!-- =================================================== -->
-    <!-- 🎯 แก้ไขเพิ่ม overflow-y-auto ให้มือถือเลื่อนได้เมื่อเปิดคีย์บอร์ด -->
-    <div id="auth-container" class="fixed inset-0 bg-[url('https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=2000&auto=format&fit=crop')] bg-cover bg-center z-40 flex items-center justify-center p-4 overflow-y-auto">
-        <div class="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"></div>
-        <div class="bg-white/95 backdrop-blur-xl rounded-3xl shadow-2xl p-8 md:p-10 w-full max-w-md relative border border-white/20 my-auto">
-            <div class="text-center space-y-3 mb-8">
-                <div class="inline-flex items-center justify-center w-20 h-20 rounded-full bg-emerald-100 mb-2 shadow-inner">
-                    <span class="text-5xl block animate-bounce">🥤</span>
-                </div>
-                <h2 id="auth-title" class="text-2xl font-black text-slate-800 tracking-tight">เข้าสู่ระบบ</h2>
-                <p id="auth-subtitle" class="text-sm text-slate-500 font-medium">จัดการร้านน้ำของคุณง่ายๆ บนคลาวด์</p>
-            </div>
-
-            <!-- 🎯 เพิ่ม novalidate เพื่อให้เราเช็คและเด้งแจ้งเตือนผ่าน JS ได้เอง แทนที่จะให้มือถือบล็อกเงียบๆ -->
-            <form id="auth-form" class="space-y-5 text-sm" novalidate>
-                <div id="auth-username-group" class="hidden">
-                    <label class="block text-slate-600 font-bold mb-1.5 ml-1">ชื่อผู้ใช้งาน</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400"><i class="fas fa-user"></i></span>
-                        <input type="text" id="auth-username" class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white text-slate-700 font-medium transition-all" placeholder="เช่น: สมชาย">
-                    </div>
-                </div>
-
-                <div>
-                    <label class="block text-slate-600 font-bold mb-1.5 ml-1">เบอร์โทรศัพท์</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400"><i class="fas fa-phone-alt"></i></span>
-                        <input type="tel" id="auth-phone" class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white text-slate-700 font-medium transition-all" placeholder="08XXXXXXXX" required>
-                    </div>
-                </div>
-                <div>
-                    <label class="block text-slate-600 font-bold mb-1.5 ml-1">รหัสผ่าน</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400"><i class="fas fa-lock"></i></span>
-                        <input type="password" id="auth-password" class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white text-slate-700 font-medium transition-all" placeholder="••••••••" required>
-                    </div>
-                </div>
-                
-                <div id="auth-role-group" class="hidden">
-                    <label class="block text-slate-600 font-bold mb-1.5 ml-1">ระดับผู้ใช้งาน</label>
-                    <div class="relative">
-                        <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400"><i class="fas fa-shield-alt"></i></span>
-                        <select id="auth-role" class="w-full pl-11 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:bg-white text-slate-700 font-bold transition-all appearance-none">
-                            <option value="admin">👑 เจ้าของร้าน (Admin)</option>
-                            <option value="staff">👤 พนักงาน (Staff)</option>
-                        </select>
-                        <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-500">
-                            <i class="fas fa-chevron-down text-xs"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <button type="submit" id="btn-auth-submit" class="w-full py-4 mt-2 bg-emerald-500 hover:bg-emerald-600 text-white text-base font-bold rounded-xl shadow-lg shadow-emerald-500/30 transition-all transform active:scale-[0.98] flex justify-center items-center gap-2">
-                    <i class="fas fa-sign-in-alt"></i> เข้าสู่ระบบ
-                </button>
-            </form>
-
-            <div class="text-center mt-8">
-                <button type="button" id="btn-toggle-auth" onclick="window.toggleAuthMode()" class="text-sm text-slate-500 font-medium hover:text-emerald-600 transition-colors">
-                    ยังไม่มีบัญชีใช่ไหม? <span class="font-bold underline decoration-2 underline-offset-2">สมัครสมาชิกใหม่</span>
-                </button>
-            </div>
-        </div>
+        <p class="font-medium text-lg tracking-wide animate-pulse" id="loading-text">กำลังโหลดข้อมูลและเชื่อมต่อ Cloud...</p>
     </div>
 
     <!-- =================================================== -->
     <!-- MAIN WORKSPACE LAYER -->
     <!-- =================================================== -->
-    <div id="app-workspace" class="flex h-screen w-full overflow-hidden opacity-0 invisible transition-opacity duration-500 relative">
+    <div id="app-workspace" class="flex h-screen w-full overflow-hidden relative">
         
         <div id="mobile-menu-backdrop" onclick="window.toggleMobileMenu()" class="fixed inset-0 bg-slate-900/40 z-40 hidden backdrop-blur-sm transition-opacity opacity-0 duration-300 lg:hidden"></div>
 
@@ -117,7 +50,7 @@
                             <h1 class="font-bold text-lg text-white tracking-tight leading-none">I Have Water</h1>
                             <div class="flex items-center mt-1.5">
                                 <span class="text-[10px] font-medium text-slate-400 uppercase tracking-wider">Cloud POS</span>
-                                <span id="user-role-badge" class="ml-2 px-1.5 py-0.5 rounded text-[8px] font-bold hidden"></span>
+                                <span id="user-role-badge" class="ml-2 px-1.5 py-0.5 rounded text-[8px] font-bold"></span>
                             </div>
                         </div>
                     </div>
@@ -153,7 +86,7 @@
                     <div class="pt-4 mt-4 border-t border-slate-800/50">
                         <button id="nav-users" onclick="window.switchTab('users', this)" class="nav-btn w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-slate-400 hover:bg-white/5 hover:text-slate-100 font-medium text-sm text-left transition-all group">
                             <div class="w-8 flex justify-center"><i class="fas fa-users-cog group-hover:scale-110 transition-transform"></i></div>
-                            <span>จัดการผู้ใช้</span>
+                            <span>รายชื่อพนักงาน</span>
                             <i class="fas fa-lock text-[10px] ml-auto text-rose-400/80 hidden lock-icon"></i>
                         </button>
                     </div>
@@ -161,18 +94,17 @@
             </div>
             
             <div class="p-6 border-t border-slate-800/50 bg-slate-900/50 backdrop-blur-md">
-                <button onclick="window.handleSignOut()" class="w-full py-2.5 bg-slate-800/80 hover:bg-rose-500/20 text-slate-400 hover:text-rose-400 border border-slate-700 hover:border-rose-500/50 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-2 group">
-                    <i class="fas fa-sign-out-alt group-hover:-translate-x-1 transition-transform"></i> <span>ออกจากระบบ</span>
+                <button onclick="window.toggleRole()" class="w-full py-2.5 bg-slate-800/80 hover:bg-emerald-500/20 text-slate-400 hover:text-emerald-400 border border-slate-700 hover:border-emerald-500/50 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-2 group">
+                    <i class="fas fa-user-shield transition-transform"></i> <span>สลับสิทธิ์: <span id="current-role-label">Admin</span></span>
                 </button>
                 <div class="mt-4 flex items-center justify-center gap-1.5 text-[10px] text-slate-500 font-medium">
                     <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span>Cloud Sync Active • v7.7 Login Fix</span>
+                    <span>Cloud Sync Active • v8.1 Auto-Login</span>
                 </div>
             </div>
         </aside>
 
         <main class="flex-1 flex flex-col overflow-hidden relative">
-            <!-- Header Bar -->
             <header class="glass-panel p-4 lg:px-8 flex justify-between items-center shrink-0 z-30 sticky top-0">
                 <div class="flex items-center space-x-4">
                     <button onclick="window.toggleMobileMenu()" class="lg:hidden w-10 h-10 flex items-center justify-center text-slate-600 hover:text-emerald-600 hover:bg-emerald-50 rounded-xl transition-colors focus:outline-none">
@@ -324,7 +256,7 @@
                                                 <th class="p-3 rounded-l-lg">รายการ (Lot)</th>
                                                 <th class="p-3 text-center">คงเหลือ</th>
                                                 <th class="p-3 text-right">ทุน/หน่วย</th>
-                                                <th class="p-3 text-center">วันหมดอายุ</th>
+                                                <th class="p-3 text-center">ผลิต/หมดอายุ</th>
                                                 <th class="p-3 text-center rounded-r-lg">ทิ้งของเสีย</th>
                                             </tr>
                                         </thead>
@@ -594,8 +526,8 @@
                         <div class="flex items-center gap-3 border-b border-slate-100 pb-4 mb-4 shrink-0">
                             <div class="w-10 h-10 rounded-xl bg-slate-800 text-white flex items-center justify-center shadow-inner"><i class="fas fa-users-cog text-lg"></i></div>
                             <div>
-                                <h3 class="font-bold text-slate-800 leading-tight">ระบบจัดการผู้ใช้งาน</h3>
-                                <p class="text-[10px] text-slate-500 font-medium">กำหนดสิทธิ์และบทบาททีมงาน</p>
+                                <h3 class="font-bold text-slate-800 leading-tight">รายชื่อพนักงานในร้าน</h3>
+                                <p class="text-[10px] text-slate-500 font-medium">ดูรายชื่อพนักงานที่ลงทะเบียนไว้</p>
                             </div>
                         </div>
                         
@@ -607,7 +539,6 @@
                                         <th class="p-4">เบอร์โทรศัพท์ (ID)</th>
                                         <th class="p-4 text-center">ระดับสิทธิ์</th>
                                         <th class="p-4 text-center">วันที่เข้าร่วม</th>
-                                        <th class="p-4 text-center">แก้ไข</th>
                                     </tr>
                                 </thead>
                                 <tbody id="users-table-body" class="divide-y divide-slate-50"></tbody>
@@ -745,35 +676,6 @@
         </div>
     </div>
 
-    <!-- Modal: Edit User -->
-    <div id="modal-user" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50 transition-opacity">
-        <div class="bg-white rounded-3xl p-6 md:p-8 w-full max-w-sm shadow-2xl transform transition-transform scale-100">
-            <h3 class="text-lg font-black text-slate-800 mb-6 flex items-center border-b pb-4"><i class="fas fa-user-edit text-blue-500 mr-2"></i> แก้ไขสิทธิ์ผู้ใช้งาน</h3>
-            <form id="user-form" class="space-y-4 text-sm">
-                <input type="hidden" id="edit-user-uid">
-                <div>
-                    <label class="block text-slate-600 font-bold mb-1.5 ml-1">ชื่อผู้ใช้งาน</label>
-                    <input type="text" id="edit-user-username" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-blue-500 outline-none font-medium" required>
-                </div>
-                <div>
-                    <label class="block text-slate-600 font-bold mb-1.5 ml-1">เบอร์โทร (Account ID)</label>
-                    <input type="text" id="edit-user-phone" class="w-full p-3.5 bg-slate-100 border border-slate-200 rounded-xl text-slate-400 font-mono cursor-not-allowed" disabled>
-                </div>
-                <div>
-                    <label class="block text-slate-600 font-bold mb-1.5 ml-1">บทบาท (Role)</label>
-                    <select id="edit-user-role" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-slate-700 focus:ring-2 focus:ring-blue-500 outline-none">
-                        <option value="admin">👑 Admin (จัดการได้ทุกอย่าง)</option>
-                        <option value="staff">👤 Staff (ขายหน้าร้าน + ผลิต)</option>
-                    </select>
-                </div>
-                <div class="flex justify-end gap-3 pt-4 border-t mt-6">
-                    <button type="button" onclick="window.closeModal('modal-user')" class="px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold transition-colors active:scale-95">ปิด</button>
-                    <button type="submit" id="btn-save-user" class="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white rounded-xl font-bold shadow-lg shadow-blue-500/30 transition-all active:scale-95">บันทึก</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <!-- Modal: Refund -->
     <div id="modal-refund" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50 transition-opacity">
         <div class="bg-white rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh]">
@@ -796,7 +698,6 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot, runTransaction, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyDjlAJVTYxjHlWAfJZuScjvBNhESJUf7Jw",
@@ -810,7 +711,6 @@
 
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
-        const auth = getAuth(app);
 
         let inventory = [];
         let menus = [];
@@ -820,9 +720,9 @@
         let purchaseLogs = [];
         let cart = [];
         let salesChartInstance = null;
-        let isSignUpMode = false;
         
-        window.userRole = 'staff'; 
+        // 🎯 บังคับให้เป็น Admin เสมอแบบไม่ต้องล็อกอิน
+        window.userRole = 'admin'; 
 
         // --- Core UI Utils ---
         window.validateInput = (val, name, allowZero = false) => {
@@ -882,7 +782,7 @@
         window.switchTab = (tabId, btnElement) => {
             const restrictedTabs = ['inventory', 'menus', 'dashboard', 'users'];
             if (window.userRole !== 'admin' && restrictedTabs.includes(tabId)) {
-                showToast("🔒 เมนูนี้เข้าถึงได้เฉพาะ Admin เท่านั้น", "error");
+                showToast("🔒 สลับสิทธิ์เป็น Admin ก่อนเข้าใช้งานเมนูนี้", "error");
                 return;
             }
 
@@ -912,7 +812,7 @@
                 'inventory': { title: '📦 คลังวัตถุดิบ (Inventory)', sub: 'จัดการรายการสินค้าและบันทึกบิลซื้อ' },
                 'menus': { title: '🍹 ตั้งค่าเมนู (Menu)', sub: 'โครงสร้างสูตรชงและราคาขาย' },
                 'dashboard': { title: '📈 รายงาน (Dashboard)', sub: 'สรุปยอดขาย บัญชี และประวัติ' },
-                'users': { title: '👥 ผู้ใช้งาน (Users)', sub: 'จัดการสิทธิ์เข้าถึงระบบของทีมงาน' }
+                'users': { title: '👥 รายชื่อพนักงาน (Staff)', sub: 'รายชื่อทีมงานทั้งหมด' }
             };
             
             document.getElementById('page-title').innerText = titles[tabId].title;
@@ -925,112 +825,16 @@
             }
         };
 
-        // --- AUTH & RBAC ---
-        window.toggleAuthMode = () => {
-            isSignUpMode = !isSignUpMode;
-            const title = document.getElementById('auth-title');
-            const subtitle = document.getElementById('auth-subtitle');
-            const button = document.getElementById('btn-auth-submit');
-            const toggleBtn = document.getElementById('btn-toggle-auth');
-            const roleGroup = document.getElementById('auth-role-group');
-            const usernameGroup = document.getElementById('auth-username-group');
-            const usernameInput = document.getElementById('auth-username');
-            
-            if (isSignUpMode) {
-                title.innerText = "เปิดระบบร้านใหม่";
-                subtitle.innerText = "สร้างฐานข้อมูลคลาวด์สำหรับสาขาของคุณ";
-                button.innerHTML = '<i class="fas fa-rocket"></i> ลงทะเบียนและเริ่มต้นใช้งาน';
-                toggleBtn.innerHTML = 'มีบัญชีแล้วใช่ไหม? <span class="font-bold underline decoration-2 underline-offset-2">เข้าสู่ระบบ</span>';
-                roleGroup.classList.remove('hidden'); 
-                usernameGroup.classList.remove('hidden');
-            } else {
-                title.innerText = "เข้าสู่ระบบ";
-                subtitle.innerText = "จัดการร้านน้ำของคุณง่ายๆ บนคลาวด์";
-                button.innerHTML = '<i class="fas fa-sign-in-alt"></i> เข้าสู่ระบบ';
-                toggleBtn.innerHTML = 'ยังไม่มีบัญชีใช่ไหม? <span class="font-bold underline decoration-2 underline-offset-2">สมัครสมาชิกใหม่</span>';
-                roleGroup.classList.add('hidden');
-                usernameGroup.classList.add('hidden');
-            }
-        };
-
-        document.getElementById('auth-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const username = document.getElementById('auth-username').value.trim();
-            const phone = document.getElementById('auth-phone').value.trim();
-            const password = document.getElementById('auth-password').value;
-            const role = document.getElementById('auth-role').value;
-            const submitBtn = document.getElementById('btn-auth-submit');
-
-            // 🎯 ระบบ Custom Validation เช็คข้อผิดพลาดก่อนล็อกอิน
-            if (!phone || !password) {
-                showToast("กรุณากรอกเบอร์โทรศัพท์และรหัสผ่านให้ครบถ้วน", "error");
-                return;
-            }
-            if (phone.length < 9) {
-                showToast("เบอร์โทรศัพท์ไม่ถูกต้อง", "error");
-                return;
-            }
-            if (password.length < 6) {
-                showToast("รหัสผ่านต้องมีอย่างน้อย 6 ตัวอักษร", "error");
-                return;
-            }
-            if (isSignUpMode && !username) {
-                showToast("กรุณากรอกชื่อผู้ใช้งาน", "error");
-                return;
-            }
-            
-            submitBtn.disabled = true;
-            const originalBtnHTML = submitBtn.innerHTML;
-            submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin text-lg"></i> <span class="ml-2">กำลังตรวจสอบ...</span>`;
-            
-            const ls = document.getElementById('loading-screen');
-            document.getElementById('loading-text').innerText = "กำลังตรวจสอบสิทธิ์...";
-            ls.classList.remove('hidden');
-            setTimeout(() => ls.classList.remove('opacity-0'), 10);
-
-            const dummyEmail = `${phone}@ihavewater.system`;
-
-            try {
-                if (isSignUpMode) {
-                    const userCredential = await createUserWithEmailAndPassword(auth, dummyEmail, password);
-                    await setDoc(doc(db, "users", userCredential.user.uid), {
-                        username: username || phone,
-                        phone: phone,
-                        email: dummyEmail, 
-                        role: role,
-                        createdAt: new Date().toISOString()
-                    });
-                    showToast("ยินดีด้วย! เปิดระบบคลาวด์สำเร็จ", "success");
-                } else {
-                    await signInWithEmailAndPassword(auth, dummyEmail, password);
-                    showToast("ล็อกอินสำเร็จ ยินดีต้อนรับกลับมา!", "success");
-                }
-            } catch (err) {
-                let msg = "เกิดข้อผิดพลาดในการเชื่อมต่อ";
-                if (err.code === "auth/wrong-password" || err.code === "auth/invalid-credential" || err.code === "auth/invalid-login-credentials") msg = "เบอร์โทรศัพท์หรือรหัสผ่านไม่ถูกต้อง";
-                if (err.code === "auth/user-not-found") msg = "ไม่พบเบอร์โทรศัพท์นี้ในระบบ";
-                if (err.code === "auth/email-already-in-use") msg = "เบอร์นี้เปิดใช้งานไปแล้ว กรุณาเข้าสู่ระบบ";
-                showToast(msg, "error");
-                
-                ls.classList.add('opacity-0');
-                setTimeout(() => ls.classList.add('hidden'), 300);
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = originalBtnHTML;
-            }
-        });
-
-        window.handleSignOut = async () => {
-            if (!confirm("คุณต้องการออกจากระบบใช่หรือไม่?")) return;
-            try {
-                await signOut(auth);
-                showToast("ล็อกเอาท์เรียบร้อย พบกันใหม่ครับ", "success");
-            } catch (err) { showToast("ไม่สามารถออกจากระบบได้", "error"); }
+        // 🎯 สลับสิทธิ์จำลองทันทีโดยไม่ต้องล็อกเอาท์
+        window.toggleRole = () => {
+            window.userRole = window.userRole === 'admin' ? 'staff' : 'admin';
+            applyRoleRestrictions();
+            showToast(`เปลี่ยนสิทธิ์เป็น ${window.userRole.toUpperCase()} แล้ว`, "success");
         };
 
         function applyRoleRestrictions() {
             const roleBadge = document.getElementById('user-role-badge');
+            const roleLabel = document.getElementById('current-role-label');
             const lockIcons = document.querySelectorAll('.lock-icon');
             
             if (window.userRole === 'admin') {
@@ -1038,6 +842,8 @@
                     roleBadge.innerHTML = 'ADMIN';
                     roleBadge.className = 'ml-2 px-2 py-0.5 rounded text-[9px] font-black bg-emerald-500 text-white shadow-sm inline-block tracking-wider';
                 }
+                if(roleLabel) roleLabel.innerText = 'Admin';
+                
                 lockIcons.forEach(icon => icon.classList.add('hidden'));
                 const resetBtn = document.getElementById('btn-reset-dashboard');
                 if(resetBtn) resetBtn.classList.remove('hidden');
@@ -1046,47 +852,30 @@
                     roleBadge.innerHTML = 'STAFF';
                     roleBadge.className = 'ml-2 px-2 py-0.5 rounded text-[9px] font-black bg-slate-600 text-white shadow-sm inline-block tracking-wider';
                 }
+                if(roleLabel) roleLabel.innerText = 'Staff';
+
                 lockIcons.forEach(icon => icon.classList.remove('hidden'));
                 const resetBtn = document.getElementById('btn-reset-dashboard');
                 if(resetBtn) resetBtn.classList.add('hidden');
 
                 const currentTitle = document.getElementById('page-title').innerText;
-                if(currentTitle.includes('คลัง') || currentTitle.includes('เมนู') || currentTitle.includes('รายงาน') || currentTitle.includes('ผู้ใช้')) {
+                if(currentTitle.includes('คลัง') || currentTitle.includes('เมนู') || currentTitle.includes('รายงาน') || currentTitle.includes('พนักงาน')) {
                     window.switchTab('pos', document.getElementById('nav-pos'));
                 }
             }
         }
 
-        onAuthStateChanged(auth, async (user) => {
-            const authContainer = document.getElementById('auth-container');
-            const appWorkspace = document.getElementById('app-workspace');
-            const loadingScreen = document.getElementById('loading-screen');
+        // 🎯 เริ่มทำงานทันทีเมื่อหน้าเว็บโหลดเสร็จ (No Auth Needed)
+        document.addEventListener("DOMContentLoaded", () => {
+            document.getElementById('loading-screen').classList.remove('hidden');
+            document.getElementById('auth-container').classList.add('hidden'); // ซ่อนหน้าล็อกอินถาวร
             
-            if (user) {
-                try {
-                    document.getElementById('loading-text').innerText = "กำลังซิงค์ข้อมูลสาขา...";
-                    loadingScreen.classList.remove('hidden');
-                    loadingScreen.classList.remove('opacity-0');
-                    
-                    const userDoc = await getDoc(doc(db, "users", user.uid));
-                    if (userDoc.exists()) window.userRole = userDoc.data().role || 'staff';
-                    else window.userRole = 'staff'; 
-                } catch(e) { window.userRole = 'staff'; }
+            const appWorkspace = document.getElementById('app-workspace');
+            appWorkspace.classList.remove('hidden', 'invisible');
+            setTimeout(() => appWorkspace.classList.remove('opacity-0'), 50);
 
-                applyRoleRestrictions();
-                
-                authContainer.classList.add('hidden');
-                appWorkspace.classList.remove('hidden', 'invisible');
-                setTimeout(() => appWorkspace.classList.remove('opacity-0'), 50);
-                
-                initGlobalCloudSync();
-            } else {
-                authContainer.classList.remove('hidden');
-                appWorkspace.classList.add('opacity-0');
-                setTimeout(() => appWorkspace.classList.add('hidden', 'invisible'), 500);
-                loadingScreen.classList.add('opacity-0');
-                setTimeout(() => loadingScreen.classList.add('hidden'), 300);
-            }
+            applyRoleRestrictions();
+            initGlobalCloudSync();
         });
 
         // --- CLOUD SYNC ENGINE ---
@@ -1137,7 +926,7 @@
                 onSnapshot(collection(db, "users"), (snapshot) => {
                     usersList = [];
                     snapshot.forEach(doc => usersList.push({ uid: doc.id, ...doc.data() }));
-                    if (window.userRole === 'admin') window.renderUsers();
+                    window.renderUsers();
                 });
             } catch (err) { console.error("Cloud Sync Error"); }
         }
@@ -1285,8 +1074,10 @@
                     
                     const costPerUnitThisLot = addedStock > 0 ? (addedPrice / addedStock) : 0;
 
+                    // 1. อัปเดตคลัง
                     transaction.update(itemRef, { price: totalNewPrice, stock: totalNewStock, avgCost: finalAvg });
                     
+                    // 2. เก็บประวัติลง Log
                     transaction.set(doc(db, "purchases", Date.now().toString()), {
                         id: Date.now(),
                         timestamp: new Date().toLocaleString('th-TH'),
@@ -2151,62 +1942,6 @@
             finally { setLoadingButton('btn-save-user', false, originalText); }
         });
 
-        // --- GLOBAL UTILS ---
-        window.openModal = (id) => {
-            const modal = document.getElementById(id);
-            modal.classList.remove('hidden');
-            setTimeout(() => {
-                modal.classList.remove('opacity-0');
-                modal.children[0].classList.add('scale-100');
-                modal.children[0].classList.remove('scale-95');
-            }, 10);
-        };
-        
-        window.closeModal = (id) => {
-            const modal = document.getElementById(id);
-            modal.classList.add('opacity-0');
-            modal.children[0].classList.remove('scale-100');
-            modal.children[0].classList.add('scale-95');
-            setTimeout(() => modal.classList.add('hidden'), 300);
-        };
-
-        window.toggleModalYieldField = () => {
-            const type = document.getElementById('item-type').value;
-            document.getElementById('modal-yield-container').className = type === 'variable' ? 'grid grid-cols-2 gap-4 bg-emerald-50 p-4 rounded-2xl border border-emerald-100 transition-all' : 'hidden';
-        };
-
-        window.openMenuModal = () => {
-            document.getElementById('menu-form').reset();
-            document.getElementById('edit-menu-id').value = '';
-            document.getElementById('recipe-builder-rows').innerHTML = '';
-            document.getElementById('menu-mode').value = 'batch';
-            window.toggleBatchProductionFields();
-            window.addRecipeBuilderRow('', 1);
-            window.openModal('modal-menu');
-        };
-
-        window.openItemModal = () => {
-            document.getElementById('item-form').reset();
-            document.getElementById('edit-item-id').value = '';
-            document.getElementById('modal-item-title').innerHTML = `<i class="fas fa-cube text-emerald-500 mr-2"></i> สร้างรายการคลังใหม่`;
-            window.openModal('modal-item');
-        };
-
-        function showToast(msg, type = 'success') {
-            const container = document.getElementById('toast-container');
-            if (!container) return;
-            const t = document.createElement('div');
-            const icon = type === 'success' ? '<i class="fas fa-check-circle text-lg mr-2"></i>' : '<i class="fas fa-exclamation-circle text-lg mr-2"></i>';
-            t.className = `p-4 rounded-xl text-white font-medium text-sm shadow-2xl transition-all duration-500 transform translate-y-10 opacity-0 flex items-center ${type === 'success' ? 'bg-slate-800 border-l-4 border-emerald-500' : 'bg-rose-600 border-l-4 border-rose-800'}`;
-            t.innerHTML = `${icon} <span>${msg}</span>`;
-            container.appendChild(t);
-            
-            setTimeout(() => { t.classList.remove('translate-y-10', 'opacity-0'); }, 10);
-            setTimeout(() => {
-                t.classList.add('translate-y-10', 'opacity-0');
-                setTimeout(() => t.remove(), 500);
-            }, 3000);
-        }
     </script>
 </body>
 </html>
