@@ -1711,7 +1711,7 @@
                 window.closeModal('modal-refund');
             } catch (err) { showToast("เกิดข้อผิดพลาด: " + err.message, "error"); } 
             finally { setLoadingButton('btn-submit-refund', false, originalText); document.getElementById('loading-screen').classList.add('hidden'); }
-        };
+        });
 
         window.resetDashboardData = async () => {
             if (window.userRole !== 'admin') return;
