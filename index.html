@@ -95,7 +95,7 @@
                 </button>
                 <div class="mt-4 flex items-center justify-center gap-1.5 text-[10px] text-slate-500 font-medium">
                     <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span>Cloud Sync Active • v9.5 UI Fix</span>
+                    <span>Cloud Sync Active • v9.6 Force-Load</span>
                 </div>
             </div>
         </aside>
@@ -848,35 +848,53 @@
         });
 
         function initGlobalCloudSync() {
+            const hideLoader = () => {
+                const ls = document.getElementById('loading-screen');
+                if (ls && !ls.classList.contains('hidden')) {
+                    ls.classList.add('opacity-0');
+                    setTimeout(() => ls.classList.add('hidden'), 500);
+                }
+            };
+
+            const fallbackTimer = setTimeout(() => {
+                hideLoader();
+            }, 4000);
+
+            const handleFbError = (err) => {
+                hideLoader();
+                clearTimeout(fallbackTimer);
+                alert("❌ การเชื่อมต่อฐานข้อมูลถูกบล็อก: " + err.message + "\n\n(โปรดเช็ค Firebase Rules ว่าเป็น allow read, write: if true;)");
+            };
+
             try {
                 onSnapshot(collection(db, "inventory"), (snapshot) => {
                     inventory = [];
                     snapshot.forEach(doc => inventory.push(doc.data()));
                     window.renderInventory();
-                });
+                }, handleFbError);
                 
                 onSnapshot(collection(db, "purchases"), (snapshot) => {
                     purchaseLogs = [];
                     snapshot.forEach(doc => purchaseLogs.push(doc.data()));
                     purchaseLogs.sort((a,b) => b.id - a.id);
                     window.renderPurchaseLogs();
-                });
+                }, handleFbError);
 
                 onSnapshot(collection(db, "menus"), (snapshot) => {
                     menus = [];
                     snapshot.forEach(doc => menus.push(doc.data()));
                     window.renderPOS();
                     window.renderMenus();
-                    renderProductionTab();
-                });
+                    window.renderProductionTab();
+                }, handleFbError);
 
                 onSnapshot(collection(db, "production"), (snapshot) => {
                     productionHistory = [];
                     snapshot.forEach(doc => productionHistory.push(doc.data()));
                     productionHistory.sort((a,b) => b.id - a.id);
-                    renderProductionTab();
+                    window.renderProductionTab();
                     window.renderDashboard();
-                });
+                }, handleFbError);
 
                 onSnapshot(collection(db, "sales"), (snapshot) => {
                     salesHistory = [];
@@ -884,17 +902,16 @@
                     salesHistory.sort((a,b) => b.id - a.id);
                     window.renderPOS();
                     window.renderDashboard();
-                    
-                    const ls = document.getElementById('loading-screen');
-                    ls.classList.add('opacity-0');
-                    setTimeout(() => ls.classList.add('hidden'), 500);
-                });
+                    hideLoader();
+                    clearTimeout(fallbackTimer);
+                }, handleFbError);
 
                 onSnapshot(collection(db, "users"), (snapshot) => {
                     usersList = [];
                     snapshot.forEach(doc => usersList.push({ uid: doc.id, ...doc.data() }));
-                });
-            } catch (err) { console.error("Cloud Sync Error"); }
+                }, handleFbError);
+
+            } catch (err) { handleFbError(err); }
         }
 
         window.renderInventory = () => {
@@ -1117,7 +1134,7 @@
             document.getElementById('prod-preview-per-cup').innerText = `฿${perCup.toFixed(2)} / แก้ว`;
         };
 
-        function renderProductionTab() {
+        window.renderProductionTab = () => {
             const select = document.getElementById('prod-menu-id');
             const fgTbody = document.getElementById('fg-table-body');
             const prodHistoryTbody = document.getElementById('prod-history-body');
@@ -1182,7 +1199,7 @@
                     </tr>`;
                 }
             });
-        }
+        };
 
         document.getElementById('production-form').addEventListener('submit', async (e) => {
             e.preventDefault();
@@ -1195,7 +1212,7 @@
                 const actualQty = validateInput(document.getElementById('prod-actual-qty').value, "จำนวนแก้วที่แบ่งขาย");
                 const waste = parseInt(document.getElementById('prod-waste').value) || 0;
                 const expDate = document.getElementById('prod-exp-date').value;
-                if (waste >= actualQty) throw new Error("ของเสียต้องน้อยกว่าจำนวนที่แบ่งใส่แก้ว");
+                if (waste >= actualQty) throw new Error("ของเสียต้องน้อยกว่าจำนวนที่แบ่งขาย");
 
                 const menu = menus.find(m => m.id == menuId);
                 const batchSize = Number(menu.batchSize) || 1;
@@ -1758,7 +1775,7 @@
                 window.closeModal('modal-refund');
             } catch (err) { showToast("เกิดข้อผิดพลาด: " + err.message, "error"); } 
             finally { setLoadingButton('btn-submit-refund', false, originalText); document.getElementById('loading-screen').classList.add('hidden'); }
-        };
+        });
 
         window.resetDashboardData = async () => {
             if (window.userRole !== 'admin') return;
