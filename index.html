@@ -462,7 +462,7 @@
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-8 gap-4">
                         <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group hover:border-emerald-200 transition-colors flex flex-col justify-between h-full">
                             <div class="absolute top-0 right-0 p-4 opacity-5 text-4xl group-hover:scale-110 transition-transform"><i class="fas fa-money-bill-wave"></i></div>
                             <div>
@@ -499,6 +499,21 @@
                             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ของเหลือน้อยที่สุด <span class="filter-label text-blue-500 font-normal ml-1"></span></span>
                             <div class="text-base font-bold text-slate-800" id="dash-lowest-stock-name">-</div>
                             <div class="text-lg font-black text-rose-500 mt-2" id="dash-lowest-stock-value">-</div>
+                        </div>
+                        <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group hover:border-teal-200 transition-colors">
+                            <div class="absolute top-0 right-0 p-4 opacity-5 text-4xl group-hover:scale-110 transition-transform"><i class="fas fa-mug-hot text-blue-500"></i></div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ยอดการผลิตเครื่องดื่ม <span class="filter-label text-blue-500 font-normal ml-1"></span></span>
+                            <div id="dash-produced-drink" class="text-2xl font-black text-blue-600 truncate">0 แก้ว</div>
+                        </div>
+                        <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group hover:border-blue-200 transition-colors">
+                            <div class="absolute top-0 right-0 p-4 opacity-5 text-4xl group-hover:scale-110 transition-transform"><i class="fas fa-mug-hot text-blue-500"></i></div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">กำไรจากเครื่องดื่ม <span class="filter-label text-blue-500 font-normal ml-1"></span></span>
+                            <div id="dash-drink-profit" class="text-2xl font-black text-blue-600 truncate">฿0.00</div>
+                        </div>
+                        <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group hover:border-orange-200 transition-colors">
+                            <div class="absolute top-0 right-0 p-4 opacity-5 text-4xl group-hover:scale-110 transition-transform"><i class="fas fa-hamburger text-orange-500"></i></div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">กำไรจากของกินเล่น <span class="filter-label text-blue-500 font-normal ml-1"></span></span>
+                            <div id="dash-snack-profit" class="text-2xl font-black text-orange-600 truncate">฿0.00</div>
                         </div>
                     </div>
 
@@ -1163,7 +1178,9 @@
             const selectOptions = document.getElementById('purch-item-id');
             if (!tbody) return;
             tbody.innerHTML = '';
-            if (selectOptions) selectOptions.innerHTML = '';
+            if (selectOptions) {
+                selectOptions.innerHTML = '<option value="">-- เลือกวัตถุดิบ/อุปกรณ์ --</option>';
+            }
 
             inventory
                 .slice()
@@ -1175,11 +1192,12 @@
                 })
                 .forEach(item => {
                     if (selectOptions) {
+                        selectOptions.innerHTML += `<option value="${item.id}">${item.name} (${item.type === 'variable' ? 'วัตถุดิบ' : 'อุปกรณ์'})</option>`;
                     }
 
-                if (window.invCurrentFilter !== 'all' && item.type !== window.invCurrentFilter) {
-                    return; 
-                }
+                    if (window.invCurrentFilter !== 'all' && item.type !== window.invCurrentFilter) {
+                        return; 
+                    }
 
                 const avg = Number(item.avgCost || 0);
                 const badge = item.type === 'fixed' 
@@ -1964,10 +1982,11 @@
 
                 const sumRev = filteredSales.reduce((s, x) => s + Number(x.revenue || 0), 0);
                 const sumCogs = filteredSales.reduce((s, x) => s + Number(x.cogsValue || 0), 0);
+                const sumSaleProfit = filteredSales.reduce((s, x) => s + (x.profit !== undefined ? Number(x.profit) : (Number(x.revenue || 0) - Number(x.cogsValue || 0))), 0);
                 const sumWaste = filteredProd.reduce((s, x) => s + Number(x.wasteValue || 0), 0);
                 const sumVar = inventory.filter(i => i.type === 'variable').reduce((s, x) => s + Number(x.price || 0), 0);
                 const sumFix = inventory.filter(i => i.type === 'fixed').reduce((s, x) => s + Number(x.price || 0), 0);
-                const netProfit = sumRev - sumCogs - sumWaste; 
+                const netProfit = sumSaleProfit - sumWaste;
 
                 // คำนวณยอดขายแยกตามร้านค้า
                 const sumRevShop1 = filteredSales.filter(s => s.shop === 'ร้าน 1').reduce((s, x) => s + Number(x.revenue || 0), 0);
@@ -1997,6 +2016,26 @@
                     }
                 });
 
+                // คำนวณกำไรแยกตามประเภท (แจกจ่าย COGS ตามสัดส่วนรายได้ของแต่ละประเภท)
+                let snackProfit = 0, drinkProfit = 0;
+                filteredSales.forEach(s => {
+                    const rev = Number(s.revenue || 0);
+                    const cogs = Number(s.cogsValue || 0);
+                    const sSnackRev = Number(s.snackRev || 0);
+                    const sDrinkRev = Number(s.drinkRev || 0);
+
+                    if (rev > 0 && cogs > 0) {
+                        const snackCogs = rev ? (cogs * (sSnackRev / rev)) : 0;
+                        const drinkCogs = rev ? (cogs * (sDrinkRev / rev)) : 0;
+                        snackProfit += (sSnackRev - snackCogs);
+                        drinkProfit += (sDrinkRev - drinkCogs);
+                    } else {
+                        // ถ้าไม่มีข้อมูล COGS ให้ประมาณโดยใช้รายได้เป็นกำไร (fallback)
+                        snackProfit += sSnackRev;
+                        drinkProfit += sDrinkRev;
+                    }
+                });
+
                 // คำนวณยอดของคงเหลือทั้งหมดในตู้
                 const filteredWithdrawals = withdrawals.filter(w => !selectedDate || w.timestamp.startsWith(formatMatcher));
                 const sumWithdrawn = filteredWithdrawals.reduce((s, x) => s + Number(x.amount || 0), 0);
@@ -2004,6 +2043,21 @@
                 window.lastAvailableProfit = remainingProfit;
 
                 const remainQty = menus.reduce((sum, m) => sum + (m.mode === 'batch' ? (m.lots || []).reduce((s, l) => s + Number(l.qty || 0), 0) : 0), 0);
+                const producedDrinkQty = filteredProd.reduce((sum, p) => {
+                    const menu = menus.find(m => m.name === p.menuName || m.name === p.menuName.replace('🔥 [ทิ้งตู้แช่] ', ''));
+                    const cat = menu ? (menu.category || (menu.name.includes('บก.') ? 'snack' : 'drink')) : (p.menuName.includes('บก.') ? 'snack' : 'drink');
+                    return cat === 'drink' ? sum + Number(p.qtyProduced || 0) : sum;
+                }, 0);
+                const producedSnackQty = filteredProd.reduce((sum, p) => {
+                    const menu = menus.find(m => m.name === p.menuName || m.name === p.menuName.replace('🔥 [ทิ้งตู้แช่] ', ''));
+                    const cat = menu ? (menu.category || (menu.name.includes('บก.') ? 'snack' : 'drink')) : (p.menuName.includes('บก.') ? 'snack' : 'drink');
+                    return cat === 'snack' ? sum + Number(p.qtyProduced || 0) : sum;
+                }, 0);
+
+                const producedDrinkEl = document.getElementById('dash-produced-drink');
+                if (producedDrinkEl) producedDrinkEl.innerText = `${producedDrinkQty.toLocaleString('th-TH')} แก้ว`;
+                const producedSnackEl = document.getElementById('dash-produced-snack');
+                if (producedSnackEl) producedSnackEl.innerText = `${producedSnackQty.toLocaleString('th-TH')} ชิ้น`;
 
                 document.getElementById('dash-revenue').innerText = `฿${sumRev.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
                 const elShop1 = document.getElementById('dash-rev-shop1');
@@ -2026,6 +2080,11 @@
                     remainEl.innerText = `฿${remainingProfit.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
                     remainEl.className = remainingProfit >= 0 ? "text-2xl font-black text-emerald-500 truncate" : "text-2xl font-black text-rose-500 truncate";
                 }
+                
+                const drinkProfitEl = document.getElementById('dash-drink-profit');
+                if (drinkProfitEl) drinkProfitEl.innerText = `฿${drinkProfit.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
+                const snackProfitEl = document.getElementById('dash-snack-profit');
+                if (snackProfitEl) snackProfitEl.innerText = `฿${snackProfit.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
                 
                 // อัปเดต Summary Cards
                 const elDrinkQty = document.getElementById('dash-drink-qty');
