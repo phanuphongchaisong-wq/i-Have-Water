@@ -952,12 +952,9 @@
         };
 
         window.toggleModalYieldField = () => {
-            const type = document.getElementById('item-type').value;
             const container = document.getElementById('modal-yield-container');
             if (!container) return;
-            container.className = type === 'variable'
-                ? 'grid grid-cols-2 gap-4 bg-emerald-50 p-4 rounded-2xl border border-emerald-100 transition-all'
-                : 'hidden';
+            container.className = 'grid grid-cols-2 gap-4 bg-emerald-50 p-4 rounded-2xl border border-emerald-100 transition-all';
         };
 
         window.toggleMobileMenu = () => {
@@ -1177,8 +1174,7 @@
                     return Number(a.id || 0) - Number(b.id || 0);
                 })
                 .forEach(item => {
-                    if (selectOptions && item.type === 'variable') {
-                        selectOptions.innerHTML += `<option value="${item.id}">${item.name} (${item.unit})</option>`;
+                    if (selectOptions) {
                     }
 
                 if (window.invCurrentFilter !== 'all' && item.type !== window.invCurrentFilter) {
@@ -1275,7 +1271,7 @@
                 const name = document.getElementById('item-name').value.trim();
                 const type = document.getElementById('item-type').value;
                 const price = validateInput(document.getElementById('item-price').value, "ราคาทุนบิลเริ่มต้น", true);
-                const stock = type === 'variable' ? validateInput(document.getElementById('item-stock').value, "ปริมาณสุทธิเริ่มต้น", true) : 1;
+                const stock = validateInput(document.getElementById('item-stock').value, "ปริมาณสุทธิเริ่มต้น", true);
                 const unit = document.getElementById('item-unit').value.trim() || 'ชิ้น';
 
                 const calculatedAvg = (type === 'variable' && stock > 0) ? (price / stock) : price;
