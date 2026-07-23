@@ -462,7 +462,7 @@
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
                         <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group hover:border-emerald-200 transition-colors flex flex-col justify-between h-full">
                             <div class="absolute top-0 right-0 p-4 opacity-5 text-4xl group-hover:scale-110 transition-transform"><i class="fas fa-money-bill-wave"></i></div>
                             <div>
@@ -494,6 +494,12 @@
                             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ทุนของเสีย <span class="filter-label text-blue-500 font-normal ml-1"></span></span>
                             <div class="text-2xl font-black text-rose-500 truncate" id="dash-total-waste">฿0.00</div>
                         </div>
+                        <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group hover:border-slate-400 transition-colors">
+                            <div class="absolute top-0 right-0 p-4 opacity-5 text-4xl group-hover:scale-110 transition-transform"><i class="fas fa-boxes text-slate-500"></i></div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ของเหลือน้อยที่สุด <span class="filter-label text-blue-500 font-normal ml-1"></span></span>
+                            <div class="text-base font-bold text-slate-800" id="dash-lowest-stock-name">-</div>
+                            <div class="text-lg font-black text-rose-500 mt-2" id="dash-lowest-stock-value">-</div>
+                        </div>
                     </div>
 
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -516,6 +522,9 @@
                             </div>
                             <button onclick="window.openWithdrawalModal()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-4 py-3 rounded-2xl transition-all active:scale-95 flex items-center justify-center">
                                 <i class="fas fa-hand-holding-usd mr-2"></i> ถอนกำไร
+                            </button>
+                            <button onclick="window.openWithdrawalHistoryModal()" class="w-full mt-3 bg-slate-900 hover:bg-slate-700 text-white font-bold px-4 py-3 rounded-2xl transition-all active:scale-95 flex items-center justify-center">
+                                <i class="fas fa-history mr-2"></i> ดูประวัติถอน
                             </button>
                         </div>
                     </div>
@@ -806,6 +815,40 @@
                     <button type="submit" id="btn-submit-withdrawal" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold shadow-lg shadow-emerald-500/30 transition-all active:scale-95">ยืนยันถอน</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <div id="modal-withdrawal-history" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50 transition-opacity duration-300 opacity-0">
+        <div class="bg-white rounded-3xl p-6 md:p-8 w-full max-w-2xl shadow-2xl overflow-y-auto max-h-[90vh] transform transition-transform duration-300 scale-95">
+            <div class="flex items-center justify-between mb-4">
+                <div>
+                    <h3 class="text-lg font-black text-slate-800 flex items-center"><i class="fas fa-history text-slate-600 mr-2"></i> ประวัติถอนกำไร</h3>
+                    <p id="withdrawal-history-summary" class="text-xs text-slate-500 mt-1">ดูรายการถอนทั้งหมดและหมายเหตุ</p>
+                </div>
+                <button type="button" onclick="window.closeModal('modal-withdrawal-history')" class="text-slate-500 hover:text-slate-900 text-sm font-bold">ปิด</button>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                    <div class="text-[10px] text-slate-400 uppercase font-bold mb-2">ยอดถอน (รวม)</div>
+                    <div id="withdrawal-history-total" class="text-2xl font-black text-rose-500">฿0.00</div>
+                </div>
+                <div class="bg-slate-50 border border-slate-200 rounded-2xl p-4">
+                    <div class="text-[10px] text-slate-400 uppercase font-bold mb-2">ยอดกำไรคงเหลือ</div>
+                    <div id="withdrawal-history-remaining" class="text-2xl font-black text-emerald-500">฿0.00</div>
+                </div>
+            </div>
+            <div class="overflow-x-auto custom-scrollbar">
+                <table class="w-full text-left text-sm whitespace-nowrap">
+                    <thead class="bg-slate-50 border-b text-slate-500">
+                        <tr>
+                            <th class="p-3 rounded-l-lg">วันที่ถอน</th>
+                            <th class="p-3">จำนวนเงิน</th>
+                            <th class="p-3">หมายเหตุ</th>
+                        </tr>
+                    </thead>
+                    <tbody id="withdrawal-history-modal-body" class="divide-y divide-slate-50"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -1125,10 +1168,18 @@
             tbody.innerHTML = '';
             if (selectOptions) selectOptions.innerHTML = '';
 
-            inventory.sort((a,b) => a.id - b.id).forEach(item => {
-                if (selectOptions && item.type === 'variable') {
-                    selectOptions.innerHTML += `<option value="${item.id}">${item.name} (${item.unit})</option>`;
-                }
+            inventory
+                .slice()
+                .sort((a, b) => {
+                    const stockA = Number(a.stock || 0);
+                    const stockB = Number(b.stock || 0);
+                    if (stockA !== stockB) return stockA - stockB;
+                    return Number(a.id || 0) - Number(b.id || 0);
+                })
+                .forEach(item => {
+                    if (selectOptions && item.type === 'variable') {
+                        selectOptions.innerHTML += `<option value="${item.id}">${item.name} (${item.unit})</option>`;
+                    }
 
                 if (window.invCurrentFilter !== 'all' && item.type !== window.invCurrentFilter) {
                     return; 
@@ -1994,6 +2045,14 @@
                 const elRemain = document.getElementById('dash-qty-remain');
                 if(elRemain) elRemain.innerHTML = `${remainQty.toLocaleString('th-TH')} <span class="text-[10px] font-medium text-slate-400">หน่วย</span>`;
 
+                const lowestItem = inventory
+                    .map(i => ({ ...i, stock: Number(i.stock || 0) }))
+                    .sort((a, b) => a.stock - b.stock)[0] || null;
+                const lowNameEl = document.getElementById('dash-lowest-stock-name');
+                const lowValueEl = document.getElementById('dash-lowest-stock-value');
+                if (lowNameEl) lowNameEl.innerText = lowestItem ? lowestItem.name : '-';
+                if (lowValueEl) lowValueEl.innerText = lowestItem ? `${lowestItem.stock.toLocaleString('th-TH')} ${lowestItem.unit || ''}` : '-';
+
                 const tbody = document.getElementById('sales-history-body');
                 if (tbody) {
                     tbody.innerHTML = '';
@@ -2047,6 +2106,42 @@
             const remainingLabel = document.getElementById('withdrawal-remaining-current');
             if (remainingLabel) remainingLabel.innerText = `ยอดกำไรคงเหลือปัจจุบัน ${amount.toLocaleString('th-TH', {minimumFractionDigits:2})} ฿`;
             window.openModal('modal-withdrawal');
+        };
+
+        window.openWithdrawalHistoryModal = () => {
+            const selectedDate = document.getElementById('filter-date') ? document.getElementById('filter-date').value : '';
+            let formatMatcher = '';
+            if (selectedDate) {
+                const [y, m, d] = selectedDate.split('-');
+                formatMatcher = `${parseInt(d)}/${parseInt(m)}/${parseInt(y) + 543}`;
+            }
+            const filteredWithdrawals = withdrawals.filter(w => !formatMatcher || w.timestamp.startsWith(formatMatcher));
+            const total = filteredWithdrawals.reduce((s, x) => s + Number(x.amount || 0), 0);
+            const remaining = Number(window.lastAvailableProfit || 0);
+            const body = document.getElementById('withdrawal-history-modal-body');
+            const totalEl = document.getElementById('withdrawal-history-total');
+            const remainingEl = document.getElementById('withdrawal-history-remaining');
+            const summaryEl = document.getElementById('withdrawal-history-summary');
+
+            if (body) {
+                body.innerHTML = '';
+                if (filteredWithdrawals.length === 0) {
+                    body.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-slate-500">ยังไม่มีรายการถอนภายใต้ช่วงวันที่เลือก</td></tr>`;
+                } else {
+                    filteredWithdrawals.forEach(w => {
+                        body.innerHTML += `
+                            <tr class="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/50 transition-colors">
+                                <td class="p-4 font-mono text-slate-400 text-[10px] tracking-tight">${w.timestamp}</td>
+                                <td class="p-4 font-bold text-slate-700">฿${Number(w.amount || 0).toLocaleString('th-TH',{minimumFractionDigits:2})}</td>
+                                <td class="p-4 text-slate-500 text-[11px]">${w.note || '-'}</td>
+                            </tr>`;
+                    });
+                }
+            }
+            if (totalEl) totalEl.innerText = `฿${total.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
+            if (remainingEl) remainingEl.innerText = `฿${remaining.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
+            if (summaryEl) summaryEl.innerText = filteredWithdrawals.length > 0 ? `แสดง ${filteredWithdrawals.length} รายการ` : 'ยังไม่มีรายการถอนในช่วงวันที่เลือก';
+            window.openModal('modal-withdrawal-history');
         };
 
         document.getElementById('withdrawal-form')?.addEventListener('submit', async (e) => {
