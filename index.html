@@ -495,6 +495,30 @@
                             <div class="text-2xl font-black text-rose-500 truncate" id="dash-total-waste">฿0.00</div>
                         </div>
                     </div>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ยอดถอนทั้งหมด <span class="filter-label text-blue-500 font-normal ml-1"></span></span>
+                                <div class="text-2xl font-black text-rose-500 truncate" id="dash-withdrawn">฿0.00</div>
+                            </div>
+                        </div>
+                        <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between">
+                            <div>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ยอดคงเหลือกำไร <span class="filter-label text-blue-500 font-normal ml-1"></span></span>
+                                <div id="dash-remaining-profit" class="text-2xl font-black text-emerald-500 truncate">฿0.00</div>
+                            </div>
+                        </div>
+                        <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between">
+                            <div class="mb-4">
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">จัดการกำไร</span>
+                                <p class="text-xs text-slate-500">ถอนกำไรเข้าทุนจ่ายค่าใช้จ่ายอื่นๆ</p>
+                            </div>
+                            <button onclick="window.openWithdrawalModal()" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-4 py-3 rounded-2xl transition-all active:scale-95 flex items-center justify-center">
+                                <i class="fas fa-hand-holding-usd mr-2"></i> ถอนกำไร
+                            </button>
+                        </div>
+                    </div>
                     
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm lg:col-span-2 flex flex-col">
@@ -561,6 +585,26 @@
                                     </tr>
                                 </thead>
                                 <tbody id="sales-history-body" class="divide-y divide-slate-50"></tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b border-slate-100 pb-4">
+                            <h4 class="font-bold text-sm text-slate-700 flex items-center">
+                                <i class="fas fa-wallet text-slate-600 mr-2"></i> ประวัติถอนกำไร
+                            </h4>
+                        </div>
+                        <div class="overflow-x-auto custom-scrollbar">
+                            <table class="w-full text-left text-sm whitespace-nowrap">
+                                <thead class="bg-slate-50 border-b text-slate-500">
+                                    <tr>
+                                        <th class="p-3 rounded-l-lg">วัน-เวลา</th>
+                                        <th class="p-3">จำนวนเงิน</th>
+                                        <th class="p-3">หมายเหตุ</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="withdrawal-history-body" class="divide-y divide-slate-50"></tbody>
                             </table>
                         </div>
                     </div>
@@ -741,6 +785,30 @@
         </div>
     </div>
 
+    <div id="modal-withdrawal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50 transition-opacity duration-300 opacity-0">
+        <div class="bg-white rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh] transform transition-transform duration-300 scale-95">
+            <h3 class="text-lg font-black text-emerald-600 mb-2 flex items-center"><i class="fas fa-hand-holding-usd mr-2"></i> ถอนกำไร</h3>
+            <p class="text-[11px] font-medium text-slate-500 mb-6 border-b pb-4">เลือกยอดที่จะถอนออกจากกำไรสุทธิ แล้วบันทึกเป็นรายการถอน</p>
+            <form id="withdrawal-form" class="space-y-5 text-sm">
+                <div>
+                    <label class="block text-slate-600 font-bold mb-1.5 ml-1">ยอดถอน (฿)</label>
+                    <input type="number" id="withdrawal-amount" step="0.01" min="0" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 font-bold transition-colors" placeholder="0.00">
+                </div>
+                <div>
+                    <label class="block text-slate-600 font-bold mb-1.5 ml-1">หมายเหตุ (ไม่บังคับ)</label>
+                    <textarea id="withdrawal-note" rows="3" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 transition-colors" placeholder="เช่น จ่ายค่าเช่า, ค่าไฟ, เงินหมุนเวียน"></textarea>
+                </div>
+                <div class="text-[11px] text-slate-500">
+                    <span id="withdrawal-remaining-current" class="font-bold"></span>
+                </div>
+                <div class="flex justify-end gap-3 pt-4 border-t mt-2">
+                    <button type="button" onclick="window.closeModal('modal-withdrawal')" class="px-5 py-3 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold transition-colors active:scale-95">ยกเลิก</button>
+                    <button type="submit" id="btn-submit-withdrawal" class="px-6 py-3 bg-emerald-500 hover:bg-emerald-600 text-white rounded-xl font-bold shadow-lg shadow-emerald-500/30 transition-all active:scale-95">ยืนยันถอน</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, doc, setDoc, deleteDoc, updateDoc, onSnapshot, runTransaction, getDocs, getDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -762,6 +830,7 @@
         let menus = [];
         let salesHistory = [];
         let productionHistory = [];
+        let withdrawals = [];
         let usersList = [];
         let purchaseLogs = [];
         let cart = [];
@@ -1018,6 +1087,13 @@
                     window.renderDashboard();
                     hideLoader();
                     clearTimeout(fallbackTimer);
+                }, handleFbError);
+
+                onSnapshot(collection(db, "withdrawals"), (snapshot) => {
+                    withdrawals = [];
+                    snapshot.forEach(doc => withdrawals.push(doc.data()));
+                    withdrawals.sort((a,b) => b.id - a.id);
+                    window.renderDashboard();
                 }, handleFbError);
 
                 onSnapshot(collection(db, "users"), (snapshot) => {
@@ -1601,7 +1677,9 @@
                 let displayCost = 0;
                 if (isBatch) {
                     if (lots.length > 0) {
-                        displayCost = lots[0].costPerCup;
+                        const totalQty = lots.reduce((sum, l) => sum + Number(l.qty || 0), 0);
+                        const totalCost = lots.reduce((sum, l) => sum + (Number(l.costPerCup || 0) * Number(l.qty || 0)), 0);
+                        displayCost = totalQty > 0 ? totalCost / totalQty : (calculateSingleRecipeCostByAvg(menu) / (Number(menu.batchSize) || 1));
                     } else {
                         const totalRaw = calculateSingleRecipeCostByAvg(menu);
                         displayCost = totalRaw / (Number(menu.batchSize) || 1);
@@ -1825,10 +1903,11 @@
             try {
                 const selectedDate = document.getElementById('filter-date') ? document.getElementById('filter-date').value : '';
                 let filteredSales = salesHistory, filteredProd = productionHistory, dateLabel = "ทั้งหมด";
+                let formatMatcher = '';
 
                 if (selectedDate) {
                     const [y, m, d] = selectedDate.split('-');
-                    const formatMatcher = `${parseInt(d)}/${parseInt(m)}/${parseInt(y) + 543}`; 
+                    formatMatcher = `${parseInt(d)}/${parseInt(m)}/${parseInt(y) + 543}`;
                     filteredSales = salesHistory.filter(s => s.timestamp.startsWith(formatMatcher));
                     filteredProd = productionHistory.filter(p => p.timestamp.startsWith(formatMatcher));
                     dateLabel = `(${formatMatcher})`;
@@ -1872,6 +1951,11 @@
                 });
 
                 // คำนวณยอดของคงเหลือทั้งหมดในตู้
+                const filteredWithdrawals = withdrawals.filter(w => !selectedDate || w.timestamp.startsWith(formatMatcher));
+                const sumWithdrawn = filteredWithdrawals.reduce((s, x) => s + Number(x.amount || 0), 0);
+                const remainingProfit = netProfit - sumWithdrawn;
+                window.lastAvailableProfit = remainingProfit;
+
                 const remainQty = menus.reduce((sum, m) => sum + (m.mode === 'batch' ? (m.lots || []).reduce((s, l) => s + Number(l.qty || 0), 0) : 0), 0);
 
                 document.getElementById('dash-revenue').innerText = `฿${sumRev.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
@@ -1887,6 +1971,14 @@
                 const pf = document.getElementById('dash-net-profit');
                 pf.innerText = `฿${netProfit.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
                 pf.className = netProfit >= 0 ? "text-2xl font-black text-emerald-500 truncate" : "text-2xl font-black text-rose-500 truncate";
+
+                const withdrawEl = document.getElementById('dash-withdrawn');
+                if (withdrawEl) withdrawEl.innerText = `฿${sumWithdrawn.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
+                const remainEl = document.getElementById('dash-remaining-profit');
+                if (remainEl) {
+                    remainEl.innerText = `฿${remainingProfit.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
+                    remainEl.className = remainingProfit >= 0 ? "text-2xl font-black text-emerald-500 truncate" : "text-2xl font-black text-rose-500 truncate";
+                }
                 
                 // อัปเดต Summary Cards
                 const elDrinkQty = document.getElementById('dash-drink-qty');
@@ -1947,6 +2039,44 @@
                 }
             } catch (err) { console.error(err); }
         };
+
+        window.openWithdrawalModal = () => {
+            const amount = Number(window.lastAvailableProfit || 0);
+            const field = document.getElementById('withdrawal-amount');
+            if (field) field.value = amount > 0 ? amount.toFixed(2) : '';
+            const remainingLabel = document.getElementById('withdrawal-remaining-current');
+            if (remainingLabel) remainingLabel.innerText = `ยอดกำไรคงเหลือปัจจุบัน ${amount.toLocaleString('th-TH', {minimumFractionDigits:2})} ฿`;
+            window.openModal('modal-withdrawal');
+        };
+
+        document.getElementById('withdrawal-form')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (window.userRole !== 'admin') { showToast("🔒 สิทธิ์เฉพาะ Admin", "error"); return; }
+            const originalText = document.getElementById('btn-submit-withdrawal').innerHTML;
+            setLoadingButton('btn-submit-withdrawal', true, originalText);
+            try {
+                const amount = parseFloat(document.getElementById('withdrawal-amount').value || 0);
+                const note = document.getElementById('withdrawal-note').value.trim();
+                if (isNaN(amount) || amount <= 0) throw new Error('กรุณาระบุจำนวนเงินที่ต้องการถอน');
+                const available = Number(window.lastAvailableProfit || 0);
+                if (amount > available) throw new Error('จำนวนถอนเกินยอดกำไรคงเหลือ');
+
+                await setDoc(doc(db, 'withdrawals', Date.now().toString()), {
+                    id: Date.now().toString(),
+                    timestamp: new Date().toLocaleString('th-TH'),
+                    amount,
+                    note,
+                    createdAt: Date.now()
+                });
+
+                showToast('บันทึกยอดถอนกำไรเรียบร้อย', 'success');
+                window.closeModal('modal-withdrawal');
+            } catch (err) {
+                showToast(err.message, 'error');
+            } finally {
+                setLoadingButton('btn-submit-withdrawal', false, originalText);
+            }
+        });
 
         window.openRefundModal = (saleId) => {
             if (window.userRole !== 'admin') { showToast("🔒 สิทธิ์เฉพาะ Admin", "error"); return; }
@@ -2111,7 +2241,9 @@
                 for (const d of salesSnap.docs) await deleteDoc(doc(db, "sales", d.id));
                 const prodSnap = await getDocs(collection(db, "production"));
                 for (const d of prodSnap.docs) await deleteDoc(doc(db, "production", d.id));
-                showToast("ล้างประวัติบัญชีสำเร็จ", "success");
+                const withdrawSnap = await getDocs(collection(db, "withdrawals"));
+                for (const d of withdrawSnap.docs) await deleteDoc(doc(db, "withdrawals", d.id));
+                showToast("ล้างประวัติยอดขายและถอนกำไรสำเร็จ", "success");
             } catch (err) { showToast("ล้มเหลว", "error"); } 
             finally { document.getElementById('loading-screen').classList.add('hidden'); }
         };
