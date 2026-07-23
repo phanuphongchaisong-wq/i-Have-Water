@@ -18,8 +18,6 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f5f9; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
         .pos-grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 1rem; }
         @media (min-width: 1024px) { .pos-grid-container { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); } }
     </style>
@@ -28,12 +26,11 @@
 
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 flex flex-col items-end"></div>
     
-    <div id="loading-screen" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-50 flex flex-col items-center justify-center text-white transition-opacity duration-300">
+    <div id="loading-screen" class="fixed inset-0 bg-slate-900/80 backdrop-blur-md z-50 flex flex-col items-center justify-center text-white transition-opacity duration-300">
         <div class="animate-spin rounded-full h-16 w-16 border-4 border-emerald-400 border-t-transparent mb-6 shadow-[0_0_15px_rgba(52,211,153,0.5)]"></div>
-        <p class="font-medium text-lg tracking-wide animate-pulse" id="loading-text">กำลังเชื่อมต่อฐานข้อมูล Cloud...</p>
+        <p class="font-medium text-lg tracking-wide animate-pulse" id="loading-text">กำลังโหลดข้อมูลและเชื่อมต่อ Cloud...</p>
     </div>
 
-    <!-- MAIN WORKSPACE -->
     <div id="app-workspace" class="flex h-screen w-full overflow-hidden opacity-0 invisible transition-opacity duration-500 relative">
         
         <div id="mobile-menu-backdrop" onclick="window.toggleMobileMenu()" class="fixed inset-0 bg-slate-900/40 z-40 hidden backdrop-blur-sm transition-opacity opacity-0 duration-300 lg:hidden"></div>
@@ -98,7 +95,7 @@
                 </button>
                 <div class="mt-4 flex items-center justify-center gap-1.5 text-[10px] text-slate-500 font-medium">
                     <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span>Cloud Sync Active • v11 Separated Cart</span>
+                    <span>Cloud Sync Active • v9.6 Force-Load</span>
                 </div>
             </div>
         </aside>
@@ -119,24 +116,17 @@
 
             <div class="flex-1 overflow-y-auto custom-scrollbar p-4 lg:p-8 scroll-smooth pb-24 lg:pb-8">
                 
-                <!-- ================= TAB: POS ================= -->
                 <section id="tab-pos" class="tab-content flex flex-col lg:grid lg:grid-cols-12 gap-6 h-full">
                     
-                    <div class="lg:col-span-8 flex flex-col h-[50vh] lg:h-full">
-                        <!-- แถบเลือกหมวดหมู่ -->
-                        <div class="flex items-center gap-2 mb-4 overflow-x-auto hide-scrollbar pb-1 shrink-0">
-                            <button onclick="window.setPosFilter('all')" id="btn-filter-all" class="pos-filter-btn px-5 py-2.5 rounded-xl text-sm font-bold bg-slate-800 text-white shadow-md whitespace-nowrap transition-colors">ทั้งหมด</button>
-                            <button onclick="window.setPosFilter('drink')" id="btn-filter-drink" class="pos-filter-btn px-5 py-2.5 rounded-xl text-sm font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 whitespace-nowrap transition-colors">🥤 เครื่องดื่ม</button>
-                            <button onclick="window.setPosFilter('snack')" id="btn-filter-snack" class="pos-filter-btn px-5 py-2.5 rounded-xl text-sm font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 whitespace-nowrap transition-colors">🍔 ของกินเล่น (บก.)</button>
-                        </div>
-                        
-                        <div class="relative group shrink-0 mb-5">
+                    <div class="lg:col-span-8 flex flex-col space-y-5 h-[50vh] lg:h-full">
+                        <div class="relative group shrink-0">
                             <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors"><i class="fas fa-search"></i></span>
-                            <input type="text" id="search-pos-menu" oninput="window.renderPOS()" placeholder="ค้นหาเมนู..." class="w-full pl-11 pr-4 py-3.5 bg-white border border-slate-200 shadow-sm rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm font-medium transition-all">
+                            <input type="text" id="search-pos-menu" oninput="window.renderPOS()" placeholder="ค้นหาเมนูเครื่องดื่ม..." class="w-full pl-11 pr-4 py-3.5 bg-white border border-slate-200 shadow-sm rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm font-medium transition-all">
                         </div>
                         
                         <div class="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-2">
-                            <div id="pos-menu-grid" class="pos-grid-container"></div>
+                            <div id="pos-menu-grid" class="pos-grid-container">
+                                </div>
                         </div>
                     </div>
                     
@@ -150,46 +140,23 @@
                             </h3>
                         </div>
 
-                        <!-- ตระกร้าสินค้า แยกหมวดหมู่ชัดเจน -->
-                        <div id="cart-items" class="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-4 bg-slate-50/30">
+                        <div id="cart-items" class="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-3 bg-slate-50/30">
                             <div id="empty-cart-msg" class="h-full flex flex-col items-center justify-center text-slate-400 space-y-3 opacity-60">
                                 <i class="fas fa-cart-arrow-down text-4xl"></i>
                                 <p class="text-sm font-medium">ยังไม่มีรายการสั่งซื้อ</p>
                             </div>
-                            
-                            <!-- โซนเครื่องดื่ม -->
-                            <div id="cart-group-drink" class="hidden">
-                                <h4 class="text-xs font-bold text-blue-500 mb-2 border-b border-blue-100 pb-1"><i class="fas fa-coffee mr-1"></i> เครื่องดื่ม</h4>
-                                <div id="cart-items-drink" class="space-y-2"></div>
-                            </div>
-                            
-                            <!-- โซนของกินเล่น -->
-                            <div id="cart-group-snack" class="hidden mt-4">
-                                <h4 class="text-xs font-bold text-orange-500 mb-2 border-b border-orange-100 pb-1"><i class="fas fa-hamburger mr-1"></i> ของกินเล่น</h4>
-                                <div id="cart-items-snack" class="space-y-2"></div>
-                            </div>
                         </div>
 
                         <div class="p-5 bg-white border-t border-slate-100 shrink-0 shadow-[0_-10px_20px_rgba(0,0,0,0.02)] z-10 relative">
-                            <!-- แยกยอดน้ำ และยอดขนม -->
-                            <div class="space-y-2 mb-4 border-b border-slate-100 pb-4">
-                                <div class="flex justify-between text-xs text-slate-500 font-medium">
-                                    <span>ยอดน้ำ / เครื่องดื่ม</span>
-                                    <span id="cart-drink-subtotal" class="font-bold text-blue-500">฿0.00</span>
+                            <div class="space-y-3 mb-5">
+                                <div class="flex justify-between text-sm text-slate-500 font-medium">
+                                    <span>ต้นทุนวัตถุดิบ (COGS)</span>
+                                    <span id="cart-cost" class="font-mono text-slate-600">฿0.00</span>
                                 </div>
-                                <div class="flex justify-between text-xs text-slate-500 font-medium">
-                                    <span>ยอดของกินเล่น (บก.)</span>
-                                    <span id="cart-snack-subtotal" class="font-bold text-orange-500">฿0.00</span>
+                                <div class="flex justify-between items-end">
+                                    <span class="text-sm font-bold text-slate-700">ยอดชำระสุทธิ</span>
+                                    <span id="cart-total" class="text-3xl font-black text-emerald-500 tracking-tight">฿0.00</span>
                                 </div>
-                                <div class="flex justify-between text-[10px] text-slate-400 font-medium pt-1">
-                                    <span>*รวมต้นทุน (COGS)</span>
-                                    <span id="cart-cost">฿0.00</span>
-                                </div>
-                            </div>
-
-                            <div class="flex justify-between items-end mb-5">
-                                <span class="text-sm font-bold text-slate-700">ยอดชำระสุทธิ</span>
-                                <span id="cart-total" class="text-3xl font-black text-emerald-500 tracking-tight">฿0.00</span>
                             </div>
                             
                             <div class="grid grid-cols-2 gap-3">
@@ -206,7 +173,6 @@
                     </div>
                 </section>
 
-                <!-- ================= TAB: PRODUCTION ================= -->
                 <section id="tab-production" class="tab-content hidden space-y-6">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         
@@ -214,16 +180,9 @@
                             <div class="flex items-center gap-3 border-b border-slate-100 pb-4">
                                 <div class="w-10 h-10 rounded-xl bg-orange-100 text-orange-500 flex items-center justify-center shadow-inner"><i class="fas fa-fire-burner text-lg"></i></div>
                                 <div>
-                                    <h3 class="font-bold text-slate-800 leading-tight">ผลิต / จัดเตรียมสินค้า</h3>
+                                    <h3 class="font-bold text-slate-800 leading-tight">ต้มน้ำ/ชงสำเร็จ</h3>
                                     <p class="text-[10px] text-slate-500 font-medium">บันทึกการผลิตเข้าตู้แช่ (Batch)</p>
                                 </div>
-                            </div>
-
-                            <!-- Filter การผลิต -->
-                            <div class="flex items-center gap-2 overflow-x-auto hide-scrollbar shrink-0 border-b border-slate-100 pb-3">
-                                <button onclick="window.setProdFilter('all')" id="btn-prod-all" class="prod-filter-btn px-4 py-1.5 rounded-lg text-xs font-bold bg-slate-800 text-white shadow-sm whitespace-nowrap transition-colors">ทั้งหมด</button>
-                                <button onclick="window.setProdFilter('drink')" id="btn-prod-drink" class="prod-filter-btn px-4 py-1.5 rounded-lg text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 whitespace-nowrap transition-colors">🥤 ต้มน้ำ</button>
-                                <button onclick="window.setProdFilter('snack')" id="btn-prod-snack" class="prod-filter-btn px-4 py-1.5 rounded-lg text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 whitespace-nowrap transition-colors">🍔 ทำของกิน</button>
                             </div>
                             
                             <form id="production-form" class="space-y-4 text-sm flex-1 flex flex-col">
@@ -233,33 +192,33 @@
                                 </div>
                                 <div class="grid grid-cols-2 gap-4">
                                     <div>
-                                        <label class="block font-bold text-slate-600 mb-1.5" title="จำนวนเป้าหมายตามสูตรเต็มที่ตั้งไว้">เป้าหมาย (จากสูตร)</label>
+                                        <label class="block font-bold text-slate-600 mb-1.5" title="จำนวนเป้าหมายตามสูตรเต็มที่ตั้งไว้">ผลิตได้ (ดึงจากสูตร)</label>
                                         <div class="relative">
                                             <input type="number" id="prod-recipe-yield" disabled class="w-full p-3 bg-slate-100 border border-slate-200 rounded-xl text-center font-bold text-slate-400 cursor-not-allowed">
-                                            <span class="absolute right-3 top-3 text-xs text-slate-400 prod-unit-label">หน่วย</span>
+                                            <span class="absolute right-3 top-3 text-xs text-slate-400">แก้ว</span>
                                         </div>
                                     </div>
                                     <div>
-                                        <label class="block font-bold text-emerald-600 mb-1.5" title="จำนวนที่คุณผลิต/แบ่งขายได้จริงๆ ในรอบนี้">ทำได้จริง (แพ็ค/แก้ว)</label>
+                                        <label class="block font-bold text-emerald-600 mb-1.5" title="จำนวนที่คุณแบ่งใส่แก้วได้จริงๆ ในรอบนี้">แบ่งใส่แก้ว (จำนวนที่แบ่งออกมาขาย)</label>
                                         <div class="relative">
                                             <input type="number" id="prod-actual-qty" oninput="window.updateProductionCostPreview()" value="" min="1" placeholder="เช่น 15" class="w-full p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-center font-bold text-emerald-600 focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20 outline-none transition-colors" required>
-                                            <span class="absolute right-3 top-3 text-xs text-emerald-600 prod-unit-label">หน่วย</span>
+                                            <span class="absolute right-3 top-3 text-xs text-emerald-600">แก้ว</span>
                                         </div>
                                     </div>
                                 </div>
                                 <div>
-                                    <label class="block font-bold text-rose-600 mb-1.5">ของเสียระหว่างทำ/หก</label>
+                                    <label class="block font-bold text-rose-600 mb-1.5">ของเสียระหว่างตัก/ทำ</label>
                                     <div class="relative">
                                         <input type="number" id="prod-waste" oninput="window.updateProductionCostPreview()" value="0" min="0" class="w-full p-3 bg-rose-50 border border-rose-200 rounded-xl text-center font-bold text-rose-600 focus:border-rose-500 focus:ring-2 focus:ring-rose-500/20 outline-none transition-colors" required>
-                                        <span class="absolute right-3 top-3 text-xs text-rose-600 prod-unit-label">หน่วย</span>
+                                        <span class="absolute right-3 top-3 text-xs text-rose-600">แก้ว</span>
                                     </div>
                                 </div>
                                 
                                 <div class="bg-slate-900 rounded-xl p-4 text-xs font-medium space-y-2 shadow-inner my-2">
-                                    <div class="flex justify-between text-slate-300"><span>ทุนวัตถุดิบ (ตามสัดส่วนที่ทำได้):</span><span id="prod-preview-cost" class="text-white font-mono">฿0.00</span></div>
+                                    <div class="flex justify-between text-slate-300"><span>ทุนวัตถุดิบ (ตามสัดส่วนที่ตัก):</span><span id="prod-preview-cost" class="text-white font-mono">฿0.00</span></div>
                                     <div class="flex justify-between text-rose-400"><span>มูลค่าของเสีย (โดยประมาณ):</span><span id="prod-preview-waste" class="font-mono">฿0.00</span></div>
                                     <div class="pt-2 mt-2 border-t border-slate-700 flex justify-between items-center">
-                                        <span class="text-slate-300">ทุนเฉลี่ยต่อหน่วย (สุทธิ):</span>
+                                        <span class="text-slate-300">ทุนเฉลี่ยต่อแก้ว (ที่ตักได้):</span>
                                         <span id="prod-preview-per-cup" class="text-emerald-400 font-bold text-sm font-mono">฿0.00</span>
                                     </div>
                                 </div>
@@ -270,7 +229,7 @@
                                 </div>
                                 
                                 <button type="submit" id="btn-submit-production" class="w-full py-4 mt-4 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl shadow-lg shadow-orange-500/25 transition-all transform active:scale-95">
-                                    <i class="fas fa-box-open mr-1.5"></i> บันทึกสต๊อกพร้อมขาย
+                                    <i class="fas fa-box-open mr-1.5"></i> บันทึกเข้าตู้แช่
                                 </button>
                             </form>
                         </div>
@@ -281,8 +240,8 @@
                                     <div class="flex items-center gap-3">
                                         <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shadow-inner"><i class="fas fa-snowflake text-lg"></i></div>
                                         <div>
-                                            <h3 class="font-bold text-slate-800 leading-tight">คลังสินค้าพร้อมขาย (ตู้แช่/หน้าร้าน)</h3>
-                                            <p class="text-[10px] text-slate-500 font-medium">จัดการสินค้าหัก FIFO</p>
+                                            <h3 class="font-bold text-slate-800 leading-tight">คลังตู้แช่ (Finished Goods)</h3>
+                                            <p class="text-[10px] text-slate-500 font-medium">สินค้าพร้อมขายหน้าร้าน (หัก FIFO)</p>
                                         </div>
                                     </div>
                                 </div>
@@ -294,7 +253,7 @@
                                                 <th class="p-3 text-center">คงเหลือ</th>
                                                 <th class="p-3 text-right">ทุน/หน่วย</th>
                                                 <th class="p-3 text-center">ผลิต/หมดอายุ</th>
-                                                <th class="p-3 text-center rounded-r-lg">จัดการ</th>
+                                                <th class="p-3 text-center rounded-r-lg">ทิ้งของเสีย</th>
                                             </tr>
                                         </thead>
                                         <tbody id="fg-table-body" class="divide-y divide-slate-50"></tbody>
@@ -307,7 +266,7 @@
                                     <div class="flex items-center gap-3">
                                         <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center shadow-inner"><i class="fas fa-history text-lg"></i></div>
                                         <div>
-                                            <h3 class="font-bold text-slate-800 leading-tight">ประวัติการผลิต</h3>
+                                            <h3 class="font-bold text-slate-800 leading-tight">ประวัติการต้ม/ผลิต</h3>
                                             <p class="text-[10px] text-slate-500 font-medium">ลบประวัติเพื่อคืนสต๊อกวัตถุดิบ</p>
                                         </div>
                                     </div>
@@ -318,8 +277,8 @@
                                             <tr>
                                                 <th class="p-3 rounded-l-lg">วัน-เวลา</th>
                                                 <th class="p-3">เมนู</th>
-                                                <th class="p-3 text-center">ได้จริง</th>
-                                                <th class="p-3 text-right">ทุนรวม</th>
+                                                <th class="p-3 text-center">แบ่งขายจริง</th>
+                                                <th class="p-3 text-right">ทุนรวมที่ใช้</th>
                                                 <th class="p-3 text-center rounded-r-lg">จัดการ</th>
                                             </tr>
                                         </thead>
@@ -331,7 +290,6 @@
                     </div>
                 </section>
 
-                <!-- ================= TAB: INVENTORY ================= -->
                 <section id="tab-inventory" class="tab-content hidden space-y-6">
                     <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
                         
@@ -426,14 +384,13 @@
                     </div>
                 </section>
 
-                <!-- ================= TAB: MENUS ================= -->
                 <section id="tab-menus" class="tab-content hidden h-full flex flex-col">
                     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-3xl border border-slate-100 shadow-sm shrink-0 mb-6">
                         <div class="flex items-center gap-3">
                             <div class="w-10 h-10 rounded-xl bg-pink-100 text-pink-600 flex items-center justify-center shadow-inner"><i class="fas fa-utensils text-lg"></i></div>
                             <div>
                                 <h3 class="font-bold text-slate-800 leading-tight">ตั้งค่าเมนูและผูกสูตรชง</h3>
-                                <p class="text-[10px] text-slate-500 font-medium">จัดการต้นทุนต่อหน่วยให้แม่นยำ</p>
+                                <p class="text-[10px] text-slate-500 font-medium">จัดการต้นทุนต่อแก้วให้แม่นยำ</p>
                             </div>
                         </div>
                         <button onclick="window.openMenuModal()" class="w-full sm:w-auto bg-pink-500 hover:bg-pink-600 text-white text-xs px-5 py-3 rounded-xl font-bold shadow-lg shadow-pink-500/25 transition-all transform active:scale-95 flex items-center justify-center">
@@ -447,7 +404,6 @@
                     </div>
                 </section>
 
-                <!-- ================= TAB: DASHBOARD ================= -->
                 <section id="tab-dashboard" class="tab-content hidden space-y-6">
                     
                     <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -464,17 +420,10 @@
                     </div>
 
                     <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
-                        <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group hover:border-emerald-200 transition-colors flex flex-col justify-between h-full">
+                        <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group hover:border-emerald-200 transition-colors">
                             <div class="absolute top-0 right-0 p-4 opacity-5 text-4xl group-hover:scale-110 transition-transform"><i class="fas fa-money-bill-wave"></i></div>
-                            <div>
-                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ยอดขายรวม <span class="filter-label text-blue-500 font-normal ml-1"></span></span>
-                                <div class="text-2xl font-black text-slate-800 truncate" id="dash-revenue">฿0.00</div>
-                            </div>
-                            <!-- ยอดขายแยกตามร้าน -->
-                            <div class="mt-3 text-[10px] font-medium text-slate-500 border-t border-slate-100 pt-2 flex justify-between z-10">
-                                <span>ร้าน 1: <span id="dash-rev-shop1" class="text-emerald-500 font-bold">฿0.00</span></span>
-                                <span>ร้าน 2: <span id="dash-rev-shop2" class="text-blue-500 font-bold">฿0.00</span></span>
-                            </div>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ยอดขายรวม <span class="filter-label text-blue-500 font-normal ml-1"></span></span>
+                            <div class="text-2xl font-black text-slate-800 truncate" id="dash-revenue">฿0.00</div>
                         </div>
                         <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group hover:border-amber-200 transition-colors">
                             <div class="absolute top-0 right-0 p-4 opacity-5 text-4xl group-hover:scale-110 transition-transform"><i class="fas fa-box-open"></i></div>
@@ -506,37 +455,23 @@
                             <div class="flex-1 min-h-[250px] relative w-full"><canvas id="salesChart"></canvas></div>
                         </div>
                         <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col bg-gradient-to-b from-white to-slate-50">
-                            <h4 class="font-bold text-sm text-slate-700 flex items-center mb-4">
-                                <i class="fas fa-info-circle text-purple-500 mr-2"></i> สรุปการขายรายหมวด <span class="filter-label text-slate-400 text-[10px] ml-2 font-normal"></span>
+                            <h4 class="font-bold text-sm text-slate-700 flex items-center mb-6">
+                                <i class="fas fa-glass-martini-alt text-purple-500 mr-2"></i> สรุปปริมาณน้ำ <span class="filter-label text-slate-400 text-[10px] ml-2 font-normal"></span>
                             </h4>
-                            <!-- ปรับ Dashboard แยก น้ำ กับ ของกินเล่น -->
-                            <div class="space-y-3 flex-1 flex flex-col justify-center overflow-y-auto pr-2 custom-scrollbar">
-                                <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between group hover:border-blue-200 transition-colors">
+                            <div class="space-y-6 flex-1 flex flex-col justify-center">
+                                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between group hover:border-blue-200 transition-colors">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center group-hover:scale-110 transition-transform"><i class="fas fa-coffee text-xs"></i></div>
-                                        <span class="text-xs font-bold text-slate-600">ยอดขายเครื่องดื่ม</span>
+                                        <div class="w-10 h-10 rounded-full bg-blue-50 text-blue-500 flex items-center justify-center group-hover:scale-110 transition-transform"><i class="fas fa-hand-holding-usd"></i></div>
+                                        <span class="text-sm font-bold text-slate-600">ขายได้รวม</span>
                                     </div>
-                                    <div class="text-right">
-                                        <strong id="dash-drink-qty" class="text-base font-black text-blue-600 block leading-none">0</strong>
-                                        <span id="dash-drink-rev" class="text-[10px] text-slate-400 font-medium">฿0.00</span>
-                                    </div>
+                                    <strong id="dash-qty-sold" class="text-xl font-black text-blue-600">0 <span class="text-xs font-medium text-slate-400">แก้ว</span></strong>
                                 </div>
-                                <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between group hover:border-orange-200 transition-colors">
+                                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between group hover:border-purple-200 transition-colors">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center group-hover:scale-110 transition-transform"><i class="fas fa-hamburger text-xs"></i></div>
-                                        <span class="text-xs font-bold text-slate-600">ยอดขายของกินเล่น</span>
+                                        <div class="w-10 h-10 rounded-full bg-purple-50 text-purple-500 flex items-center justify-center group-hover:scale-110 transition-transform"><i class="fas fa-blender"></i></div>
+                                        <span class="text-sm font-bold text-slate-600">ผลิตสำเร็จ</span>
                                     </div>
-                                    <div class="text-right">
-                                        <strong id="dash-snack-qty" class="text-base font-black text-orange-600 block leading-none">0</strong>
-                                        <span id="dash-snack-rev" class="text-[10px] text-slate-400 font-medium">฿0.00</span>
-                                    </div>
-                                </div>
-                                <div class="bg-white p-3 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between group hover:border-teal-200 transition-colors">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-8 h-8 rounded-full bg-teal-50 text-teal-500 flex items-center justify-center group-hover:scale-110 transition-transform"><i class="fas fa-snowflake text-xs"></i></div>
-                                        <span class="text-xs font-bold text-slate-600">สินค้าในตู้แช่คงเหลือ</span>
-                                    </div>
-                                    <strong id="dash-qty-remain" class="text-base font-black text-teal-600">0</strong>
+                                    <strong id="dash-qty-produced" class="text-xl font-black text-purple-600">0 <span class="text-xs font-medium text-slate-400">แก้ว</span></strong>
                                 </div>
                             </div>
                         </div>
@@ -556,8 +491,8 @@
                                 <thead class="bg-slate-50 border-b text-slate-500">
                                     <tr>
                                         <th class="p-3 rounded-l-lg">วัน-เวลาขาย</th>
-                                        <th class="p-3">รายการ</th>
-                                        <th class="p-3 text-center">รวมชิ้น/แก้ว</th>
+                                        <th class="p-3">รายการเครื่องดื่ม</th>
+                                        <th class="p-3 text-center">แก้ว</th>
                                         <th class="p-3 text-right">ยอดขาย</th>
                                         <th class="p-3 text-right">กำไรบิล</th>
                                         <th class="p-3 text-center rounded-r-lg">จัดการ</th>
@@ -599,10 +534,6 @@
         </main>
     </div>
 
-    <!-- =================================================== -->
-    <!-- MODALS -->
-    <!-- =================================================== -->
-    
     <div id="modal-item" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4 z-50 transition-opacity">
         <div class="bg-white rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh] transform transition-transform scale-100">
             <h3 id="modal-item-title" class="text-lg font-black text-slate-800 mb-6 flex items-center border-b pb-4"><i class="fas fa-cube text-emerald-500 mr-2"></i> สร้างรายการคลังใหม่</h3>
@@ -622,7 +553,6 @@
                     </div>
                     <div>
                         <label class="block text-slate-600 font-bold mb-1.5 ml-1">ราคาบิลแรก (฿)</label>
-                        <!-- อนุญาตให้ใส่ 0 ได้ เผื่อกรณีของฟรี -->
                         <input type="number" id="item-price" step="0.01" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-emerald-500 font-bold transition-colors" required placeholder="0.00">
                     </div>
                 </div>
@@ -672,17 +602,9 @@
                 <input type="hidden" id="edit-menu-id">
                 
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div>
-                        <label class="block text-slate-600 font-bold mb-1.5 ml-1">ชื่อเมนู</label>
-                        <input type="text" id="menu-name" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-pink-500 font-medium transition-colors" required placeholder="เช่น ชาไทยเย็น, บก.ไก่">
-                    </div>
-                    <!-- 🎯 เพิ่มหมวดหมู่เพื่อแยกระหว่าง น้ำ กับ ของกินเล่น -->
-                    <div>
-                        <label class="block text-slate-600 font-bold mb-1.5 ml-1">หมวดหมู่</label>
-                        <select id="menu-category" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-pink-500 font-bold text-slate-700 transition-colors">
-                            <option value="drink">🥤 เครื่องดื่ม</option>
-                            <option value="snack">🍔 ของกินเล่น (บก.)</option>
-                        </select>
+                    <div class="sm:col-span-2">
+                        <label class="block text-slate-600 font-bold mb-1.5 ml-1">ชื่อเมนูเครื่องดื่ม</label>
+                        <input type="text" id="menu-name" class="w-full p-3.5 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-pink-500 font-medium transition-colors" required placeholder="เช่น ชาไทยเย็น">
                     </div>
                     <div>
                         <label class="block text-slate-600 font-bold mb-1.5 ml-1">ราคาขาย (฿)</label>
@@ -695,20 +617,20 @@
                         <div>
                             <label class="block text-slate-600 font-bold mb-1.5 ml-1 text-xs">โหมดการผลิต/ตัดสต๊อก</label>
                             <select id="menu-mode" onchange="window.toggleBatchProductionFields()" class="w-full p-3 bg-white border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-pink-500 font-bold text-slate-700">
-                                <option value="batch">📦 Batch (ทำสต๊อก/ตู้แช่)</option>
-                                <option value="order">🌱 MTO (ทำสด หักวัตถุดิบ)</option>
+                                <option value="batch">📦 Batch (ต้มเก็บเข้าตู้แช่)</option>
+                                <option value="order">🌱 MTO (ชงสด หักวัตถุดิบ)</option>
                             </select>
                         </div>
                         <div>
-                            <label class="block text-slate-600 font-bold mb-1.5 ml-1 text-xs text-rose-500">แจ้งเตือนเมื่อสต๊อกต่ำกว่า (หน่วย)</label>
+                            <label class="block text-slate-600 font-bold mb-1.5 ml-1 text-xs text-rose-500">แจ้งเตือนเมื่อสต๊อกต่ำกว่า (แก้ว)</label>
                             <input type="number" id="menu-min-alert" value="5" class="w-full p-3 bg-white border border-slate-200 rounded-xl text-center font-bold outline-none focus:ring-2 focus:ring-pink-500">
                         </div>
                     </div>
                     
                     <div id="batch-qty-configuration" class="bg-purple-50 border border-purple-100 p-4 rounded-xl">
-                        <label class="block font-bold text-purple-800 mb-1.5 ml-1 text-xs"><i class="fas fa-info-circle"></i> ปริมาณเป้าหมายตามสูตร (หน่วย)</label>
+                        <label class="block font-bold text-purple-800 mb-1.5 ml-1 text-xs"><i class="fas fa-info-circle"></i> ปริมาณเป้าหมายในการต้ม 1 หม้อ (แก้ว)</label>
                         <input type="number" id="menu-batch-size" value="20" class="w-full p-3 bg-white border border-purple-200 rounded-xl text-center font-black text-purple-600 text-lg outline-none focus:ring-2 focus:ring-purple-500 shadow-sm">
-                        <p class="text-[9px] text-slate-500 mt-2 leading-tight">นำวัตถุดิบทั้งหมดด้านล่าง มาทำรวมกัน แล้วหารด้วยเลขนี้ เพื่อหา <strong class="text-slate-700">ต้นทุนต่อ 1 หน่วย</strong></p>
+                        <p class="text-[9px] text-slate-500 mt-2 leading-tight">นำวัตถุดิบทั้งหมดด้านล่าง มาต้มรวมกัน แล้วหารด้วยเลขนี้ เพื่อหา <strong class="text-slate-700">ต้นทุนต่อ 1 แก้ว</strong></p>
                     </div>
                 </div>
 
@@ -773,10 +695,7 @@
         let salesChartInstance = null;
         
         window.userRole = 'admin'; 
-        window.posCurrentFilter = 'all'; // เก็บค่า filter POS (น้ำ/ขนม)
-        window.prodCurrentFilter = 'all'; // เก็บค่า filter Production
 
-        // อนุญาตให้ค่า price เป็น 0 ได้ เผื่อกรณีแจกฟรี
         window.validateInput = (val, name, allowZero = false) => {
             const num = parseFloat(val);
             if (isNaN(num) || (!allowZero && num <= 0) || (allowZero && num < 0)) throw new Error(`ข้อมูล ${name} ไม่ถูกต้อง`);
@@ -859,7 +778,7 @@
 
             const titles = {
                 'pos': { title: '🛒 ขายหน้าร้าน (POS)', sub: 'จัดการออเดอร์และการชำระเงิน' },
-                'production': { title: '⚙️ การผลิต (Production)', sub: 'บันทึกสูตรและจัดการสินค้าพร้อมขาย' },
+                'production': { title: '⚙️ การผลิต (Production)', sub: 'บันทึกสูตรต้มและจัดการตู้แช่' },
                 'inventory': { title: '📦 คลังวัตถุดิบ (Inventory)', sub: 'จัดการรายการสินค้าและบันทึกบิลซื้อ' },
                 'menus': { title: '🍹 ตั้งค่าเมนู (Menu)', sub: 'โครงสร้างสูตรชงและราคาขาย' },
                 'dashboard': { title: '📈 รายงาน (Dashboard)', sub: 'สรุปยอดขาย บัญชี และประวัติ' },
@@ -1096,11 +1015,11 @@
                 const editId = document.getElementById('edit-item-id').value;
                 const name = document.getElementById('item-name').value.trim();
                 const type = document.getElementById('item-type').value;
-                const price = validateInput(document.getElementById('item-price').value, "ราคาทุนบิลเริ่มต้น", true);
-                const stock = type === 'variable' ? validateInput(document.getElementById('item-stock').value, "ปริมาณสุทธิเริ่มต้น", true) : 1;
+                const price = validateInput(document.getElementById('item-price').value, "ราคาทุนบิลเริ่มต้น");
+                const stock = type === 'variable' ? validateInput(document.getElementById('item-stock').value, "ปริมาณสุทธิเริ่มต้น") : 1;
                 const unit = document.getElementById('item-unit').value.trim() || 'ชิ้น';
 
-                const calculatedAvg = (type === 'variable' && stock > 0) ? (price / stock) : price;
+                const calculatedAvg = type === 'variable' ? (price / stock) : price;
                 const id = editId ? editId : Date.now().toString();
 
                 await setDoc(doc(db, "inventory", id), {
@@ -1120,7 +1039,7 @@
             if (!itemId) { showToast("กรุณาเลือกรายการ", "error"); setLoadingButton('btn-submit-purchase', false, originalText); return; }
             
             try {
-                const addedPrice = validateInput(document.getElementById('purch-price').value, "จำนวนเงิน", true);
+                const addedPrice = validateInput(document.getElementById('purch-price').value, "จำนวนเงิน");
                 const addedStock = validateInput(document.getElementById('purch-stock').value, "ปริมาณ");
 
                 await runTransaction(db, async (transaction) => {
@@ -1187,20 +1106,6 @@
             return totalTotalIngredientsCost; 
         }
 
-        window.setProdFilter = (filter) => {
-            window.prodCurrentFilter = filter;
-            document.querySelectorAll('.prod-filter-btn').forEach(b => {
-                b.classList.remove('bg-slate-800', 'text-white', 'shadow-sm');
-                b.classList.add('bg-white', 'text-slate-600', 'border', 'border-slate-200');
-            });
-            const btn = document.getElementById(`btn-prod-${filter}`);
-            if (btn) {
-                btn.classList.remove('bg-white', 'text-slate-600', 'border', 'border-slate-200');
-                btn.classList.add('bg-slate-800', 'text-white', 'shadow-sm');
-            }
-            window.renderProductionTab();
-        };
-
         window.updateProductionCostPreview = () => {
             const menuId = document.getElementById('prod-menu-id').value;
             const menu = menus.find(m => m.id == menuId);
@@ -1208,10 +1113,6 @@
                 document.getElementById('prod-recipe-yield').value = '';
                 return;
             }
-
-            const cat = menu.category || (menu.name.includes('บก.') ? 'snack' : 'drink');
-            const unitStr = cat === 'snack' ? 'ชิ้น' : 'แก้ว';
-            document.querySelectorAll('.prod-unit-label').forEach(el => el.innerText = unitStr);
 
             const batchSize = Number(menu.batchSize) || 1;
             document.getElementById('prod-recipe-yield').value = batchSize;
@@ -1230,7 +1131,7 @@
 
             document.getElementById('prod-preview-cost').innerText = `฿${totalRawForThisRun.toFixed(2)}`;
             document.getElementById('prod-preview-waste').innerText = `฿${wasteValue.toFixed(2)}`;
-            document.getElementById('prod-preview-per-cup').innerText = `฿${perCup.toFixed(2)} / ${unitStr}`;
+            document.getElementById('prod-preview-per-cup').innerText = `฿${perCup.toFixed(2)} / แก้ว`;
         };
 
         window.renderProductionTab = () => {
@@ -1238,63 +1139,45 @@
             const fgTbody = document.getElementById('fg-table-body');
             const prodHistoryTbody = document.getElementById('prod-history-body');
             
-            // กรองเมนูสำหรับ Production Select
-            const batchMenus = menus.filter(m => {
-                if(m.mode !== 'batch') return false;
-                const cat = m.category || (m.name.includes('บก.') ? 'snack' : 'drink');
-                return window.prodCurrentFilter === 'all' || cat === window.prodCurrentFilter;
-            });
-
             if (select) {
                 const prevVal = select.value;
                 select.innerHTML = '<option value="">-- เลือกเมนู --</option>';
-                batchMenus.forEach(m => {
-                    const icon = (m.category === 'snack' || m.name.includes('บก.')) ? '🍔' : '🥤';
-                    select.innerHTML += `<option value="${m.id}">${icon} ${m.name}</option>`;
+                menus.forEach(m => {
+                    if (m.mode === 'batch') select.innerHTML += `<option value="${m.id}">${m.name}</option>`;
                 });
-                if(prevVal && batchMenus.find(m => m.id == prevVal)) select.value = prevVal;
-                window.updateProductionCostPreview();
+                if(prevVal) select.value = prevVal;
             }
-
             if (fgTbody) fgTbody.innerHTML = '';
             if (prodHistoryTbody) prodHistoryTbody.innerHTML = '';
 
-            batchMenus.forEach(m => {
-                const lots = m.lots || [];
-                const totalFG = lots.reduce((s, l) => s + Number(l.qty || 0), 0);
-                const alertClass = totalFG <= (m.minAlert || 0) 
-                    ? 'bg-rose-100 text-rose-700 border border-rose-200 animate-pulse' 
-                    : 'bg-slate-100 text-slate-700 border border-slate-200';
-                
-                const cat = m.category || (m.name.includes('บก.') ? 'snack' : 'drink');
-                const unitStr = cat === 'snack' ? 'ชิ้น' : 'แก้ว';
-                const icon = cat === 'snack' ? '<i class="fas fa-hamburger text-orange-500 w-4"></i>' : '<i class="fas fa-coffee text-blue-500 w-4"></i>';
-                
-                if (lots.length === 0) {
-                    if (fgTbody) fgTbody.innerHTML += `<tr><td class="p-4 font-bold text-slate-500">${icon} ${m.name}</td><td class="p-4 text-center font-mono"><span class="px-2.5 py-1 rounded-md text-xs font-bold ${alertClass}">0 ${unitStr}</span></td><td class="p-4 text-right font-mono text-slate-400">฿0.00</td><td class="p-4 text-center text-slate-400 font-mono">-</td><td class="p-4 text-center text-slate-400">-</td></tr>`;
-                } else {
-                    lots.forEach(lot => {
-                        if (fgTbody) {
-                            fgTbody.innerHTML += `
-                            <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100 last:border-b-0">
-                                <td class="p-4 font-bold text-slate-700">${icon} ${m.name} <span class="text-[9px] font-mono bg-slate-200 text-slate-500 px-1.5 py-0.5 rounded ml-1 tracking-wider uppercase">#${lot.lotNo.slice(-4)}</span></td>
-                                <td class="p-4 text-center font-mono"><span class="px-2.5 py-1 rounded-md text-xs font-bold ${alertClass}">${lot.qty} ${unitStr}</span></td>
-                                <td class="p-4 text-right font-mono text-slate-500 font-medium">฿${Number(lot.costPerCup || 0).toFixed(2)}</td>
-                                <td class="p-4 text-center font-mono text-[10px] text-slate-500 leading-tight">P: ${lot.productionDate}<br><span class="text-rose-500 font-medium">E: ${lot.expDate}</span></td>
-                                <td class="p-4 text-center"><button type="button" onclick="window.disposeFGLot(${m.id}, '${lot.lotNo}')" class="text-xs font-bold text-rose-500 bg-rose-50 hover:bg-rose-500 hover:text-white border border-rose-100 px-3 py-1.5 rounded-lg transition-colors shadow-sm"><i class="fas fa-trash-alt mr-1"></i> ทิ้ง</button></td>
-                            </tr>`;
-                        }
-                    });
+            menus.forEach(m => {
+                if (m.mode === 'batch') {
+                    const lots = m.lots || [];
+                    const totalFG = lots.reduce((s, l) => s + Number(l.qty || 0), 0);
+                    const alertClass = totalFG <= (m.minAlert || 0) 
+                        ? 'bg-rose-100 text-rose-700 border border-rose-200 animate-pulse' 
+                        : 'bg-slate-100 text-slate-700 border border-slate-200';
+                    
+                    if (lots.length === 0) {
+                        if (fgTbody) fgTbody.innerHTML += `<tr><td class="p-4 font-bold text-slate-500">${m.name}</td><td class="p-4 text-center font-mono"><span class="px-2.5 py-1 rounded-md text-xs font-bold ${alertClass}">0 แก้ว</span></td><td class="p-4 text-right font-mono text-slate-400">฿0.00</td><td class="p-4 text-center text-slate-400 font-mono">-</td><td class="p-4 text-center text-slate-400">-</td></tr>`;
+                    } else {
+                        lots.forEach(lot => {
+                            if (fgTbody) {
+                                fgTbody.innerHTML += `
+                                <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100 last:border-b-0">
+                                    <td class="p-4 font-bold text-slate-700">${m.name} <span class="text-[9px] font-mono bg-slate-200 text-slate-500 px-1.5 py-0.5 rounded ml-1 tracking-wider uppercase">#${lot.lotNo.slice(-4)}</span></td>
+                                    <td class="p-4 text-center font-mono"><span class="px-2.5 py-1 rounded-md text-xs font-bold ${alertClass}">${lot.qty} แก้ว</span></td>
+                                    <td class="p-4 text-right font-mono text-slate-500 font-medium">฿${Number(lot.costPerCup || 0).toFixed(2)}</td>
+                                    <td class="p-4 text-center font-mono text-[10px] text-slate-500 leading-tight">P: ${lot.productionDate}<br><span class="text-rose-500 font-medium">E: ${lot.expDate}</span></td>
+                                    <td class="p-4 text-center"><button type="button" onclick="window.disposeFGLot(${m.id}, '${lot.lotNo}')" class="text-xs font-bold text-rose-500 bg-rose-50 hover:bg-rose-500 hover:text-white border border-rose-100 px-3 py-1.5 rounded-lg transition-colors shadow-sm"><i class="fas fa-trash-alt mr-1"></i> ทิ้ง</button></td>
+                                </tr>`;
+                            }
+                        });
+                    }
                 }
             });
 
-            productionHistory.filter(p => {
-                const isDisposal = p.menuName.startsWith('🔥');
-                const realMenuName = isDisposal ? p.menuName.replace('🔥 [ทิ้งตู้แช่] ', '') : p.menuName;
-                const m = menus.find(menu => menu.name === realMenuName);
-                const cat = m ? (m.category || (m.name.includes('บก.') ? 'snack' : 'drink')) : 'drink';
-                return window.prodCurrentFilter === 'all' || cat === window.prodCurrentFilter;
-            }).forEach(p => {
+            productionHistory.forEach(p => {
                 if (prodHistoryTbody) {
                     const isDisposal = p.menuName.startsWith('🔥');
                     const btnLabel = isDisposal ? 'ดึงกลับ' : 'ลบ/คืน';
@@ -1320,16 +1203,16 @@
 
         document.getElementById('production-form').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const originalText = `<i class="fas fa-box-open mr-1.5"></i> บันทึกสต๊อกพร้อมขาย`;
+            const originalText = `<i class="fas fa-box-open mr-1.5"></i> บันทึกเข้าตู้แช่`;
             setLoadingButton('btn-submit-production', true, originalText);
             const menuId = document.getElementById('prod-menu-id').value;
             if (!menuId) { showToast("กรุณาเลือกเมนู", "error"); setLoadingButton('btn-submit-production', false, originalText); return; }
             
             try {
-                const actualQty = validateInput(document.getElementById('prod-actual-qty').value, "จำนวนที่ได้จริง");
+                const actualQty = validateInput(document.getElementById('prod-actual-qty').value, "จำนวนแก้วที่แบ่งขาย");
                 const waste = parseInt(document.getElementById('prod-waste').value) || 0;
                 const expDate = document.getElementById('prod-exp-date').value;
-                if (waste >= actualQty) throw new Error("ของเสียต้องน้อยกว่าจำนวนที่ทำได้จริง");
+                if (waste >= actualQty) throw new Error("ของเสียต้องน้อยกว่าจำนวนที่แบ่งขาย");
 
                 const menu = menus.find(m => m.id == menuId);
                 const batchSize = Number(menu.batchSize) || 1;
@@ -1374,7 +1257,7 @@
                         wasteValue: wasteValue
                     });
                 });
-                showToast("บันทึกสินค้าพร้อมขายสำเร็จ", "success");
+                showToast("บันทึกสินค้าเข้าตู้แช่สำเร็จ", "success");
                 document.getElementById('production-form').reset();
                 window.updateProductionCostPreview();
             } catch (err) { showToast(err.message, "error"); } 
@@ -1493,40 +1376,21 @@
         };
 
         // --- POS CASHIER ---
-        window.setPosFilter = (filter) => {
-            window.posCurrentFilter = filter;
-            document.querySelectorAll('.pos-filter-btn').forEach(b => {
-                b.classList.remove('bg-slate-800', 'text-white', 'shadow-md');
-                b.classList.add('bg-white', 'text-slate-600', 'border', 'border-slate-200');
-            });
-            const btn = document.getElementById(`btn-filter-${filter}`);
-            if (btn) {
-                btn.classList.remove('bg-white', 'text-slate-600', 'border', 'border-slate-200');
-                btn.classList.add('bg-slate-800', 'text-white', 'shadow-md');
-            }
-            window.renderPOS();
-        };
-
         window.renderPOS = () => {
             const query = document.getElementById('search-pos-menu').value.toLowerCase();
             const grid = document.getElementById('pos-menu-grid');
             if (!grid) return;
             grid.innerHTML = '';
 
-            menus.filter(m => {
-                const matchSearch = m.name.toLowerCase().includes(query);
-                const cat = m.category || (m.name.includes('บก.') ? 'snack' : 'drink');
-                const matchFilter = window.posCurrentFilter === 'all' || cat === window.posCurrentFilter;
-                return matchSearch && matchFilter;
-            }).forEach(menu => {
+            menus.filter(m => m.name.toLowerCase().includes(query)).forEach(menu => {
                 const isBatch = menu.mode === 'batch';
                 const lots = menu.lots || [];
                 const totalFG = lots.reduce((sum, l) => sum + Number(l.qty || 0), 0);
                 const isOutOfStock = isBatch && totalFG <= 0;
                 
                 const stockBadge = isBatch 
-                    ? (isOutOfStock ? `<span class="bg-rose-100 text-rose-600 px-2 py-0.5 rounded text-[9px] font-black tracking-wide border border-rose-200">สินค้าหมด</span>` : `<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded text-[9px] font-black tracking-wide border border-blue-200">พร้อมขาย: ${totalFG}</span>`)
-                    : `<span class="bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded text-[9px] font-black tracking-wide border border-emerald-200">ทำสดใหม่</span>`;
+                    ? (isOutOfStock ? `<span class="bg-rose-100 text-rose-600 px-2 py-0.5 rounded text-[9px] font-black tracking-wide border border-rose-200">สินค้าหมด</span>` : `<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded text-[9px] font-black tracking-wide border border-blue-200">ตู้แช่: ${totalFG}</span>`)
+                    : `<span class="bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded text-[9px] font-black tracking-wide border border-emerald-200">ชงสด</span>`;
                 
                 const cardClass = isOutOfStock ? 'opacity-60 grayscale filter' : 'hover:border-emerald-400 card-hover cursor-pointer';
 
@@ -1574,34 +1438,25 @@
         };
 
         window.renderCart = () => {
-            const containerDrinks = document.getElementById('cart-items-drink');
-            const containerSnacks = document.getElementById('cart-items-snack');
-            const groupDrink = document.getElementById('cart-group-drink');
-            const groupSnack = document.getElementById('cart-group-snack');
+            const container = document.getElementById('cart-items');
             const emptyMsg = document.getElementById('empty-cart-msg');
             const countBadge = document.getElementById('cart-count-badge');
             const btn1 = document.getElementById('btn-checkout-1');
             const btn2 = document.getElementById('btn-checkout-2');
             
-            if (!containerDrinks || !containerSnacks) return;
+            if (!container) return;
             
-            containerDrinks.innerHTML = '';
-            containerSnacks.innerHTML = '';
+            Array.from(container.children).forEach(child => { if(child.id !== 'empty-cart-msg') child.remove(); });
             
             let total = 0, costCOGS = 0, totalItems = 0;
-            let drinkSubtotal = 0, snackSubtotal = 0;
 
             if(cart.length === 0) {
                 if(emptyMsg) emptyMsg.classList.remove('hidden');
-                groupDrink.classList.add('hidden');
-                groupSnack.classList.add('hidden');
                 btn1.disabled = true; btn2.disabled = true;
             } else {
                 if(emptyMsg) emptyMsg.classList.add('hidden');
                 btn1.disabled = false; btn2.disabled = false;
                 
-                let hasDrink = false, hasSnack = false;
-
                 cart.forEach(c => {
                     const menu = menus.find(m => m.id === c.menuId);
                     if (!menu) return;
@@ -1617,15 +1472,12 @@
                         }
                     } else { compCost = calculateSingleRecipeCostByAvg(menu) * c.qty; }
                     
-                    const itemTotal = menu.price * c.qty;
-                    total += itemTotal;
+                    total += menu.price * c.qty;
                     costCOGS += compCost;
                     totalItems += c.qty;
 
-                    const cat = menu.category || (menu.name.includes('บก.') ? 'snack' : 'drink');
-                    
                     const div = document.createElement('div');
-                    div.className = "flex justify-between p-3 rounded-xl bg-white border border-slate-100 shadow-sm items-center hover:border-emerald-200 transition-colors";
+                    div.className = "flex justify-between p-3 rounded-2xl bg-white border border-slate-100 shadow-sm items-center hover:border-emerald-200 transition-colors";
                     div.innerHTML = `
                         <div class="min-w-0 flex-1 pr-3">
                             <span class="font-bold text-sm text-slate-700 block truncate">${menu.name}</span>
@@ -1636,30 +1488,13 @@
                             <span class="font-black w-8 text-center text-slate-700 text-sm">${c.qty}</span>
                             <button type="button" onclick="window.updateCartQty(${c.menuId}, 1)" class="w-7 h-7 flex items-center justify-center bg-white border border-slate-200 shadow-sm rounded-lg text-slate-500 hover:text-emerald-500 transition-colors active:scale-90"><i class="fas fa-plus text-[10px]"></i></button>
                         </div>`;
-
-                    if(cat === 'drink') {
-                        drinkSubtotal += itemTotal;
-                        hasDrink = true;
-                        containerDrinks.appendChild(div);
-                    } else {
-                        snackSubtotal += itemTotal;
-                        hasSnack = true;
-                        containerSnacks.appendChild(div);
-                    }
+                    container.appendChild(div);
                 });
-
-                if(hasDrink) groupDrink.classList.remove('hidden'); else groupDrink.classList.add('hidden');
-                if(hasSnack) groupSnack.classList.remove('hidden'); else groupSnack.classList.add('hidden');
             }
             
             countBadge.innerText = `${totalItems} รายการ`;
             document.getElementById('cart-total').innerText = `฿${total.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
             document.getElementById('cart-cost').innerText = `฿${costCOGS.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
-            
-            const eDrink = document.getElementById('cart-drink-subtotal');
-            if(eDrink) eDrink.innerText = `฿${drinkSubtotal.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
-            const eSnack = document.getElementById('cart-snack-subtotal');
-            if(eSnack) eSnack.innerText = `฿${snackSubtotal.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
         };
 
         window.checkout = async (shopName) => {
@@ -1695,18 +1530,11 @@
                     }
 
                     let rev = 0, cogs = 0, logs = [], totalQty = 0;
-                    let drinkQty = 0, snackQty = 0, drinkRev = 0, snackRev = 0;
-
                     for (let c of cart) {
                         const m = menuSnaps[c.menuId];
                         const mRef = doc(db, "menus", c.menuId.toString());
-                        const itemRev = m.price * c.qty;
-                        rev += itemRev; totalQty += c.qty;
+                        rev += m.price * c.qty; totalQty += c.qty;
                         logs.push(`${m.name} x ${c.qty}`);
-
-                        const cat = m.category || (m.name.includes('บก.') ? 'snack' : 'drink');
-                        if(cat === 'drink') { drinkQty += c.qty; drinkRev += itemRev; }
-                        else { snackQty += c.qty; snackRev += itemRev; }
 
                         if (m.mode === 'batch') {
                             let remain = c.qty;
@@ -1730,15 +1558,7 @@
                     }
 
                     transaction.set(doc(db, "sales", Date.now().toString()), {
-                        id: Date.now(), 
-                        timestamp: new Date().toLocaleString('th-TH'), 
-                        items: logs.join(', '), 
-                        qty: totalQty, 
-                        revenue: rev, 
-                        profit: rev - cogs, 
-                        cogsValue: cogs, 
-                        shop: shopName,
-                        drinkQty, snackQty, drinkRev, snackRev
+                        id: Date.now(), timestamp: new Date().toLocaleString('th-TH'), items: logs.join(', '), qty: totalQty, revenue: rev, profit: rev - cogs, cogsValue: cogs, shop: shopName
                     });
                 });
                 showToast(`รับเงิน ${shopName} สำเร็จ!`, "success");
@@ -1770,44 +1590,7 @@
                 const sumFix = inventory.filter(i => i.type === 'fixed').reduce((s, x) => s + Number(x.price || 0), 0);
                 const netProfit = sumRev - sumCogs - sumWaste; 
 
-                // คำนวณยอดขายแยกตามร้านค้า
-                const sumRevShop1 = filteredSales.filter(s => s.shop === 'ร้าน 1').reduce((s, x) => s + Number(x.revenue || 0), 0);
-                const sumRevShop2 = filteredSales.filter(s => s.shop === 'ร้าน 2').reduce((s, x) => s + Number(x.revenue || 0), 0);
-                
-                // คำนวณยอดขายแยก น้ำ/ขนม
-                let sumDrinkQty = 0, sumSnackQty = 0, sumDrinkRev = 0, sumSnackRev = 0;
-                filteredSales.forEach(s => {
-                    if (s.drinkQty !== undefined) {
-                        sumDrinkQty += s.drinkQty; sumSnackQty += s.snackQty;
-                        sumDrinkRev += s.drinkRev; sumSnackRev += s.snackRev;
-                    } else {
-                        // Fallback สำหรับบิลเก่าที่ไม่มีข้อมูลแยก
-                        s.items.split(', ').forEach(p => {
-                            const lIdx = p.lastIndexOf(' x ');
-                            if (lIdx !== -1) {
-                                const name = p.substring(0, lIdx).trim();
-                                const qty = parseInt(p.substring(lIdx+3));
-                                const m = menus.find(menu => menu.name === name);
-                                const price = m ? m.price : 0;
-                                if (name.includes('บก.') || (m && m.category === 'snack')) {
-                                    sumSnackQty += qty; sumSnackRev += (price * qty);
-                                } else {
-                                    sumDrinkQty += qty; sumDrinkRev += (price * qty);
-                                }
-                            }
-                        });
-                    }
-                });
-
-                // คำนวณยอดของคงเหลือทั้งหมดในตู้
-                const remainQty = menus.reduce((sum, m) => sum + (m.mode === 'batch' ? (m.lots || []).reduce((s, l) => s + l.qty, 0) : 0), 0);
-
                 document.getElementById('dash-revenue').innerText = `฿${sumRev.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
-                const elShop1 = document.getElementById('dash-rev-shop1');
-                if(elShop1) elShop1.innerText = `฿${sumRevShop1.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
-                const elShop2 = document.getElementById('dash-rev-shop2');
-                if(elShop2) elShop2.innerText = `฿${sumRevShop2.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
-
                 document.getElementById('dash-total-variable').innerText = `฿${sumVar.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
                 document.getElementById('dash-total-fixed').innerText = `฿${sumFix.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
                 document.getElementById('dash-total-waste').innerText = `฿${sumWaste.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
@@ -1816,19 +1599,8 @@
                 pf.innerText = `฿${netProfit.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
                 pf.className = netProfit >= 0 ? "text-2xl font-black text-emerald-500 truncate" : "text-2xl font-black text-rose-500 truncate";
                 
-                // อัปเดต Summary Cards
-                const elDrinkQty = document.getElementById('dash-drink-qty');
-                if(elDrinkQty) elDrinkQty.innerText = sumDrinkQty.toLocaleString('th-TH');
-                const elDrinkRev = document.getElementById('dash-drink-rev');
-                if(elDrinkRev) elDrinkRev.innerText = `฿${sumDrinkRev.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
-
-                const elSnackQty = document.getElementById('dash-snack-qty');
-                if(elSnackQty) elSnackQty.innerText = sumSnackQty.toLocaleString('th-TH');
-                const elSnackRev = document.getElementById('dash-snack-rev');
-                if(elSnackRev) elSnackRev.innerText = `฿${sumSnackRev.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
-
-                const elRemain = document.getElementById('dash-qty-remain');
-                if(elRemain) elRemain.innerHTML = `${remainQty.toLocaleString('th-TH')}`;
+                document.getElementById('dash-qty-sold').innerHTML = `${filteredSales.reduce((s, x) => s + Number(x.qty || 0), 0)} <span class="text-xs font-medium text-slate-400 ml-1">แก้ว</span>`;
+                document.getElementById('dash-qty-produced').innerHTML = `${filteredProd.reduce((s, x) => s + Number(x.qtyProduced || 0), 0)} <span class="text-xs font-medium text-slate-400 ml-1">แก้ว</span>`;
 
                 const tbody = document.getElementById('sales-history-body');
                 if (tbody) {
@@ -1895,10 +1667,10 @@
                     <div class="flex justify-between items-center bg-white p-3 rounded-xl border border-slate-100 shadow-sm mb-2">
                         <div>
                             <span class="font-bold text-slate-800 block leading-tight">${mName}</span>
-                            <span class="text-[10px] font-medium text-slate-400">บิลนี้ขายไป ${mQty} หน่วย</span>
+                            <span class="text-[10px] font-medium text-slate-400">บิลนี้ขายไป ${mQty} แก้ว</span>
                         </div>
                         <div class="flex items-center space-x-3">
-                            <label class="text-[10px] font-bold text-rose-500 uppercase">คืนกี่หน่วย?</label>
+                            <label class="text-[10px] font-bold text-rose-500 uppercase">คืนกี่แก้ว?</label>
                             <input type="number" id="refund-qty-${index}" min="0" max="${mQty}" value="0" class="w-16 p-2 border border-rose-200 bg-rose-50 rounded-lg text-center font-black text-rose-600 focus:ring-2 focus:ring-rose-500 outline-none">
                             <input type="hidden" id="refund-name-${index}" value="${mName}">
                             <input type="hidden" id="refund-max-${index}" value="${mQty}">
@@ -1925,7 +1697,6 @@
 
                     const saleData = saleSnap.data();
                     let tQty = 0, tRev = 0, tCogs = 0;
-                    let refDrinkQty = 0, refSnackQty = 0, refDrinkRev = 0, refSnackRev = 0;
                     const itemsToRefund = [];
 
                     let i = 0;
@@ -1969,12 +1740,7 @@
 
                     for (let mId in menuSnaps) {
                         const mObj = menuSnaps[mId], m = mObj.menuData, rQty = mObj.returnQty;
-                        const itemRev = m.price * rQty;
                         
-                        const cat = m.category || (m.name.includes('บก.') ? 'snack' : 'drink');
-                        if (cat === 'drink') { refDrinkQty += rQty; refDrinkRev += itemRev; }
-                        else { refSnackQty += rQty; refSnackRev += itemRev; }
-
                         let mCost = 0;
                         if (m.mode === 'batch') {
                             const totalRaw = calculateSingleRecipeCostByAvg(m);
@@ -1999,27 +1765,11 @@
                             }
                         }
                         
-                        tQty += rQty; tRev += itemRev; tCogs += (mCost * rQty);
+                        tQty += rQty; tRev += (m.price * rQty); tCogs += (mCost * rQty);
                     }
 
-                    if (newItemsParts.length === 0) {
-                        transaction.delete(saleRef);
-                    } else {
-                        const updateData = { 
-                            items: newItemsParts.join(', '), 
-                            qty: saleData.qty - tQty, 
-                            revenue: saleData.revenue - tRev, 
-                            cogsValue: saleData.cogsValue - tCogs, 
-                            profit: (saleData.revenue - tRev) - (saleData.cogsValue - tCogs) 
-                        };
-                        if (saleData.drinkQty !== undefined) {
-                            updateData.drinkQty = saleData.drinkQty - refDrinkQty;
-                            updateData.snackQty = saleData.snackQty - refSnackQty;
-                            updateData.drinkRev = saleData.drinkRev - refDrinkRev;
-                            updateData.snackRev = saleData.snackRev - refSnackRev;
-                        }
-                        transaction.update(saleRef, updateData);
-                    }
+                    if (newItemsParts.length === 0) transaction.delete(saleRef);
+                    else transaction.update(saleRef, { items: newItemsParts.join(', '), qty: saleData.qty - tQty, revenue: saleData.revenue - tRev, cogsValue: saleData.cogsValue - tCogs, profit: (saleData.revenue - tRev) - (saleData.cogsValue - tCogs) });
                 });
                 showToast("คืนเงินและสต๊อกเรียบร้อย", "success");
                 window.closeModal('modal-refund');
@@ -2040,6 +1790,220 @@
             } catch (err) { showToast("ล้มเหลว", "error"); } 
             finally { document.getElementById('loading-screen').classList.add('hidden'); }
         };
+
+        // --- MENU MANAGEMENT ---
+        window.renderMenus = () => {
+            const grid = document.getElementById('menus-grid');
+            if (!grid) return;
+            grid.innerHTML = '';
+            
+            menus.sort((a,b) => a.id - b.id).forEach(m => {
+                let cost = calculateSingleRecipeCostByAvg(m);
+                if(m.mode === 'batch') cost = cost / (Number(m.batchSize) || 1);
+
+                const badge = m.mode === 'batch' 
+                    ? `<span class="bg-purple-100 text-purple-700 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider">📦 Batch</span>` 
+                    : `<span class="bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider">🌱 MTO</span>`;
+
+                grid.innerHTML += `
+                    <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between group hover:border-pink-200 transition-colors">
+                        <div>
+                            <div class="flex justify-between items-start mb-3">
+                                ${badge}
+                                <span class="font-black text-lg text-emerald-500 leading-none">฿${m.price}</span>
+                            </div>
+                            <h4 class="font-bold text-slate-800 leading-tight">${m.name}</h4>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-slate-100 flex justify-between items-end">
+                            <div>
+                                <span class="block text-[9px] text-slate-400 font-bold uppercase mb-0.5">ทุน/แก้ว</span>
+                                <span class="font-mono text-slate-600 font-medium">฿${cost.toFixed(2)}</span>
+                            </div>
+                            <div class="space-x-1.5 flex">
+                                <button type="button" onclick="window.editMenu(${m.id})" class="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 text-blue-500 hover:bg-blue-500 hover:text-white transition-colors shadow-sm flex items-center justify-center active:scale-95"><i class="fas fa-edit"></i></button>
+                                <button type="button" onclick="window.deleteMenu(${m.id})" class="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors shadow-sm flex items-center justify-center active:scale-95"><i class="fas fa-trash-alt"></i></button>
+                            </div>
+                        </div>
+                    </div>`;
+            });
+        };
+
+        window.addRecipeBuilderRow = (selectedItemId, quantity) => {
+            const container = document.getElementById('recipe-builder-rows');
+            if (!container) return;
+            const uniqueRowId = "recipe-row-" + Math.random().toString(36).substr(2, 6);
+            let options = `<option value="">-- เลือกวัตถุดิบ --</option>`;
+            inventory.filter(i => i.type === 'variable').forEach(i => options += `<option value="${i.id}" ${parseInt(i.id) === parseInt(selectedItemId) ? 'selected':''}>${i.name}</option>`);
+            
+            let currentUnit = 'หน่วย';
+            if (selectedItemId) { const m = inventory.find(i => parseInt(i.id) === parseInt(selectedItemId)); if (m) currentUnit = m.unit || 'หน่วย'; }
+            
+            const div = document.createElement('div');
+            div.id = uniqueRowId;
+            div.className = "flex gap-2 mb-2 items-center bg-white p-2 rounded-xl border border-slate-200 shadow-sm";
+            div.innerHTML = `
+                <select class="recipe-item-select w-full p-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-700 outline-none focus:ring-2 focus:ring-pink-500" onchange="window.updateRecipeRowUnitLabel(this, '${uniqueRowId}')">${options}</select>
+                <div class="flex items-center gap-2 shrink-0">
+                    <input type="number" step="0.001" value="${quantity}" class="recipe-qty-input w-20 p-2 bg-slate-50 border border-slate-200 rounded-lg text-center text-xs font-mono font-bold text-slate-800 outline-none focus:ring-2 focus:ring-pink-500">
+                    <span class="unit-label text-[10px] text-slate-500 font-bold w-10 text-center truncate">${currentUnit}</span>
+                    <button type="button" onclick="document.getElementById('${uniqueRowId}').remove()" class="w-8 h-8 rounded-lg bg-rose-50 text-rose-500 hover:bg-rose-500 hover:text-white transition-colors flex items-center justify-center active:scale-95"><i class="fas fa-times"></i></button>
+                </div>`;
+            container.appendChild(div);
+        };
+
+        window.updateRecipeRowUnitLabel = (selectElement, rowId) => {
+            const row = document.getElementById(rowId);
+            if (!row) return;
+            const labelSpan = row.querySelector('.unit-label');
+            if (labelSpan) {
+                if (selectElement.value) {
+                    const matched = inventory.find(i => parseInt(i.id) === parseInt(selectElement.value));
+                    labelSpan.innerText = matched ? (matched.unit || 'หน่วย') : 'หน่วย';
+                } else labelSpan.innerText = 'หน่วย'; 
+            }
+        };
+
+        window.toggleBatchProductionFields = () => {
+            const container = document.getElementById('batch-qty-configuration');
+            if (container) {
+                if (document.getElementById('menu-mode').value === 'batch') container.classList.remove('hidden'); 
+                else container.classList.add('hidden');
+            }
+        };
+
+        document.getElementById('menu-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const originalText = `บันทึกโครงสร้างสูตร`;
+            setLoadingButton('btn-save-menu', true, originalText);
+            try {
+                const id = document.getElementById('edit-menu-id').value || Date.now().toString();
+                const name = document.getElementById('menu-name').value.trim();
+                const price = validateInput(document.getElementById('menu-price').value, "ราคาขาย");
+                const mode = document.getElementById('menu-mode').value;
+                const minAlert = parseInt(document.getElementById('menu-min-alert').value) || 0;
+                const batchSize = mode === 'batch' ? validateInput(document.getElementById('menu-batch-size').value, "ปริมาณผลิต") : 1;
+
+                const recipe = [];
+                document.querySelectorAll('#recipe-builder-rows > div').forEach(row => {
+                    const itemId = row.querySelector('.recipe-item-select').value;
+                    const quantity = parseFloat(row.querySelector('.recipe-qty-input').value);
+                    if (itemId && quantity > 0) recipe.push({ itemId: parseInt(itemId), quantity: quantity });
+                });
+
+                const currentMenu = menus.find(m => m.id == id);
+                await setDoc(doc(db, "menus", id.toString()), { id: parseInt(id), name, price, mode, minAlert, batchSize, lots: currentMenu ? (currentMenu.lots || []) : [], recipe });
+                showToast("บันทึกเมนูเรียบร้อย!", "success");
+                window.closeModal('modal-menu');
+            } catch (err) { showToast(err.message, "error"); } 
+            finally { setLoadingButton('btn-save-menu', false, originalText); }
+        });
+
+        window.editMenu = (id) => {
+            const menu = menus.find(m => m.id === id);
+            if (!menu) return;
+            document.getElementById('edit-menu-id').value = menu.id;
+            document.getElementById('menu-name').value = menu.name;
+            document.getElementById('menu-price').value = menu.price;
+            document.getElementById('menu-mode').value = menu.mode;
+            document.getElementById('menu-min-alert').value = menu.minAlert || 0;
+            const batchSizeField = document.getElementById('menu-batch-size');
+            if (batchSizeField) batchSizeField.value = menu.batchSize || 20;
+            window.toggleBatchProductionFields();
+            
+            const container = document.getElementById('recipe-builder-rows');
+            container.innerHTML = '';
+            if (menu.recipe && menu.recipe.length > 0) menu.recipe.forEach(r => window.addRecipeBuilderRow(r.itemId, r.quantity));
+            else window.addRecipeBuilderRow('', 1);
+            window.openModal('modal-menu');
+        };
+
+        window.deleteMenu = async (id) => { if (confirm("ต้องการลบเมนูนี้?")) await deleteDoc(doc(db, "menus", id.toString())); };
+
+        // --- USERS MANAGEMENT ---
+        window.renderUsers = () => {
+            // Because Auth is bypassed, this is purely visual
+            const tbody = document.getElementById('users-table-body');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+            usersList.forEach(u => {
+                const roleBadge = u.role === 'admin' 
+                    ? '<span class="px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-700 font-bold border border-emerald-200 text-[10px] uppercase tracking-wider">👑 Admin</span>' 
+                    : '<span class="px-2.5 py-1 rounded-md bg-slate-200 text-slate-700 font-bold border border-slate-300 text-[10px] uppercase tracking-wider">👤 Staff</span>';
+                const dateObj = u.createdAt ? new Date(u.createdAt) : null;
+                const dateStr = dateObj ? `${dateObj.toLocaleDateString('th-TH')} ${dateObj.toLocaleTimeString('th-TH').slice(0,5)}` : '-';
+
+                tbody.innerHTML += `
+                    <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100 last:border-b-0">
+                        <td class="p-4 font-bold text-slate-800 flex items-center gap-3">
+                            <div class="w-8 h-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-500 text-xs"><i class="fas fa-user"></i></div>
+                            ${u.username || 'ไม่มีชื่อ'}
+                        </td>
+                        <td class="p-4 font-mono font-medium text-slate-500">${u.phone || '-'}</td>
+                        <td class="p-4 text-center">${roleBadge}</td>
+                        <td class="p-4 text-center font-mono text-slate-400 text-[10px]">${dateStr}</td>
+                        <td class="p-4 text-center">
+                            <button type="button" class="opacity-50 cursor-not-allowed text-blue-600 bg-blue-50 border border-blue-200 px-4 py-1.5 transition-colors rounded-lg font-bold text-xs shadow-sm"><i class="fas fa-user-edit mr-1"></i> (โหมดเปิด)</button>
+                        </td>
+                    </tr>`;
+            });
+        };
+
+        // --- GLOBAL UTILS ---
+        window.openModal = (id) => {
+            const modal = document.getElementById(id);
+            modal.classList.remove('hidden');
+            setTimeout(() => {
+                modal.classList.remove('opacity-0');
+                modal.children[0].classList.add('scale-100');
+                modal.children[0].classList.remove('scale-95');
+            }, 10);
+        };
+        
+        window.closeModal = (id) => {
+            const modal = document.getElementById(id);
+            modal.classList.add('opacity-0');
+            modal.children[0].classList.remove('scale-100');
+            modal.children[0].classList.add('scale-95');
+            setTimeout(() => modal.classList.add('hidden'), 300);
+        };
+
+        window.toggleModalYieldField = () => {
+            const type = document.getElementById('item-type').value;
+            document.getElementById('modal-yield-container').className = type === 'variable' ? 'grid grid-cols-2 gap-4 bg-emerald-50 p-4 rounded-2xl border border-emerald-100 transition-all' : 'hidden';
+        };
+
+        window.openMenuModal = () => {
+            document.getElementById('menu-form').reset();
+            document.getElementById('edit-menu-id').value = '';
+            document.getElementById('recipe-builder-rows').innerHTML = '';
+            document.getElementById('menu-mode').value = 'batch';
+            window.toggleBatchProductionFields();
+            window.addRecipeBuilderRow('', 1);
+            window.openModal('modal-menu');
+        };
+
+        window.openItemModal = () => {
+            document.getElementById('item-form').reset();
+            document.getElementById('edit-item-id').value = '';
+            document.getElementById('modal-item-title').innerHTML = `<i class="fas fa-cube text-emerald-500 mr-2"></i> สร้างรายการคลังใหม่`;
+            window.openModal('modal-item');
+        };
+
+        function showToast(msg, type = 'success') {
+            const container = document.getElementById('toast-container');
+            if (!container) return;
+            const t = document.createElement('div');
+            const icon = type === 'success' ? '<i class="fas fa-check-circle text-lg mr-2"></i>' : '<i class="fas fa-exclamation-circle text-lg mr-2"></i>';
+            t.className = `p-4 rounded-xl text-white font-medium text-sm shadow-2xl transition-all duration-500 transform translate-y-10 opacity-0 flex items-center ${type === 'success' ? 'bg-slate-800 border-l-4 border-emerald-500' : 'bg-rose-600 border-l-4 border-rose-800'}`;
+            t.innerHTML = `${icon} <span>${msg}</span>`;
+            container.appendChild(t);
+            
+            setTimeout(() => { t.classList.remove('translate-y-10', 'opacity-0'); }, 10);
+            setTimeout(() => {
+                t.classList.add('translate-y-10', 'opacity-0');
+                setTimeout(() => t.remove(), 500);
+            }, 3000);
+        }
     </script>
 </body>
 </html>
