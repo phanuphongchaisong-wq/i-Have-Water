@@ -27,7 +27,7 @@
 <body class="text-slate-800 min-h-screen flex flex-col overflow-hidden">
 
     <div id="toast-container" class="fixed bottom-5 right-5 z-50 space-y-2 flex flex-col items-end pointer-events-none"></div>
-    
+
     <div id="loading-screen" class="fixed inset-0 bg-slate-900/90 backdrop-blur-md z-50 flex flex-col items-center justify-center text-white transition-opacity duration-300">
         <div class="animate-spin rounded-full h-16 w-16 border-4 border-emerald-400 border-t-transparent mb-6 shadow-[0_0_15px_rgba(52,211,153,0.5)]"></div>
         <p class="font-medium text-lg tracking-wide animate-pulse" id="loading-text">กำลังเชื่อมต่อฐานข้อมูล Cloud...</p>
@@ -35,7 +35,7 @@
 
     <!-- MAIN WORKSPACE -->
     <div id="app-workspace" class="flex h-screen w-full overflow-hidden opacity-0 invisible transition-opacity duration-500 relative">
-        
+
         <div id="mobile-menu-backdrop" onclick="window.toggleMobileMenu()" class="fixed inset-0 bg-slate-900/40 z-40 hidden backdrop-blur-sm transition-opacity opacity-0 duration-300 lg:hidden"></div>
 
         <!-- SIDEBAR -->
@@ -92,14 +92,14 @@
                     </div>
                 </nav>
             </div>
-            
+
             <div class="p-6 border-t border-slate-800/50 bg-slate-900/50 backdrop-blur-md">
                 <button onclick="window.toggleRole()" class="w-full py-2.5 bg-slate-800/80 hover:bg-emerald-500/20 text-slate-400 hover:text-emerald-400 border border-slate-700 hover:border-emerald-500/50 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-2 group">
                     <i class="fas fa-user-shield transition-transform"></i> <span>สลับสิทธิ์: <span id="current-role-label">Admin</span></span>
                 </button>
                 <div class="mt-4 flex items-center justify-center gap-1.5 text-[10px] text-slate-500 font-medium">
                     <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span>Cloud Sync Active • v13 Bug Fixes</span>
+                    <span>Cloud Sync Active • v14 Bug Fixes</span>
                 </div>
             </div>
         </aside>
@@ -120,82 +120,85 @@
             </header>
 
             <div class="flex-1 overflow-y-auto custom-scrollbar p-4 lg:p-8 scroll-smooth pb-24 lg:pb-8">
-                
+
                 <!-- ================= TAB: POS ================= -->
-                <section id="tab-pos" class="tab-content flex flex-col lg:grid lg:grid-cols-12 gap-6 h-full">
-                    <div class="lg:col-span-8 flex flex-col h-[50vh] lg:h-full">
-                        <div class="flex items-center gap-2 mb-4 overflow-x-auto hide-scrollbar pb-1 shrink-0">
-                            <button onclick="window.setPosFilter('all')" id="btn-filter-all" class="pos-filter-btn px-5 py-2.5 rounded-xl text-sm font-bold bg-slate-800 text-white shadow-md whitespace-nowrap transition-colors">ทั้งหมด</button>
-                            <button onclick="window.setPosFilter('drink')" id="btn-filter-drink" class="pos-filter-btn px-5 py-2.5 rounded-xl text-sm font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 whitespace-nowrap transition-colors">🥤 เครื่องดื่ม</button>
-                            <button onclick="window.setPosFilter('snack')" id="btn-filter-snack" class="pos-filter-btn px-5 py-2.5 rounded-xl text-sm font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 whitespace-nowrap transition-colors">🍔 ของกินเล่น (บก.)</button>
-                        </div>
-                        
-                        <div class="relative group shrink-0 mb-5">
-                            <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors"><i class="fas fa-search"></i></span>
-                            <input type="text" id="search-pos-menu" oninput="window.renderPOS()" placeholder="ค้นหาเมนู..." class="w-full pl-11 pr-4 py-3.5 bg-white border border-slate-200 shadow-sm rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm font-medium transition-all">
-                        </div>
-                        
-                        <div class="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-2">
-                            <div id="pos-menu-grid" class="pos-grid-container"></div>
-                        </div>
-                    </div>
-                    
-                    <div class="lg:col-span-4 flex flex-col bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 shrink-0 h-[60vh] lg:h-full relative overflow-hidden">
-                        <div class="p-5 border-b border-slate-100 bg-slate-50/50 shrink-0">
-                            <h3 class="font-bold text-slate-800 flex items-center">
-                                <span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center mr-3 shadow-inner"><i class="fas fa-shopping-basket"></i></span>
-                                รายการสั่งซื้อ
-                                <span class="ml-auto text-xs font-medium px-2 py-1 bg-slate-200 text-slate-600 rounded-md" id="cart-count-badge">0 รายการ</span>
-                            </h3>
-                        </div>
+                <!-- แก้ไข: เพิ่ม div หุ้มและย้ายคลาส flex/grid ออกจาก section เพื่อไม่ให้กวน class hidden -->
+                <section id="tab-pos" class="tab-content h-full">
+                    <div class="flex flex-col lg:grid lg:grid-cols-12 gap-6 h-full">
+                        <div class="lg:col-span-8 flex flex-col h-[50vh] lg:h-full">
+                            <div class="flex items-center gap-2 mb-4 overflow-x-auto hide-scrollbar pb-1 shrink-0">
+                                <button onclick="window.setPosFilter('all')" id="btn-filter-all" class="pos-filter-btn px-5 py-2.5 rounded-xl text-sm font-bold bg-slate-800 text-white shadow-md whitespace-nowrap transition-colors">ทั้งหมด</button>
+                                <button onclick="window.setPosFilter('drink')" id="btn-filter-drink" class="pos-filter-btn px-5 py-2.5 rounded-xl text-sm font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 whitespace-nowrap transition-colors">🥤 เครื่องดื่ม</button>
+                                <button onclick="window.setPosFilter('snack')" id="btn-filter-snack" class="pos-filter-btn px-5 py-2.5 rounded-xl text-sm font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 whitespace-nowrap transition-colors">🍔 ของกินเล่น (บก.)</button>
+                            </div>
 
-                        <div id="cart-items" class="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-4 bg-slate-50/30">
-                            <div id="empty-cart-msg" class="h-full flex flex-col items-center justify-center text-slate-400 space-y-3 opacity-60">
-                                <i class="fas fa-cart-arrow-down text-4xl"></i>
-                                <p class="text-sm font-medium">ยังไม่มีรายการสั่งซื้อ</p>
+                            <div class="relative group shrink-0 mb-5">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400 group-focus-within:text-emerald-500 transition-colors"><i class="fas fa-search"></i></span>
+                                <input type="text" id="search-pos-menu" oninput="window.renderPOS()" placeholder="ค้นหาเมนู..." class="w-full pl-11 pr-4 py-3.5 bg-white border border-slate-200 shadow-sm rounded-2xl outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 text-sm font-medium transition-all">
                             </div>
-                            
-                            <div id="cart-group-drink" class="hidden">
-                                <h4 class="text-xs font-bold text-blue-500 mb-2 border-b border-blue-100 pb-1"><i class="fas fa-coffee mr-1"></i> เครื่องดื่ม</h4>
-                                <div id="cart-items-drink" class="space-y-2"></div>
-                            </div>
-                            
-                            <div id="cart-group-snack" class="hidden mt-4">
-                                <h4 class="text-xs font-bold text-orange-500 mb-2 border-b border-orange-100 pb-1"><i class="fas fa-hamburger mr-1"></i> ของกินเล่น</h4>
-                                <div id="cart-items-snack" class="space-y-2"></div>
+
+                            <div class="flex-1 overflow-y-auto custom-scrollbar pr-2 pb-2">
+                                <div id="pos-menu-grid" class="pos-grid-container"></div>
                             </div>
                         </div>
 
-                        <div class="p-5 bg-white border-t border-slate-100 shrink-0 shadow-[0_-10px_20px_rgba(0,0,0,0.02)] z-10 relative">
-                            <div class="space-y-2 mb-4 border-b border-slate-100 pb-4">
-                                <div class="flex justify-between text-xs text-slate-500 font-medium">
-                                    <span>ยอดน้ำ / เครื่องดื่ม</span>
-                                    <span id="cart-drink-subtotal" class="font-bold text-blue-500">฿0.00</span>
+                        <div class="lg:col-span-4 flex flex-col bg-white rounded-3xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 shrink-0 h-[60vh] lg:h-full relative overflow-hidden">
+                            <div class="p-5 border-b border-slate-100 bg-slate-50/50 shrink-0">
+                                <h3 class="font-bold text-slate-800 flex items-center">
+                                    <span class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center mr-3 shadow-inner"><i class="fas fa-shopping-basket"></i></span>
+                                    รายการสั่งซื้อ
+                                    <span class="ml-auto text-xs font-medium px-2 py-1 bg-slate-200 text-slate-600 rounded-md" id="cart-count-badge">0 รายการ</span>
+                                </h3>
+                            </div>
+
+                            <div id="cart-items" class="flex-1 overflow-y-auto custom-scrollbar p-5 space-y-4 bg-slate-50/30">
+                                <div id="empty-cart-msg" class="h-full flex flex-col items-center justify-center text-slate-400 space-y-3 opacity-60">
+                                    <i class="fas fa-cart-arrow-down text-4xl"></i>
+                                    <p class="text-sm font-medium">ยังไม่มีรายการสั่งซื้อ</p>
                                 </div>
-                                <div class="flex justify-between text-xs text-slate-500 font-medium">
-                                    <span>ยอดของกินเล่น (บก.)</span>
-                                    <span id="cart-snack-subtotal" class="font-bold text-orange-500">฿0.00</span>
+
+                                <div id="cart-group-drink" class="hidden">
+                                    <h4 class="text-xs font-bold text-blue-500 mb-2 border-b border-blue-100 pb-1"><i class="fas fa-coffee mr-1"></i> เครื่องดื่ม</h4>
+                                    <div id="cart-items-drink" class="space-y-2"></div>
                                 </div>
-                                <div class="flex justify-between text-[10px] text-slate-400 font-medium pt-1">
-                                    <span>*รวมต้นทุน (COGS)</span>
-                                    <span id="cart-cost">฿0.00</span>
+
+                                <div id="cart-group-snack" class="hidden mt-4">
+                                    <h4 class="text-xs font-bold text-orange-500 mb-2 border-b border-orange-100 pb-1"><i class="fas fa-hamburger mr-1"></i> ของกินเล่น</h4>
+                                    <div id="cart-items-snack" class="space-y-2"></div>
                                 </div>
                             </div>
 
-                            <div class="flex justify-between items-end mb-5">
-                                <span class="text-sm font-bold text-slate-700">ยอดชำระสุทธิ</span>
-                                <span id="cart-total" class="text-3xl font-black text-emerald-500 tracking-tight">฿0.00</span>
-                            </div>
-                            
-                            <div class="grid grid-cols-2 gap-3">
-                                <button id="btn-checkout-1" onclick="window.checkout('ร้าน 1')" class="group relative w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl shadow-lg shadow-emerald-500/25 transition-all transform active:scale-95 flex flex-col items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden">
-                                    <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
-                                    <span class="text-sm font-bold relative z-10 flex items-center gap-1.5"><i class="fas fa-wallet"></i> รับเงิน ร้าน 1</span>
-                                </button>
-                                <button id="btn-checkout-2" onclick="window.checkout('ร้าน 2')" class="group relative w-full py-4 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl shadow-lg shadow-blue-500/25 transition-all transform active:scale-95 flex flex-col items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden">
-                                    <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
-                                    <span class="text-sm font-bold relative z-10 flex items-center gap-1.5"><i class="fas fa-wallet"></i> รับเงิน ร้าน 2</span>
-                                </button>
+                            <div class="p-5 bg-white border-t border-slate-100 shrink-0 shadow-[0_-10px_20px_rgba(0,0,0,0.02)] z-10 relative">
+                                <div class="space-y-2 mb-4 border-b border-slate-100 pb-4">
+                                    <div class="flex justify-between text-xs text-slate-500 font-medium">
+                                        <span>ยอดน้ำ / เครื่องดื่ม</span>
+                                        <span id="cart-drink-subtotal" class="font-bold text-blue-500">฿0.00</span>
+                                    </div>
+                                    <div class="flex justify-between text-xs text-slate-500 font-medium">
+                                        <span>ยอดของกินเล่น (บก.)</span>
+                                        <span id="cart-snack-subtotal" class="font-bold text-orange-500">฿0.00</span>
+                                    </div>
+                                    <div class="flex justify-between text-[10px] text-slate-400 font-medium pt-1">
+                                        <span>*รวมต้นทุน (COGS)</span>
+                                        <span id="cart-cost">฿0.00</span>
+                                    </div>
+                                </div>
+
+                                <div class="flex justify-between items-end mb-5">
+                                    <span class="text-sm font-bold text-slate-700">ยอดชำระสุทธิ</span>
+                                    <span id="cart-total" class="text-3xl font-black text-emerald-500 tracking-tight">฿0.00</span>
+                                </div>
+
+                                <div class="grid grid-cols-2 gap-3">
+                                    <button id="btn-checkout-1" onclick="window.checkout('ร้าน 1')" class="group relative w-full py-4 bg-emerald-500 hover:bg-emerald-600 text-white rounded-2xl shadow-lg shadow-emerald-500/25 transition-all transform active:scale-95 flex flex-col items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden">
+                                        <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
+                                        <span class="text-sm font-bold relative z-10 flex items-center gap-1.5"><i class="fas fa-wallet"></i> รับเงิน ร้าน 1</span>
+                                    </button>
+                                    <button id="btn-checkout-2" onclick="window.checkout('ร้าน 2')" class="group relative w-full py-4 bg-blue-500 hover:bg-blue-600 text-white rounded-2xl shadow-lg shadow-blue-500/25 transition-all transform active:scale-95 flex flex-col items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed overflow-hidden">
+                                        <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300 ease-out"></div>
+                                        <span class="text-sm font-bold relative z-10 flex items-center gap-1.5"><i class="fas fa-wallet"></i> รับเงิน ร้าน 2</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -218,7 +221,7 @@
                                 <button onclick="window.setProdFilter('drink')" id="btn-prod-drink" class="prod-filter-btn px-4 py-1.5 rounded-lg text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 whitespace-nowrap transition-colors">🥤 ต้มน้ำ</button>
                                 <button onclick="window.setProdFilter('snack')" id="btn-prod-snack" class="prod-filter-btn px-4 py-1.5 rounded-lg text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 whitespace-nowrap transition-colors">🍔 ทำของกิน</button>
                             </div>
-                            
+
                             <form id="production-form" class="space-y-4 text-sm flex-1 flex flex-col">
                                 <div>
                                     <label class="block font-bold text-slate-600 mb-1.5">เมนูที่ต้องการผลิต</label>
@@ -247,7 +250,7 @@
                                         <span class="absolute right-3 top-3 text-xs text-rose-600 prod-unit-label">หน่วย</span>
                                     </div>
                                 </div>
-                                
+
                                 <div class="bg-slate-900 rounded-xl p-4 text-xs font-medium space-y-2 shadow-inner my-2">
                                     <div class="flex justify-between text-slate-300"><span>ทุนวัตถุดิบ (ตามสัดส่วนที่ทำได้):</span><span id="prod-preview-cost" class="text-white font-mono">฿0.00</span></div>
                                     <div class="flex justify-between text-rose-400"><span>มูลค่าของเสีย (โดยประมาณ):</span><span id="prod-preview-waste" class="font-mono">฿0.00</span></div>
@@ -261,13 +264,13 @@
                                     <label class="block font-bold text-slate-600 mb-1.5">วันหมดอายุ</label>
                                     <input type="date" id="prod-exp-date" class="w-full p-3 bg-slate-50 border border-slate-200 rounded-xl focus:border-orange-500 outline-none font-medium text-slate-700 transition-colors" required>
                                 </div>
-                                
+
                                 <button type="submit" id="btn-submit-production" class="w-full py-4 mt-4 bg-orange-500 hover:bg-orange-600 text-white font-bold rounded-xl shadow-lg shadow-orange-500/25 transition-all transform active:scale-95">
                                     <i class="fas fa-box-open mr-1.5"></i> บันทึกสต๊อกพร้อมขาย
                                 </button>
                             </form>
                         </div>
-                        
+
                         <div class="lg:col-span-2 flex flex-col space-y-6">
                             <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex-1 flex flex-col">
                                 <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
@@ -294,7 +297,7 @@
                                     </table>
                                 </div>
                             </div>
-                            
+
                             <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex-1 flex flex-col">
                                 <div class="flex items-center justify-between border-b border-slate-100 pb-4 mb-4">
                                     <div class="flex items-center gap-3">
@@ -312,7 +315,9 @@
                                                 <th class="p-3 rounded-l-lg">วัน-เวลา</th>
                                                 <th class="p-3">เมนู</th>
                                                 <th class="p-3 text-center">ได้จริง</th>
+                                                <th class="p-3 text-center">ของเสีย</th>
                                                 <th class="p-3 text-right">ทุนรวม</th>
+                                                <th class="p-3 text-right">ทุน/หน่วย</th>
                                                 <th class="p-3 text-center rounded-r-lg">จัดการ</th>
                                             </tr>
                                         </thead>
@@ -327,7 +332,7 @@
                 <!-- ================= TAB: INVENTORY ================= -->
                 <section id="tab-inventory" class="tab-content hidden space-y-6">
                     <div class="grid grid-cols-1 xl:grid-cols-12 gap-6">
-                        
+
                         <div class="xl:col-span-4 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm space-y-5 flex flex-col">
                             <div class="flex items-center gap-3 border-b border-slate-100 pb-4">
                                 <div class="w-10 h-10 rounded-xl bg-indigo-100 text-indigo-600 flex items-center justify-center shadow-inner"><i class="fas fa-shopping-cart text-lg"></i></div>
@@ -336,7 +341,7 @@
                                     <p class="text-[10px] text-slate-500 font-medium">เพิ่มของเข้าสต๊อกและคำนวณต้นทุนถัวเฉลี่ย</p>
                                 </div>
                             </div>
-                            
+
                             <form id="purchase-form" class="space-y-4 text-sm flex-1 flex flex-col">
                                 <div>
                                     <label class="block font-bold text-slate-600 mb-1.5">เลือกรายการที่มีในคลัง</label>
@@ -360,9 +365,9 @@
                                 </button>
                             </form>
                         </div>
-                        
+
                         <div class="xl:col-span-8 bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col space-y-6">
-                            
+
                             <div>
                                 <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-slate-100 pb-4 mb-4 shrink-0">
                                     <div class="flex items-center gap-3">
@@ -382,7 +387,7 @@
                                     <button onclick="window.setInvFilter('variable')" id="btn-filter-inv-variable" class="inv-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 whitespace-nowrap transition-colors">♻️ ของใช้แล้วหมดไป (วัตถุดิบ)</button>
                                     <button onclick="window.setInvFilter('fixed')" id="btn-filter-inv-fixed" class="inv-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 whitespace-nowrap transition-colors">📌 ซื้อครั้งเดียว (อุปกรณ์)</button>
                                 </div>
-                                
+
                                 <div class="overflow-x-auto custom-scrollbar">
                                     <table class="w-full text-left text-sm whitespace-nowrap">
                                         <thead class="bg-slate-50 text-slate-500 font-bold">
@@ -399,7 +404,7 @@
                                     </table>
                                 </div>
                             </div>
-                            
+
                             <div class="pt-6 border-t border-slate-100">
                                 <div class="flex items-center gap-3 mb-4">
                                     <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-500 flex items-center justify-center"><i class="fas fa-list-alt"></i></div>
@@ -426,29 +431,32 @@
                 </section>
 
                 <!-- ================= TAB: MENUS ================= -->
-                <section id="tab-menus" class="tab-content hidden h-full flex flex-col">
-                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-3xl border border-slate-100 shadow-sm shrink-0 mb-6">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-pink-100 text-pink-600 flex items-center justify-center shadow-inner"><i class="fas fa-utensils text-lg"></i></div>
-                            <div>
-                                <h3 class="font-bold text-slate-800 leading-tight">ตั้งค่าเมนูและผูกสูตรชง</h3>
-                                <p class="text-[10px] text-slate-500 font-medium">จัดการต้นทุนต่อหน่วยให้แม่นยำ</p>
+                <!-- แก้ไข: เพิ่ม div หุ้มและย้ายคลาส flex/grid ออกจาก section -->
+                <section id="tab-menus" class="tab-content hidden h-full">
+                    <div class="h-full flex flex-col">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-3xl border border-slate-100 shadow-sm shrink-0 mb-6">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-pink-100 text-pink-600 flex items-center justify-center shadow-inner"><i class="fas fa-utensils text-lg"></i></div>
+                                <div>
+                                    <h3 class="font-bold text-slate-800 leading-tight">ตั้งค่าเมนูและผูกสูตรชง</h3>
+                                    <p class="text-[10px] text-slate-500 font-medium">จัดการต้นทุนต่อหน่วยให้แม่นยำ</p>
+                                </div>
                             </div>
+                            <button onclick="window.openMenuModal()" class="w-full sm:w-auto bg-pink-500 hover:bg-pink-600 text-white text-xs px-5 py-3 rounded-xl font-bold shadow-lg shadow-pink-500/25 transition-all transform active:scale-95 flex items-center justify-center">
+                                <i class="fas fa-plus mr-1.5"></i> เพิ่มเมนูใหม่
+                            </button>
                         </div>
-                        <button onclick="window.openMenuModal()" class="w-full sm:w-auto bg-pink-500 hover:bg-pink-600 text-white text-xs px-5 py-3 rounded-xl font-bold shadow-lg shadow-pink-500/25 transition-all transform active:scale-95 flex items-center justify-center">
-                            <i class="fas fa-plus mr-1.5"></i> เพิ่มเมนูใหม่
-                        </button>
-                    </div>
-                    
-                    <div class="flex-1 overflow-y-auto custom-scrollbar pr-1 pb-4">
-                        <div id="menus-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+
+                        <div class="flex-1 overflow-y-auto custom-scrollbar pr-1 pb-4">
+                            <div id="menus-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                            </div>
                         </div>
                     </div>
                 </section>
 
                 <!-- ================= TAB: DASHBOARD ================= -->
                 <section id="tab-dashboard" class="tab-content hidden space-y-6">
-                    
+
                     <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                         <div class="flex items-center gap-4 w-full sm:w-auto">
                             <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 flex items-center justify-center shadow-inner shrink-0"><i class="fas fa-calendar-alt text-lg"></i></div>
@@ -543,7 +551,7 @@
                             </button>
                         </div>
                     </div>
-                    
+
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
                         <div class="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm lg:col-span-2 flex flex-col">
                             <h4 class="font-bold text-sm text-slate-700 flex items-center mb-4">
@@ -643,7 +651,7 @@
                                 <p class="text-[10px] text-slate-500 font-medium">ดูรายชื่อพนักงานที่ลงทะเบียนไว้</p>
                             </div>
                         </div>
-                        
+
                         <div class="overflow-x-auto custom-scrollbar flex-1 border border-slate-100 rounded-xl">
                             <table class="w-full text-left text-sm whitespace-nowrap">
                                 <thead class="bg-slate-50 text-slate-500 font-bold border-b border-slate-100 sticky top-0">
@@ -667,7 +675,7 @@
     <!-- =================================================== -->
     <!-- MODALS -->
     <!-- =================================================== -->
-    
+
     <div id="modal-item" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm hidden items-center justify-center p-4 z-50 transition-opacity duration-300 opacity-0">
         <div class="bg-white rounded-3xl p-6 md:p-8 w-full max-w-md shadow-2xl overflow-y-auto max-h-[90vh] transform transition-transform duration-300 scale-95">
             <h3 id="modal-item-title" class="text-lg font-black text-slate-800 mb-6 flex items-center border-b pb-4"><i class="fas fa-cube text-emerald-500 mr-2"></i> สร้างรายการคลังใหม่</h3>
@@ -734,7 +742,7 @@
             <h3 class="text-lg font-black text-slate-800 mb-6 flex items-center border-b pb-4"><i class="fas fa-cocktail text-pink-500 mr-2"></i> ตั้งค่าโครงสร้างสูตรเมนู</h3>
             <form id="menu-form" class="space-y-5 text-sm">
                 <input type="hidden" id="edit-menu-id">
-                
+
                 <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                     <div>
                         <label class="block text-slate-600 font-bold mb-1.5 ml-1">ชื่อเมนู</label>
@@ -767,7 +775,7 @@
                             <input type="number" id="menu-min-alert" value="5" class="w-full p-3 bg-white border border-slate-200 rounded-xl text-center font-bold outline-none focus:ring-2 focus:ring-pink-500">
                         </div>
                     </div>
-                    
+
                     <div id="batch-qty-configuration" class="bg-purple-50 border border-purple-100 p-4 rounded-xl">
                         <label class="block font-bold text-purple-800 mb-1.5 ml-1 text-xs"><i class="fas fa-info-circle"></i> ปริมาณเป้าหมายตามสูตร (หน่วย)</label>
                         <input type="number" id="menu-batch-size" value="20" class="w-full p-3 bg-white border border-purple-200 rounded-xl text-center font-black text-purple-600 text-lg outline-none focus:ring-2 focus:ring-purple-500 shadow-sm">
@@ -893,7 +901,7 @@
         let purchaseLogs = [];
         let cart = [];
         let salesChartInstance = null;
-        
+
         window.userRole = 'admin'; 
         window.posCurrentFilter = 'all'; 
         window.prodCurrentFilter = 'all'; 
@@ -944,16 +952,15 @@
             const modal = document.getElementById(id);
             if (!modal) return;
             modal.classList.remove('hidden');
-            modal.classList.add('flex'); // Add flex back safely
-            
-            // Trigger reflow for animation
+            modal.classList.add('flex'); 
+
             void modal.offsetWidth;
-            
+
             modal.classList.remove('opacity-0');
             modal.children[0].classList.add('scale-100');
             modal.children[0].classList.remove('scale-95');
         };
-        
+
         window.closeModal = (id) => {
             const modal = document.getElementById(id);
             if (!modal) return;
@@ -975,7 +982,7 @@
         window.toggleMobileMenu = () => {
             const sidebar = document.getElementById('sidebar');
             const backdrop = document.getElementById('mobile-menu-backdrop');
-            
+
             if (sidebar.classList.contains('-translate-x-full')) {
                 sidebar.classList.remove('-translate-x-full');
                 backdrop.classList.remove('hidden');
@@ -998,7 +1005,7 @@
                 tab.classList.add('hidden');
                 tab.classList.remove('animate-fade-in');
             });
-            
+
             const activeTab = document.getElementById(`tab-${tabId}`);
             activeTab.classList.remove('hidden');
             void activeTab.offsetWidth;
@@ -1009,7 +1016,7 @@
                 btn.classList.add('text-slate-400', 'font-medium');
                 btn.querySelector('i').classList.remove('text-emerald-500');
             });
-            
+
             btnElement.classList.remove('text-slate-400', 'font-medium');
             btnElement.classList.add('bg-emerald-500/10', 'text-emerald-400', 'font-semibold');
             btnElement.querySelector('i').classList.add('text-emerald-500');
@@ -1022,7 +1029,7 @@
                 'dashboard': { title: '📈 รายงาน (Dashboard)', sub: 'สรุปยอดขาย บัญชี และประวัติ' },
                 'users': { title: '👥 รายชื่อพนักงาน (Staff)', sub: 'รายชื่อทีมงานทั้งหมด' }
             };
-            
+
             document.getElementById('page-title').innerText = titles[tabId].title;
             const subTitle = document.getElementById('page-subtitle');
             if(subTitle) subTitle.innerText = titles[tabId].sub;
@@ -1043,14 +1050,14 @@
             const roleBadge = document.getElementById('user-role-badge');
             const roleLabel = document.getElementById('current-role-label');
             const lockIcons = document.querySelectorAll('.lock-icon');
-            
+
             if (window.userRole === 'admin') {
                 if(roleBadge) {
                     roleBadge.innerHTML = 'ADMIN';
                     roleBadge.className = 'ml-2 px-2 py-0.5 rounded text-[9px] font-black bg-emerald-500 text-white shadow-sm inline-block tracking-wider';
                 }
                 if(roleLabel) roleLabel.innerText = 'Admin';
-                
+
                 lockIcons.forEach(icon => icon.classList.add('hidden'));
                 const resetBtn = document.getElementById('btn-reset-dashboard');
                 if(resetBtn) resetBtn.classList.remove('hidden');
@@ -1076,7 +1083,7 @@
             const ls = document.getElementById('loading-screen');
             ls.classList.remove('hidden');
             ls.classList.remove('opacity-0');
-            
+
             const appWorkspace = document.getElementById('app-workspace');
             appWorkspace.classList.remove('hidden', 'invisible');
             setTimeout(() => appWorkspace.classList.remove('opacity-0'), 50);
@@ -1110,7 +1117,7 @@
                     snapshot.forEach(doc => inventory.push(doc.data()));
                     window.renderInventory();
                 }, handleFbError);
-                
+
                 onSnapshot(collection(db, "purchases"), (snapshot) => {
                     purchaseLogs = [];
                     snapshot.forEach(doc => purchaseLogs.push(doc.data()));
@@ -1203,7 +1210,7 @@
                 const badge = item.type === 'fixed' 
                     ? `<span class="px-2.5 py-1 text-[10px] rounded-md font-bold bg-indigo-50 text-indigo-600 border border-indigo-100">📌 อุปกรณ์</span>`
                     : `<span class="px-2.5 py-1 text-[10px] rounded-md font-bold bg-teal-50 text-teal-600 border border-teal-100">♻️ วัตถุดิบ</span>`;
-                
+
                 tbody.innerHTML += `
                     <tr class="border-b border-slate-100 last:border-b-0 hover:bg-slate-50/50 transition-colors">
                         <td class="p-4 font-bold text-slate-700">${item.name}</td>
@@ -1226,7 +1233,7 @@
             const tbody = document.getElementById('inventory-log-body');
             if (!tbody) return;
             tbody.innerHTML = '';
-            
+
             if(purchaseLogs.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 font-medium">ยังไม่มีประวัติการเติมสต๊อก</td></tr>`;
                 return;
@@ -1260,17 +1267,17 @@
             e.preventDefault();
             const originalText = `ปรับยอด`;
             setLoadingButton('btn-save-adjust-stock', true, originalText);
-            
+
             try {
                 const id = document.getElementById('adjust-item-id').value;
                 const newStock = parseFloat(document.getElementById('adjust-stock-val').value);
-                
+
                 if(isNaN(newStock) || newStock < 0) throw new Error("จำนวนสต๊อกไม่ถูกต้อง");
 
                 await updateDoc(doc(db, "inventory", id.toString()), {
                     stock: newStock
                 });
-                
+
                 showToast("ปรับยอดสต๊อกสำเร็จ", "success");
                 window.closeModal('modal-adjust-stock');
             } catch (err) { 
@@ -1311,7 +1318,7 @@
             setLoadingButton('btn-submit-purchase', true, originalText);
             const itemId = document.getElementById('purch-item-id').value;
             if (!itemId) { showToast("กรุณาเลือกรายการ", "error"); setLoadingButton('btn-submit-purchase', false, originalText); return; }
-            
+
             try {
                 const addedPrice = validateInput(document.getElementById('purch-price').value, "จำนวนเงิน", true);
                 const addedStock = validateInput(document.getElementById('purch-stock').value, "ปริมาณ");
@@ -1328,11 +1335,11 @@
                     const totalNewPrice = oldPrice + addedPrice;
                     const totalNewStock = oldStock + addedStock;
                     const finalAvg = totalNewStock > 0 ? (((oldStock * oldAvg) + addedPrice) / totalNewStock) : 0;
-                    
+
                     const costPerUnitThisLot = addedStock > 0 ? (addedPrice / addedStock) : 0;
 
                     transaction.update(itemRef, { price: totalNewPrice, stock: totalNewStock, avgCost: finalAvg });
-                    
+
                     transaction.set(doc(db, "purchases", Date.now().toString()), {
                         id: Date.now(),
                         timestamp: new Date().toLocaleString('th-TH'),
@@ -1429,10 +1436,10 @@
 
             const fullRecipeCost = calculateSingleRecipeCostByAvg(menu);
             const costPerCupTheoretical = fullRecipeCost / batchSize;
-            
+
             const totalRawForThisRun = costPerCupTheoretical * actualQty;
             const usable = actualQty - waste;
-            
+
             const perCup = usable > 0 ? (totalRawForThisRun / usable) : 0;
             const wasteValue = waste > 0 ? (costPerCupTheoretical * waste) : 0;
 
@@ -1445,7 +1452,7 @@
             const select = document.getElementById('prod-menu-id');
             const fgTbody = document.getElementById('fg-table-body');
             const prodHistoryTbody = document.getElementById('prod-history-body');
-            
+
             const batchMenus = menus.filter(m => {
                 if(m.mode !== 'batch') return false;
                 const cat = m.category || (m.name.includes('บก.') ? 'snack' : 'drink');
@@ -1472,11 +1479,11 @@
                 const alertClass = totalFG <= (m.minAlert || 0) 
                     ? 'bg-rose-100 text-rose-700 border border-rose-200 animate-pulse' 
                     : 'bg-slate-100 text-slate-700 border border-slate-200';
-                
+
                 const cat = m.category || (m.name.includes('บก.') ? 'snack' : 'drink');
                 const unitStr = cat === 'snack' ? 'ชิ้น' : 'แก้ว';
                 const icon = cat === 'snack' ? '<i class="fas fa-hamburger text-orange-500 w-4"></i>' : '<i class="fas fa-coffee text-blue-500 w-4"></i>';
-                
+
                 if (lots.length === 0) {
                     if (fgTbody) fgTbody.innerHTML += `<tr><td class="p-4 font-bold text-slate-500">${icon} ${m.name}</td><td class="p-4 text-center font-mono"><span class="px-2.5 py-1 rounded-md text-xs font-bold ${alertClass}">0 ${unitStr}</span></td><td class="p-4 text-right font-mono text-slate-400">฿0.00</td><td class="p-4 text-center text-slate-400 font-mono">-</td><td class="p-4 text-center text-slate-400">-</td></tr>`;
                 } else {
@@ -1499,14 +1506,14 @@
                 const isDisposal = p.menuName.startsWith('🔥');
                 const realMenuName = isDisposal ? p.menuName.replace('🔥 [ทิ้งตู้แช่] ', '') : p.menuName;
                 const m = menus.find(menu => menu.name === realMenuName);
-                const cat = m ? (m.category || (m.name.includes('บก.') ? 'snack' : 'drink')) : 'drink';
+                const cat = m ? (m.category || (m.name.includes('บก.') ? 'snack' : 'drink')) : (p.menuName.includes('บก.') ? 'snack' : 'drink');
                 return window.prodCurrentFilter === 'all' || cat === window.prodCurrentFilter;
             }).forEach(p => {
                 if (prodHistoryTbody) {
                     const isDisposal = p.menuName.startsWith('🔥');
                     const btnLabel = isDisposal ? 'ดึงกลับ' : 'ลบ/คืน';
                     const btnIcon = isDisposal ? 'fa-box' : 'fa-undo';
-                    
+
                     prodHistoryTbody.innerHTML += `
                     <tr class="hover:bg-slate-50/50 transition-colors border-b border-slate-100 last:border-b-0">
                         <td class="p-4 font-mono text-slate-400 text-[10px] tracking-tight">${p.timestamp}</td>
@@ -1531,7 +1538,7 @@
             setLoadingButton('btn-submit-production', true, originalText);
             const menuId = document.getElementById('prod-menu-id').value;
             if (!menuId) { showToast("กรุณาเลือกเมนู", "error"); setLoadingButton('btn-submit-production', false, originalText); return; }
-            
+
             try {
                 const actualQty = validateInput(document.getElementById('prod-actual-qty').value, "จำนวนที่ได้จริง");
                 const waste = parseInt(document.getElementById('prod-waste').value) || 0;
@@ -1542,7 +1549,7 @@
                 const batchSize = Number(menu.batchSize) || 1;
                 const fullRecipeCost = calculateSingleRecipeCostByAvg(menu);
                 const costPerCupTheoretical = fullRecipeCost / batchSize;
-                
+
                 const totalCost = costPerCupTheoretical * actualQty;
                 const usable = actualQty - waste;
                 const costPerCupActual = usable > 0 ? (totalCost / usable) : 0;
@@ -1558,7 +1565,7 @@
                         if(!iSnap.exists()) throw new Error(`ไม่พบวัตถุดิบหนึ่งในสูตร (อาจถูกลบไปแล้ว)`);
                         invSnaps.push(iSnap);
                     }
-                    
+
                     for (let idx = 0; idx < menu.recipe.length; idx++) {
                         const needed = (menu.recipe[idx].quantity / batchSize) * actualQty;
                         if (Number(invSnaps[idx].data().stock || 0) < needed) throw new Error(`วัตถุดิบ [${invSnaps[idx].data().name}] ไม่พอ`);
@@ -1572,7 +1579,7 @@
                     const currentLots = mSnap.data().lots || [];
                     currentLots.push({ lotNo, productionDate: new Date().toLocaleDateString('th-TH'), expDate, qty: usable, costPerCup: costPerCupActual });
                     transaction.update(menuRef, { lots: currentLots });
-                    
+
                     transaction.set(doc(db, "production", Date.now().toString()), {
                         id: Date.now().toString(), 
                         timestamp: new Date().toLocaleString('th-TH'), 
@@ -1592,11 +1599,13 @@
             finally { setLoadingButton('btn-submit-production', false, originalText); }
         });
 
+        // 🟢 แก้ไข: ยอมลบประวัติบัญชี (Transaction Delete) ให้สำเร็จเสมอแม้เมนูต้นฉบับจะถูกลบไปแล้ว 
+        // ป้องกัน Error บล็อกการลบประวัติ
         window.deleteProductionLog = async (prodId) => {
             if (window.userRole !== 'admin') { showToast("🔒 สิทธิ์เฉพาะ Admin", "error"); return; }
             if (!confirm("⚠️ ยืนยันการลบประวัติและคืนสต๊อก?")) return;
 
-            document.getElementById('loading-text').innerText = "กำลังคืนสต๊อก...";
+            document.getElementById('loading-text').innerText = "กำลังดำเนินการ...";
             document.getElementById('loading-screen').classList.remove('hidden');
 
             try {
@@ -1608,17 +1617,17 @@
                     const prodData = prodSnap.data();
                     const isDisposal = prodData.menuName.startsWith('🔥');
                     const realMenuName = isDisposal ? prodData.menuName.replace('🔥 [ทิ้งตู้แช่] ', '') : prodData.menuName;
-                    
+
                     const menu = menus.find(m => m.name === realMenuName);
-                    if (!menu) throw new Error(`ไม่พบเมนู [${realMenuName}] ในระบบ อาจถูกลบไปแล้ว ไม่สามารถคืนสต๊อกได้ ระบบจะยกเลิกการทำงานเพื่อป้องกันข้อผิดพลาดทางบัญชี`);
                     
                     let menuRef = null, mSnap = null;
                     const invSnaps = {};
 
+                    // ถ้าหาเมนูเจอ ให้ดำเนินการเตรียมคืนสต๊อก
                     if (menu) {
                         menuRef = doc(db, "menus", menu.id.toString());
                         mSnap = await transaction.get(menuRef);
-                        
+
                         if (!isDisposal && menu.recipe && menu.recipe.length > 0) {
                             for (let r of menu.recipe) {
                                 const invRef = doc(db, "inventory", r.itemId.toString());
@@ -1628,6 +1637,7 @@
                         }
                     }
 
+                    // ถ้าเมนูและข้อมูลของเมนูนั้นยังอยู่ จึงจะจัดการลด/เพิ่ม Lot หรือคืนสต๊อกวัตถุดิบ
                     if (menu && mSnap && mSnap.exists()) {
                         if (isDisposal) {
                             let lots = mSnap.data().lots || [];
@@ -1641,7 +1651,7 @@
                             transaction.update(menuRef, { lots: lots });
                         } else {
                             const totalQtyUsed = Number(prodData.qtyProduced || 0) + Number(prodData.wasteQty || 0);
-                            
+
                             if (menu.recipe && menu.recipe.length > 0) {
                                 const batchSize = Number(menu.batchSize) || 1;
                                 for (let r of menu.recipe) {
@@ -1669,8 +1679,12 @@
                                 transaction.update(menuRef, { lots: lots.filter(l => l.qty > 0) });
                             }
                         }
+                    } else {
+                        // แจ้งเตือนใน Console กรณีที่หาเมนูไม่เจอ ระบบจะไม่คืนสต๊อกวัตถุดิบ (ป้องกันระบบรวน)
+                        console.warn("ไม่พบเมนูต้นฉบับ ข้ามการจัดการสต๊อกแต่จะลบประวัติผลิตออก");
                     }
-                    
+
+                    // *** สำคัญ: ต้องลบประวัติทิ้งเสมอ ไม่ว่าจะหาเมนูเจอหรือไม่ เพื่อให้ Dashboard Update! ***
                     transaction.delete(prodRef);
 
                 });
@@ -1732,11 +1746,11 @@
                 const lots = menu.lots || [];
                 const totalFG = lots.reduce((sum, l) => sum + Number(l.qty || 0), 0);
                 const isOutOfStock = isBatch && totalFG <= 0;
-                
+
                 const stockBadge = isBatch 
                     ? (isOutOfStock ? `<span class="bg-rose-100 text-rose-600 px-2 py-0.5 rounded text-[9px] font-black tracking-wide border border-rose-200">สินค้าหมด</span>` : `<span class="bg-blue-100 text-blue-600 px-2 py-0.5 rounded text-[9px] font-black tracking-wide border border-blue-200">พร้อมขาย: ${totalFG}</span>`)
                     : `<span class="bg-emerald-100 text-emerald-600 px-2 py-0.5 rounded text-[9px] font-black tracking-wide border border-emerald-200">ทำสดใหม่</span>`;
-                
+
                 const cardClass = isOutOfStock ? 'opacity-60 grayscale filter' : 'hover:border-emerald-400 card-hover cursor-pointer';
 
                 let displayCost = 0;
@@ -1793,12 +1807,12 @@
             const countBadge = document.getElementById('cart-count-badge');
             const btn1 = document.getElementById('btn-checkout-1');
             const btn2 = document.getElementById('btn-checkout-2');
-            
+
             if (!containerDrinks || !containerSnacks) return;
-            
+
             containerDrinks.innerHTML = '';
             containerSnacks.innerHTML = '';
-            
+
             let total = 0, costCOGS = 0, totalItems = 0;
             let drinkSubtotal = 0, snackSubtotal = 0;
 
@@ -1810,7 +1824,7 @@
             } else {
                 if(emptyMsg) emptyMsg.classList.add('hidden');
                 btn1.disabled = false; btn2.disabled = false;
-                
+
                 let hasDrink = false, hasSnack = false;
 
                 cart.forEach(c => {
@@ -1827,14 +1841,14 @@
                             needed -= taken;
                         }
                     } else { compCost = calculateSingleRecipeCostByAvg(menu) * c.qty; }
-                    
+
                     const itemTotal = menu.price * c.qty;
                     total += itemTotal;
                     costCOGS += compCost;
                     totalItems += c.qty;
 
                     const cat = menu.category || (menu.name.includes('บก.') ? 'snack' : 'drink');
-                    
+
                     const div = document.createElement('div');
                     div.className = "flex justify-between p-3 rounded-xl bg-white border border-slate-100 shadow-sm items-center hover:border-emerald-200 transition-colors";
                     div.innerHTML = `
@@ -1862,11 +1876,11 @@
                 if(hasDrink) groupDrink.classList.remove('hidden'); else groupDrink.classList.add('hidden');
                 if(hasSnack) groupSnack.classList.remove('hidden'); else groupSnack.classList.add('hidden');
             }
-            
+
             countBadge.innerText = `${totalItems} รายการ`;
             document.getElementById('cart-total').innerText = `฿${total.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
             document.getElementById('cart-cost').innerText = `฿${costCOGS.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
-            
+
             const eDrink = document.getElementById('cart-drink-subtotal');
             if(eDrink) eDrink.innerText = `฿${drinkSubtotal.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
             const eSnack = document.getElementById('cart-snack-subtotal');
@@ -1988,11 +2002,9 @@
                 const sumFix = inventory.filter(i => i.type === 'fixed').reduce((s, x) => s + Number(x.price || 0), 0);
                 const netProfit = sumSaleProfit - sumWaste;
 
-                // คำนวณยอดขายแยกตามร้านค้า
                 const sumRevShop1 = filteredSales.filter(s => s.shop === 'ร้าน 1').reduce((s, x) => s + Number(x.revenue || 0), 0);
                 const sumRevShop2 = filteredSales.filter(s => s.shop === 'ร้าน 2').reduce((s, x) => s + Number(x.revenue || 0), 0);
-                
-                // คำนวณยอดขายแยก น้ำ/ขนม
+
                 let sumDrinkQty = 0, sumSnackQty = 0, sumDrinkRev = 0, sumSnackRev = 0;
                 filteredSales.forEach(s => {
                     if (s.drinkQty !== undefined) {
@@ -2016,7 +2028,6 @@
                     }
                 });
 
-                // คำนวณกำไรแยกตามประเภท (แจกจ่าย COGS ตามสัดส่วนรายได้ของแต่ละประเภท)
                 let snackProfit = 0, drinkProfit = 0;
                 filteredSales.forEach(s => {
                     const rev = Number(s.revenue || 0);
@@ -2030,13 +2041,11 @@
                         snackProfit += (sSnackRev - snackCogs);
                         drinkProfit += (sDrinkRev - drinkCogs);
                     } else {
-                        // ถ้าไม่มีข้อมูล COGS ให้ประมาณโดยใช้รายได้เป็นกำไร (fallback)
                         snackProfit += sSnackRev;
                         drinkProfit += sDrinkRev;
                     }
                 });
 
-                // คำนวณยอดของคงเหลือทั้งหมดในตู้
                 const filteredWithdrawals = withdrawals.filter(w => !selectedDate || w.timestamp.startsWith(formatMatcher));
                 const sumWithdrawn = filteredWithdrawals.reduce((s, x) => s + Number(x.amount || 0), 0);
                 const remainingProfit = netProfit - sumWithdrawn;
@@ -2068,7 +2077,7 @@
                 document.getElementById('dash-total-variable').innerText = `฿${sumVar.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
                 document.getElementById('dash-total-fixed').innerText = `฿${sumFix.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
                 document.getElementById('dash-total-waste').innerText = `฿${sumWaste.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
-                
+
                 const pf = document.getElementById('dash-net-profit');
                 pf.innerText = `฿${netProfit.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
                 pf.className = netProfit >= 0 ? "text-2xl font-black text-emerald-500 truncate" : "text-2xl font-black text-rose-500 truncate";
@@ -2080,13 +2089,12 @@
                     remainEl.innerText = `฿${remainingProfit.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
                     remainEl.className = remainingProfit >= 0 ? "text-2xl font-black text-emerald-500 truncate" : "text-2xl font-black text-rose-500 truncate";
                 }
-                
+
                 const drinkProfitEl = document.getElementById('dash-drink-profit');
                 if (drinkProfitEl) drinkProfitEl.innerText = `฿${drinkProfit.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
                 const snackProfitEl = document.getElementById('dash-snack-profit');
                 if (snackProfitEl) snackProfitEl.innerText = `฿${snackProfit.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
-                
-                // อัปเดต Summary Cards
+
                 const elDrinkQty = document.getElementById('dash-drink-qty');
                 if(elDrinkQty) elDrinkQty.innerText = sumDrinkQty.toLocaleString('th-TH');
                 const elDrinkRev = document.getElementById('dash-drink-rev');
@@ -2292,10 +2300,10 @@
                     for (let item of itemsToRefund) {
                         const menu = menus.find(m => m.name === item.name);
                         if (!menu) throw new Error(`ไม่พบเมนู [${item.name}] ในระบบ (อาจถูกลบหรือเปลี่ยนชื่อ) ไม่สามารถคำนวณยอดคืนได้`);
-                        
+
                         const menuRef = doc(db, "menus", menu.id.toString());
                         menuSnaps[menu.id] = { ref: menuRef, snap: await transaction.get(menuRef), returnQty: item.returnQty, menuData: menu };
-                        
+
                         if (menu.mode === 'order' && menu.recipe) {
                             for (let r of menu.recipe) {
                                 if (!invSnaps[r.itemId]) {
@@ -2314,7 +2322,7 @@
                         if (lIdx === -1) continue;
                         const mName = oldPart.substring(0, lIdx).trim();
                         const oQty = parseInt(oldPart.substring(lIdx + 3).trim());
-                        
+
                         const refItem = itemsToRefund.find(i => i.name === mName);
                         if (refItem) {
                             const rem = oQty - refItem.returnQty;
@@ -2325,7 +2333,7 @@
                     for (let mId in menuSnaps) {
                         const mObj = menuSnaps[mId], m = mObj.menuData, rQty = mObj.returnQty;
                         const itemRev = m.price * rQty;
-                        
+
                         const cat = m.category || (m.name.includes('บก.') ? 'snack' : 'drink');
                         if (cat === 'drink') { refDrinkQty += rQty; refDrinkRev += itemRev; }
                         else { refSnackQty += rQty; refSnackRev += itemRev; }
@@ -2334,7 +2342,7 @@
                         if (m.mode === 'batch') {
                             const totalRaw = calculateSingleRecipeCostByAvg(m);
                             mCost = totalRaw / (Number(m.batchSize) || 1); 
-                            
+
                             if (mObj.snap.exists()) {
                                 let lots = mObj.snap.data().lots || [];
                                 lots.push({ lotNo: "REFUND-" + Date.now().toString().slice(-4), productionDate: new Date().toLocaleDateString('th-TH'), expDate: "รับคืน", qty: rQty, costPerCup: mCost });
@@ -2353,7 +2361,7 @@
                                 }
                             }
                         }
-                        
+
                         tQty += rQty; tRev += itemRev; tCogs += (mCost * rQty);
                     }
 
@@ -2422,7 +2430,7 @@
             const batchSizeField = document.getElementById('menu-batch-size');
             if (batchSizeField) batchSizeField.value = menu.batchSize || 20;
             window.toggleBatchProductionFields();
-            
+
             const container = document.getElementById('recipe-builder-rows');
             container.innerHTML = '';
             if (menu.recipe && menu.recipe.length > 0) menu.recipe.forEach(r => window.addRecipeBuilderRow(r.itemId, r.quantity));
@@ -2444,10 +2452,10 @@
             const uniqueRowId = "recipe-row-" + Math.random().toString(36).substr(2, 6);
             let options = `<option value="">-- เลือกวัตถุดิบ --</option>`;
             inventory.filter(i => i.type === 'variable').forEach(i => options += `<option value="${i.id}" ${i.id.toString() === selectedItemId.toString() ? 'selected':''}>${i.name}</option>`);
-            
+
             let currentUnit = 'หน่วย';
             if (selectedItemId) { const m = inventory.find(i => i.id.toString() === selectedItemId.toString()); if (m) currentUnit = m.unit || 'หน่วย'; }
-            
+
             const div = document.createElement('div');
             div.id = uniqueRowId;
             div.className = "flex gap-2 mb-2 items-center bg-white p-2 rounded-xl border border-slate-200 shadow-sm";
@@ -2511,7 +2519,7 @@
             const grid = document.getElementById('menus-grid');
             if (!grid) return;
             grid.innerHTML = '';
-            
+
             menus.sort((a,b) => a.name.localeCompare(b.name)).forEach(m => {
                 let cost = calculateSingleRecipeCostByAvg(m);
                 if(m.mode === 'batch') cost = cost / (Number(m.batchSize) || 1);
