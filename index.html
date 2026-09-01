@@ -122,7 +122,6 @@
             <div class="flex-1 overflow-y-auto custom-scrollbar p-4 lg:p-8 scroll-smooth pb-24 lg:pb-8">
 
                 <!-- ================= TAB: POS ================= -->
-                <!-- แก้ไข: เพิ่ม div หุ้มและย้ายคลาส flex/grid ออกจาก section เพื่อไม่ให้กวน class hidden -->
                 <section id="tab-pos" class="tab-content h-full">
                     <div class="flex flex-col lg:grid lg:grid-cols-12 gap-6 h-full">
                         <div class="lg:col-span-8 flex flex-col h-[50vh] lg:h-full">
@@ -179,7 +178,7 @@
                                         <span id="cart-snack-subtotal" class="font-bold text-orange-500">฿0.00</span>
                                     </div>
                                     <div class="flex justify-between text-[10px] text-slate-400 font-medium pt-1">
-                                        <span>*รวมต้นทุน (COGS)</span>
+                                        <span>*รวมต้นทุนจริง</span>
                                         <span id="cart-cost">฿0.00</span>
                                     </div>
                                 </div>
@@ -431,7 +430,6 @@
                 </section>
 
                 <!-- ================= TAB: MENUS ================= -->
-                <!-- แก้ไข: เพิ่ม div หุ้มและย้ายคลาส flex/grid ออกจาก section -->
                 <section id="tab-menus" class="tab-content hidden h-full">
                     <div class="h-full flex flex-col">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-3xl border border-slate-100 shadow-sm shrink-0 mb-6">
@@ -1599,8 +1597,6 @@
             finally { setLoadingButton('btn-submit-production', false, originalText); }
         });
 
-        // 🟢 แก้ไข: ยอมลบประวัติบัญชี (Transaction Delete) ให้สำเร็จเสมอแม้เมนูต้นฉบับจะถูกลบไปแล้ว 
-        // ป้องกัน Error บล็อกการลบประวัติ
         window.deleteProductionLog = async (prodId) => {
             if (window.userRole !== 'admin') { showToast("🔒 สิทธิ์เฉพาะ Admin", "error"); return; }
             if (!confirm("⚠️ ยืนยันการลบประวัติและคืนสต๊อก?")) return;
@@ -1623,7 +1619,6 @@
                     let menuRef = null, mSnap = null;
                     const invSnaps = {};
 
-                    // ถ้าหาเมนูเจอ ให้ดำเนินการเตรียมคืนสต๊อก
                     if (menu) {
                         menuRef = doc(db, "menus", menu.id.toString());
                         mSnap = await transaction.get(menuRef);
@@ -1637,7 +1632,6 @@
                         }
                     }
 
-                    // ถ้าเมนูและข้อมูลของเมนูนั้นยังอยู่ จึงจะจัดการลด/เพิ่ม Lot หรือคืนสต๊อกวัตถุดิบ
                     if (menu && mSnap && mSnap.exists()) {
                         if (isDisposal) {
                             let lots = mSnap.data().lots || [];
@@ -1680,11 +1674,9 @@
                             }
                         }
                     } else {
-                        // แจ้งเตือนใน Console กรณีที่หาเมนูไม่เจอ ระบบจะไม่คืนสต๊อกวัตถุดิบ (ป้องกันระบบรวน)
                         console.warn("ไม่พบเมนูต้นฉบับ ข้ามการจัดการสต๊อกแต่จะลบประวัติผลิตออก");
                     }
 
-                    // *** สำคัญ: ต้องลบประวัติทิ้งเสมอ ไม่ว่าจะหาเมนูเจอหรือไม่ เพื่อให้ Dashboard Update! ***
                     transaction.delete(prodRef);
 
                 });
@@ -1767,6 +1759,13 @@
                     displayCost = calculateSingleRecipeCostByAvg(menu);
                 }
 
+                // 🟢 กฎใหม่: แสดงทุนจริง แต่ถ้าเป็นน้ำและทุน < 5 บาท ให้มี (*คิด ฿5) ต่อท้าย
+                const isSnack = menu.category === 'snack' || menu.name.includes('บก.');
+                let costText = `ทุน ฿${displayCost.toFixed(1)}`;
+                if (!isSnack && displayCost < 5) {
+                    costText = `ทุน ฿${displayCost.toFixed(1)} <span class="text-orange-400 ml-1">(*คิด ฿5)</span>`;
+                }
+
                 grid.innerHTML += `
                     <div onclick="${isOutOfStock ? '' : `window.addToCart('${menu.id}')`}" class="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between relative overflow-hidden ${cardClass} min-h-[140px]">
                         <div class="absolute top-0 right-0 w-16 h-16 bg-gradient-to-br from-emerald-50 to-transparent rounded-bl-full -z-10"></div>
@@ -1775,7 +1774,7 @@
                         </div>
                         <h4 class="font-bold text-sm text-slate-800 leading-tight mb-2 line-clamp-2">${menu.name}</h4>
                         <div class="mt-auto pt-2 border-t border-slate-100 flex justify-between items-end">
-                            <span class="text-[9px] text-slate-400 font-medium">ทุน ฿${displayCost.toFixed(1)}</span>
+                            <span class="text-[9px] text-slate-400 font-medium">${costText}</span>
                             <span class="font-black text-lg text-emerald-500 leading-none">฿${menu.price}</span>
                         </div>
                     </div>`;
@@ -1879,6 +1878,7 @@
 
             countBadge.innerText = `${totalItems} รายการ`;
             document.getElementById('cart-total').innerText = `฿${total.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
+            // โชว์ต้นทุนจริงในบิลตะกร้าก่อน
             document.getElementById('cart-cost').innerText = `฿${costCOGS.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
 
             const eDrink = document.getElementById('cart-drink-subtotal');
@@ -1959,6 +1959,7 @@
                         }
                     }
 
+                    // บันทึก cogsValue ตามความจริงลง DB (Dashboard จะเอาไปปัด 5 บาทเองเพื่อไม่ให้ข้อมูลดิบเพี้ยน)
                     transaction.set(doc(db, "sales", Date.now().toString()), {
                         id: Date.now().toString(), 
                         timestamp: new Date().toLocaleString('th-TH'), 
@@ -1994,57 +1995,92 @@
 
                 document.querySelectorAll('.filter-label').forEach(el => el.innerText = dateLabel);
 
-                const sumRev = filteredSales.reduce((s, x) => s + Number(x.revenue || 0), 0);
-                const sumCogs = filteredSales.reduce((s, x) => s + Number(x.cogsValue || 0), 0);
-                const sumSaleProfit = filteredSales.reduce((s, x) => s + (x.profit !== undefined ? Number(x.profit) : (Number(x.revenue || 0) - Number(x.cogsValue || 0))), 0);
                 const sumWaste = filteredProd.reduce((s, x) => s + Number(x.wasteValue || 0), 0);
                 const sumVar = inventory.filter(i => i.type === 'variable').reduce((s, x) => s + Number(x.price || 0), 0);
                 const sumFix = inventory.filter(i => i.type === 'fixed').reduce((s, x) => s + Number(x.price || 0), 0);
-                const netProfit = sumSaleProfit - sumWaste;
 
                 const sumRevShop1 = filteredSales.filter(s => s.shop === 'ร้าน 1').reduce((s, x) => s + Number(x.revenue || 0), 0);
                 const sumRevShop2 = filteredSales.filter(s => s.shop === 'ร้าน 2').reduce((s, x) => s + Number(x.revenue || 0), 0);
+                const sumRev = sumRevShop1 + sumRevShop2;
 
+                // 🟢 คำนวณใหม่ยกชุด เพื่อทำกฎ "น้ำทุนไม่ถึง 5 บาท ปัดเป็น 5 บาท" 
                 let sumDrinkQty = 0, sumSnackQty = 0, sumDrinkRev = 0, sumSnackRev = 0;
+                let drinkProfit = 0, snackProfit = 0;
+                let totalAdjustedCogs = 0;
+
                 filteredSales.forEach(s => {
-                    if (s.drinkQty !== undefined) {
-                        sumDrinkQty += s.drinkQty; sumSnackQty += s.snackQty;
-                        sumDrinkRev += s.drinkRev; sumSnackRev += s.snackRev;
-                    } else {
-                        s.items.split(', ').forEach(p => {
-                            const lIdx = p.lastIndexOf(' x ');
-                            if (lIdx !== -1) {
-                                const name = p.substring(0, lIdx).trim();
-                                const qty = parseInt(p.substring(lIdx+3));
-                                const m = menus.find(menu => menu.name === name);
-                                const price = m ? m.price : 0;
-                                if (name.includes('บก.') || (m && m.category === 'snack')) {
-                                    sumSnackQty += qty; sumSnackRev += (price * qty);
-                                } else {
-                                    sumDrinkQty += qty; sumDrinkRev += (price * qty);
-                                }
+                    let bDrinkRev = 0, bSnackRev = 0;
+                    let bDrinkAdjCogs = 0, bSnackAdjCogs = 0;
+                    let hasItems = false;
+
+                    s.items.split(', ').forEach(p => {
+                        const lIdx = p.lastIndexOf(' x ');
+                        if (lIdx !== -1) {
+                            hasItems = true;
+                            const name = p.substring(0, lIdx).trim();
+                            const qty = parseInt(p.substring(lIdx+3));
+                            const m = menus.find(menu => menu.name === name);
+                            
+                            let price = m ? m.price : 0;
+                            if (price === 0 && qty > 0) {
+                                price = (Number(s.revenue) || 0) / s.qty; // fallback
                             }
-                        });
+
+                            let actualUnitCost = 0;
+                            if (m) {
+                                actualUnitCost = calculateSingleRecipeCostByAvg(m);
+                                if (m.mode === 'batch') actualUnitCost = actualUnitCost / (Number(m.batchSize) || 1);
+                            } else {
+                                actualUnitCost = (Number(s.cogsValue) || 0) / (s.qty || 1);
+                            }
+
+                            const isSnack = name.includes('บก.') || (m && m.category === 'snack');
+                            
+                            // 🟢 กฎใหม่: ถ้าน้ำ ทุน < 5 ให้ปัดเป็น 5 สำหรับคำนวณกำไร
+                            let adjustedUnitCost = actualUnitCost;
+                            if (!isSnack && actualUnitCost < 5) {
+                                adjustedUnitCost = 5;
+                            }
+
+                            const itemRev = price * qty;
+                            const itemAdjCogs = adjustedUnitCost * qty;
+
+                            if (isSnack) {
+                                sumSnackQty += qty;
+                                bSnackRev += itemRev;
+                                bSnackAdjCogs += itemAdjCogs;
+                            } else {
+                                sumDrinkQty += qty;
+                                bDrinkRev += itemRev;
+                                bDrinkAdjCogs += itemAdjCogs;
+                            }
+                        }
+                    });
+
+                    const actualBillRev = Number(s.revenue || (bDrinkRev + bSnackRev));
+                    const parsedTotalRev = bDrinkRev + bSnackRev;
+                    
+                    // ป้องกันเศษสตางค์ไม่ตรงกัน
+                    if (parsedTotalRev > 0 && parsedTotalRev !== actualBillRev) {
+                        bDrinkRev = actualBillRev * (bDrinkRev / parsedTotalRev);
+                        bSnackRev = actualBillRev * (bSnackRev / parsedTotalRev);
+                    } else if (!hasItems) {
+                        bDrinkRev = actualBillRev;
                     }
+
+                    sumDrinkRev += bDrinkRev;
+                    sumSnackRev += bSnackRev;
+
+                    totalAdjustedCogs += (bDrinkAdjCogs + bSnackAdjCogs);
+
+                    drinkProfit += (bDrinkRev - bDrinkAdjCogs);
+                    snackProfit += (bSnackRev - bSnackAdjCogs);
+
+                    // เก็บค่ากำไรที่ถูกปรับแก้แล้วไว้ใน Object ชั่วคราวเพื่อเอาไปแสดงในตาราง
+                    s._adjustedProfit = actualBillRev - (bDrinkAdjCogs + bSnackAdjCogs);
                 });
 
-                let snackProfit = 0, drinkProfit = 0;
-                filteredSales.forEach(s => {
-                    const rev = Number(s.revenue || 0);
-                    const cogs = Number(s.cogsValue || 0);
-                    const sSnackRev = Number(s.snackRev || 0);
-                    const sDrinkRev = Number(s.drinkRev || 0);
-
-                    if (rev > 0 && cogs > 0) {
-                        const snackCogs = rev ? (cogs * (sSnackRev / rev)) : 0;
-                        const drinkCogs = rev ? (cogs * (sDrinkRev / rev)) : 0;
-                        snackProfit += (sSnackRev - snackCogs);
-                        drinkProfit += (sDrinkRev - drinkCogs);
-                    } else {
-                        snackProfit += sSnackRev;
-                        drinkProfit += sDrinkRev;
-                    }
-                });
+                const netProfit = sumRev - totalAdjustedCogs - sumWaste;
 
                 const filteredWithdrawals = withdrawals.filter(w => !selectedDate || w.timestamp.startsWith(formatMatcher));
                 const sumWithdrawn = filteredWithdrawals.reduce((s, x) => s + Number(x.amount || 0), 0);
@@ -2130,7 +2166,10 @@
                                 <td class="p-4 font-bold text-slate-700 whitespace-nowrap">${s.items} ${sBadge}</td>
                                 <td class="p-4 text-center font-black text-slate-800">${s.qty}</td>
                                 <td class="p-4 text-right font-mono font-bold text-slate-700">฿${Number(s.revenue || 0).toLocaleString('th-TH',{minimumFractionDigits:2})}</td>
-                                <td class="p-4 text-right text-emerald-500 font-bold font-mono">฿${Number(s.profit || 0).toLocaleString('th-TH',{minimumFractionDigits:2})}</td>
+                                <td class="p-4 text-right text-emerald-500 font-bold font-mono">
+                                    ฿${Number(s._adjustedProfit || 0).toLocaleString('th-TH',{minimumFractionDigits:2})}
+                                    ${(Number(s._adjustedProfit || 0) !== Number(s.profit || 0)) ? `<br><span class="text-[9px] text-slate-400 font-medium whitespace-nowrap">*ปรับทุนเป็น 5 บ.</span>` : ''}
+                                </td>
                                 <td class="p-4 text-center">
                                     <button type="button" onclick="window.openRefundModal('${s.id}')" class="text-rose-500 bg-rose-50 hover:bg-rose-500 hover:text-white border border-rose-100 px-3 py-1.5 rounded-lg transition-colors text-[10px] font-bold shadow-sm active:scale-95 whitespace-nowrap">
                                         <i class="fas fa-undo-alt mr-1"></i> ยกเลิก/คืนเงิน
@@ -2530,6 +2569,13 @@
 
                 const catIcon = m.category === 'snack' || m.name.includes('บก.') ? '<span class="text-orange-500">🍔</span>' : '<span class="text-blue-500">🥤</span>';
 
+                // 🟢 กฎใหม่: แสดงทุนจริง แต่ถ้าเป็นน้ำและทุน < 5 บาท ให้มี (*คิดกำไรทุน 5บ.)
+                const isSnack = m.category === 'snack' || m.name.includes('บก.');
+                let costHtml = `฿${cost.toFixed(2)}`;
+                if (!isSnack && cost < 5) {
+                    costHtml += ` <span class="text-[9px] text-orange-400 block -mt-1 font-medium tracking-tight">(*คิด 5บ.)</span>`;
+                }
+
                 grid.innerHTML += `
                     <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between group hover:border-pink-200 transition-colors">
                         <div>
@@ -2542,7 +2588,7 @@
                         <div class="mt-4 pt-4 border-t border-slate-100 flex justify-between items-end">
                             <div>
                                 <span class="block text-[9px] text-slate-400 font-bold uppercase mb-0.5">ทุน/หน่วย</span>
-                                <span class="font-mono text-slate-600 font-medium">฿${cost.toFixed(2)}</span>
+                                <span class="font-mono text-slate-600 font-medium">${costHtml}</span>
                             </div>
                             <div class="space-x-1.5 flex">
                                 <button type="button" onclick="window.editMenu('${m.id}')" class="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 text-blue-500 hover:bg-blue-500 hover:text-white transition-colors shadow-sm flex items-center justify-center active:scale-95"><i class="fas fa-edit"></i></button>
