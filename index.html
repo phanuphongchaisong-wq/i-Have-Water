@@ -122,6 +122,7 @@
             <div class="flex-1 overflow-y-auto custom-scrollbar p-4 lg:p-8 scroll-smooth pb-24 lg:pb-8">
 
                 <!-- ================= TAB: POS ================= -->
+                <!-- แก้ไข: เพิ่ม div หุ้มและย้ายคลาส flex/grid ออกจาก section เพื่อไม่ให้กวน class hidden -->
                 <section id="tab-pos" class="tab-content h-full">
                     <div class="flex flex-col lg:grid lg:grid-cols-12 gap-6 h-full">
                         <div class="lg:col-span-8 flex flex-col h-[50vh] lg:h-full">
@@ -418,6 +419,7 @@
                                                 <th class="p-3 text-right">จำนวนเงิน (฿)</th>
                                                 <th class="p-3 text-center">ปริมาณที่ได้</th>
                                                 <th class="p-3 text-right">ต้นทุน/หน่วยล็อตนี้</th>
+                                                <th class="p-3 text-center">จัดการ</th>
                                             </tr>
                                         </thead>
                                         <tbody id="inventory-log-body" class="divide-y divide-slate-50"></tbody>
@@ -430,6 +432,7 @@
                 </section>
 
                 <!-- ================= TAB: MENUS ================= -->
+                <!-- แก้ไข: เพิ่ม div หุ้มและย้ายคลาส flex/grid ออกจาก section -->
                 <section id="tab-menus" class="tab-content hidden h-full">
                     <div class="h-full flex flex-col">
                         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-5 rounded-3xl border border-slate-100 shadow-sm shrink-0 mb-6">
@@ -1233,7 +1236,8 @@
             tbody.innerHTML = '';
 
             if(purchaseLogs.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 font-medium">ยังไม่มีประวัติการเติมสต๊อก</td></tr>`;
+                // ขยาย colspan เป็น 6 ให้พอดีกับจำนวนคอลัมน์ใหม่
+                tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-400 font-medium">ยังไม่มีประวัติการเติมสต๊อก</td></tr>`;
                 return;
             }
 
@@ -1245,8 +1249,76 @@
                         <td class="p-3 text-right font-mono font-bold text-rose-500">฿${Number(log.addedPrice).toLocaleString('th-TH', {minimumFractionDigits:2})}</td>
                         <td class="p-3 text-center font-black text-emerald-600">+${Number(log.addedStock).toLocaleString()} <span class="text-[9px] text-slate-400 ml-0.5">${log.unit}</span></td>
                         <td class="p-3 text-right font-mono text-slate-500">฿${Number(log.costPerUnit).toLocaleString('th-TH', {minimumFractionDigits:2})}</td>
+                        <td class="p-3 text-center">
+                            <button type="button" onclick="window.deletePurchaseLog('${log.id}')" class="text-rose-500 bg-rose-50 border border-rose-200 px-2 py-1 rounded hover:bg-rose-500 hover:text-white transition-colors text-[10px] font-bold shadow-sm">
+                                <i class="fas fa-trash-alt"></i> ลบ
+                            </button>
+                        </td>
                     </tr>`;
             });
+        };
+
+        // 🟢 ฟังก์ชันใหม่: สำหรับลบประวัติการเติมสต๊อกและหักสต๊อก/ทุนกลับอัตโนมัติ
+        window.deletePurchaseLog = async (logId) => {
+            if (window.userRole !== 'admin') { showToast("🔒 สิทธิ์เฉพาะ Admin", "error"); return; }
+            if (!confirm("⚠️ ยืนยันการลบประวัติการซื้อนี้ ระบบจะหักสต๊อกและทุนสะสมคืนอัตโนมัติ?")) return;
+
+            document.getElementById('loading-text').innerText = "กำลังลบข้อมูลและปรับสต๊อก...";
+            document.getElementById('loading-screen').classList.remove('hidden');
+
+            try {
+                await runTransaction(db, async (transaction) => {
+                    const logRef = doc(db, "purchases", logId.toString());
+                    const logSnap = await transaction.get(logRef);
+                    
+                    if (!logSnap.exists()) throw new Error("ไม่พบประวัติการซื้อนี้ในฐานข้อมูล");
+
+                    const logData = logSnap.data();
+                    const itemId = logData.itemId;
+                    const addedPrice = Number(logData.addedPrice || 0);
+                    const addedStock = Number(logData.addedStock || 0);
+
+                    if (itemId) {
+                        const itemRef = doc(db, "inventory", itemId.toString());
+                        const itemSnap = await transaction.get(itemRef);
+                        
+                        if (itemSnap.exists()) {
+                            const itemData = itemSnap.data();
+                            const currentStock = Number(itemData.stock || 0);
+                            const currentPrice = Number(itemData.price || 0);
+                            const currentAvgCost = Number(itemData.avgCost || 0);
+
+                            // หักสต๊อกออก (ป้องกันการติดลบด้วย Math.max)
+                            const newStock = Math.max(0, currentStock - addedStock);
+                            
+                            // หักราคาที่เคยบวกเข้ามาออก
+                            const newPrice = Math.max(0, currentPrice - addedPrice);
+                            
+                            // คำนวณ Avg Cost ใหม่ย้อนกลับ (ใช้สูตรย้อนกลับของตอนเติมเข้า)
+                            let newAvgCost = 0;
+                            if (newStock > 0) {
+                                newAvgCost = ((currentStock * currentAvgCost) - addedPrice) / newStock;
+                                if (newAvgCost < 0) newAvgCost = 0; // ป้องกันทุนติดลบ
+                            }
+
+                            transaction.update(itemRef, {
+                                stock: newStock,
+                                price: newPrice,
+                                avgCost: newAvgCost
+                            });
+                        }
+                    }
+
+                    // ลบ log ออกจากฐานข้อมูล
+                    transaction.delete(logRef);
+                });
+                showToast("ลบประวัติและคืนสต๊อกเรียบร้อย", "success");
+            } catch (err) {
+                console.error(err);
+                showToast(err.message, "error");
+            } finally {
+                document.getElementById('loading-screen').classList.add('hidden');
+            }
         };
 
         window.openAdjustStockModal = (id) => {
@@ -1619,6 +1691,7 @@
                     let menuRef = null, mSnap = null;
                     const invSnaps = {};
 
+                    // ถ้าหาเมนูเจอ ให้ดำเนินการเตรียมคืนสต๊อก
                     if (menu) {
                         menuRef = doc(db, "menus", menu.id.toString());
                         mSnap = await transaction.get(menuRef);
@@ -1632,6 +1705,7 @@
                         }
                     }
 
+                    // ถ้าเมนูและข้อมูลของเมนูนั้นยังอยู่ จึงจะจัดการลด/เพิ่ม Lot หรือคืนสต๊อกวัตถุดิบ
                     if (menu && mSnap && mSnap.exists()) {
                         if (isDisposal) {
                             let lots = mSnap.data().lots || [];
@@ -1674,9 +1748,11 @@
                             }
                         }
                     } else {
+                        // แจ้งเตือนใน Console กรณีที่หาเมนูไม่เจอ ระบบจะไม่คืนสต๊อกวัตถุดิบ (ป้องกันระบบรวน)
                         console.warn("ไม่พบเมนูต้นฉบับ ข้ามการจัดการสต๊อกแต่จะลบประวัติผลิตออก");
                     }
 
+                    // *** สำคัญ: ต้องลบประวัติทิ้งเสมอ ไม่ว่าจะหาเมนูเจอหรือไม่ เพื่อให้ Dashboard Update! ***
                     transaction.delete(prodRef);
 
                 });
