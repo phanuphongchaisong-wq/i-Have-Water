@@ -495,7 +495,7 @@
                         </div>
                         <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group hover:border-emerald-200 transition-colors">
                             <div class="absolute top-0 right-0 p-4 opacity-5 text-4xl group-hover:scale-110 transition-transform"><i class="fas fa-chart-line"></i></div>
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">กำไรสุทธิ <span class="filter-label text-blue-500 font-normal ml-1"></span></span>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">กำไรสุทธิ <span class="text-[8px] text-slate-400 font-normal ml-1">(ตามจริง)</span></span>
                             <div class="text-2xl font-black text-emerald-500 truncate" id="dash-net-profit">฿0.00</div>
                         </div>
                         <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group hover:border-rose-200 transition-colors">
@@ -516,7 +516,7 @@
                         </div>
                         <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group hover:border-blue-200 transition-colors">
                             <div class="absolute top-0 right-0 p-4 opacity-5 text-4xl group-hover:scale-110 transition-transform"><i class="fas fa-mug-hot text-blue-500"></i></div>
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">กำไรจากเครื่องดื่ม <span class="filter-label text-blue-500 font-normal ml-1"></span></span>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">กำไรจากเครื่องดื่ม <span class="text-[8px] text-orange-400 font-normal ml-1">(*หักทุน 5บ.)</span></span>
                             <div id="dash-drink-profit" class="text-2xl font-black text-blue-600 truncate">฿0.00</div>
                         </div>
                         <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group hover:border-orange-200 transition-colors">
@@ -535,7 +535,7 @@
                         </div>
                         <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm flex flex-col justify-between">
                             <div>
-                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ยอดคงเหลือกำไร <span class="filter-label text-blue-500 font-normal ml-1"></span></span>
+                                <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ยอดคงเหลือกำไร <span class="text-[8px] text-slate-400 font-normal ml-1">(ตามจริง)</span></span>
                                 <div id="dash-remaining-profit" class="text-2xl font-black text-emerald-500 truncate">฿0.00</div>
                             </div>
                         </div>
@@ -1669,6 +1669,8 @@
             finally { setLoadingButton('btn-submit-production', false, originalText); }
         });
 
+        // 🟢 แก้ไข: ยอมลบประวัติบัญชี (Transaction Delete) ให้สำเร็จเสมอแม้เมนูต้นฉบับจะถูกลบไปแล้ว 
+        // ป้องกัน Error บล็อกการลบประวัติ
         window.deleteProductionLog = async (prodId) => {
             if (window.userRole !== 'admin') { showToast("🔒 สิทธิ์เฉพาะ Admin", "error"); return; }
             if (!confirm("⚠️ ยืนยันการลบประวัติและคืนสต๊อก?")) return;
@@ -2071,22 +2073,26 @@
 
                 document.querySelectorAll('.filter-label').forEach(el => el.innerText = dateLabel);
 
+                const sumRev = filteredSales.reduce((s, x) => s + Number(x.revenue || 0), 0);
+                const sumCogs = filteredSales.reduce((s, x) => s + Number(x.cogsValue || 0), 0);
+                
+                // 🟢 กำไรสุทธิ (Actual Net Profit) ใช้ทุนจริงจากฐานข้อมูล
+                const sumSaleProfit = filteredSales.reduce((s, x) => s + (x.profit !== undefined ? Number(x.profit) : (Number(x.revenue || 0) - Number(x.cogsValue || 0))), 0);
                 const sumWaste = filteredProd.reduce((s, x) => s + Number(x.wasteValue || 0), 0);
                 const sumVar = inventory.filter(i => i.type === 'variable').reduce((s, x) => s + Number(x.price || 0), 0);
                 const sumFix = inventory.filter(i => i.type === 'fixed').reduce((s, x) => s + Number(x.price || 0), 0);
+                const netProfit = sumSaleProfit - sumWaste;
 
                 const sumRevShop1 = filteredSales.filter(s => s.shop === 'ร้าน 1').reduce((s, x) => s + Number(x.revenue || 0), 0);
                 const sumRevShop2 = filteredSales.filter(s => s.shop === 'ร้าน 2').reduce((s, x) => s + Number(x.revenue || 0), 0);
-                const sumRev = sumRevShop1 + sumRevShop2;
 
-                // 🟢 คำนวณใหม่ยกชุด เพื่อทำกฎ "น้ำทุนไม่ถึง 5 บาท ปัดเป็น 5 บาท" 
+                // 🟢 คำนวณใหม่แยกส่วน เพื่อทำกฎ "น้ำทุนไม่ถึง 5 บาท ปัดเป็น 5 บาท" เฉพาะบัตรกำไรเครื่องดื่ม
                 let sumDrinkQty = 0, sumSnackQty = 0, sumDrinkRev = 0, sumSnackRev = 0;
-                let drinkProfit = 0, snackProfit = 0;
-                let totalAdjustedCogs = 0;
+                let drinkProfitAdj = 0, snackProfitAct = 0;
 
                 filteredSales.forEach(s => {
                     let bDrinkRev = 0, bSnackRev = 0;
-                    let bDrinkAdjCogs = 0, bSnackAdjCogs = 0;
+                    let bDrinkAdjCogs = 0, bSnackActCogs = 0;
                     let hasItems = false;
 
                     s.items.split(', ').forEach(p => {
@@ -2112,23 +2118,21 @@
 
                             const isSnack = name.includes('บก.') || (m && m.category === 'snack');
                             
-                            // 🟢 กฎใหม่: ถ้าน้ำ ทุน < 5 ให้ปัดเป็น 5 สำหรับคำนวณกำไร
                             let adjustedUnitCost = actualUnitCost;
                             if (!isSnack && actualUnitCost < 5) {
                                 adjustedUnitCost = 5;
                             }
 
                             const itemRev = price * qty;
-                            const itemAdjCogs = adjustedUnitCost * qty;
 
                             if (isSnack) {
                                 sumSnackQty += qty;
                                 bSnackRev += itemRev;
-                                bSnackAdjCogs += itemAdjCogs;
+                                bSnackActCogs += (actualUnitCost * qty);
                             } else {
                                 sumDrinkQty += qty;
                                 bDrinkRev += itemRev;
-                                bDrinkAdjCogs += itemAdjCogs;
+                                bDrinkAdjCogs += (adjustedUnitCost * qty);
                             }
                         }
                     });
@@ -2147,19 +2151,17 @@
                     sumDrinkRev += bDrinkRev;
                     sumSnackRev += bSnackRev;
 
-                    totalAdjustedCogs += (bDrinkAdjCogs + bSnackAdjCogs);
+                    drinkProfitAdj += (bDrinkRev - bDrinkAdjCogs);
+                    snackProfitAct += (bSnackRev - bSnackActCogs);
 
-                    drinkProfit += (bDrinkRev - bDrinkAdjCogs);
-                    snackProfit += (bSnackRev - bSnackAdjCogs);
-
-                    // เก็บค่ากำไรที่ถูกปรับแก้แล้วไว้ใน Object ชั่วคราวเพื่อเอาไปแสดงในตาราง
-                    s._adjustedProfit = actualBillRev - (bDrinkAdjCogs + bSnackAdjCogs);
+                    // เก็บค่ากำไรที่ถูกปรับแก้แล้วไว้ใน Object ชั่วคราวเพื่อเอาไปแสดงในตารางว่าถูกหัก 5 บ.
+                    s._adjustedProfit = actualBillRev - (bDrinkAdjCogs + bSnackActCogs);
                 });
-
-                const netProfit = sumRev - totalAdjustedCogs - sumWaste;
 
                 const filteredWithdrawals = withdrawals.filter(w => !selectedDate || w.timestamp.startsWith(formatMatcher));
                 const sumWithdrawn = filteredWithdrawals.reduce((s, x) => s + Number(x.amount || 0), 0);
+                
+                // ยอดคงเหลือกำไร จะอิงจากกำไรสุทธิ(ตามจริง) หักลบยอดที่ถอนไปจริงๆ ยอดจะได้ไม่ติดลบ
                 const remainingProfit = netProfit - sumWithdrawn;
                 window.lastAvailableProfit = remainingProfit;
 
@@ -2193,6 +2195,8 @@
                 const pf = document.getElementById('dash-net-profit');
                 pf.innerText = `฿${netProfit.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
                 pf.className = netProfit >= 0 ? "text-2xl font-black text-emerald-500 truncate" : "text-2xl font-black text-rose-500 truncate";
+                // แนบโน้ตกำไรสุทธิตามจริง
+                if(pf.previousElementSibling) pf.previousElementSibling.innerHTML = `กำไรสุทธิ <span class="filter-label text-blue-500 font-normal ml-1"></span> <span class="text-slate-400 text-[8px] ml-1">*ตามจริง</span>`;
 
                 const withdrawEl = document.getElementById('dash-withdrawn');
                 if (withdrawEl) withdrawEl.innerText = `฿${sumWithdrawn.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
@@ -2200,12 +2204,17 @@
                 if (remainEl) {
                     remainEl.innerText = `฿${remainingProfit.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
                     remainEl.className = remainingProfit >= 0 ? "text-2xl font-black text-emerald-500 truncate" : "text-2xl font-black text-rose-500 truncate";
+                    if(remainEl.previousElementSibling) remainEl.previousElementSibling.innerHTML = `ยอดคงเหลือกำไร <span class="filter-label text-blue-500 font-normal ml-1"></span> <span class="text-slate-400 text-[8px] ml-1">*ตามจริง</span>`;
                 }
 
                 const drinkProfitEl = document.getElementById('dash-drink-profit');
-                if (drinkProfitEl) drinkProfitEl.innerText = `฿${drinkProfit.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
+                if (drinkProfitEl) {
+                    drinkProfitEl.innerText = `฿${drinkProfitAdj.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
+                    if(drinkProfitEl.previousElementSibling) drinkProfitEl.previousElementSibling.innerHTML = `กำไรจากเครื่องดื่ม <span class="filter-label text-blue-500 font-normal ml-1"></span> <span class="text-orange-400 text-[8px] ml-1">*ปรับทุน 5บ.</span>`;
+                }
+                
                 const snackProfitEl = document.getElementById('dash-snack-profit');
-                if (snackProfitEl) snackProfitEl.innerText = `฿${snackProfit.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
+                if (snackProfitEl) snackProfitEl.innerText = `฿${snackProfitAct.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
 
                 const elDrinkQty = document.getElementById('dash-drink-qty');
                 if(elDrinkQty) elDrinkQty.innerText = sumDrinkQty.toLocaleString('th-TH');
@@ -2243,8 +2252,8 @@
                                 <td class="p-4 text-center font-black text-slate-800">${s.qty}</td>
                                 <td class="p-4 text-right font-mono font-bold text-slate-700">฿${Number(s.revenue || 0).toLocaleString('th-TH',{minimumFractionDigits:2})}</td>
                                 <td class="p-4 text-right text-emerald-500 font-bold font-mono">
-                                    ฿${Number(s._adjustedProfit || 0).toLocaleString('th-TH',{minimumFractionDigits:2})}
-                                    ${(Number(s._adjustedProfit || 0) !== Number(s.profit || 0)) ? `<br><span class="text-[9px] text-slate-400 font-medium whitespace-nowrap">*ปรับทุนเป็น 5 บ.</span>` : ''}
+                                    ฿${Number(s.profit || 0).toLocaleString('th-TH',{minimumFractionDigits:2})}
+                                    ${(Number(s._adjustedProfit || 0) !== Number(s.profit || 0)) ? `<br><span class="text-[9px] text-orange-400 font-medium whitespace-nowrap">*วิเคราะห์กำไร: ฿${Number(s._adjustedProfit || 0).toFixed(2)}</span>` : ''}
                                 </td>
                                 <td class="p-4 text-center">
                                     <button type="button" onclick="window.openRefundModal('${s.id}')" class="text-rose-500 bg-rose-50 hover:bg-rose-500 hover:text-white border border-rose-100 px-3 py-1.5 rounded-lg transition-colors text-[10px] font-bold shadow-sm active:scale-95 whitespace-nowrap">
