@@ -99,7 +99,7 @@
                 </button>
                 <div class="mt-4 flex items-center justify-center gap-1.5 text-[10px] text-slate-500 font-medium">
                     <div class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <span>Cloud Sync Active • v15 (Expenses added)</span>
+                    <span>Cloud Sync Active • v16 (Circulating Capital)</span>
                 </div>
             </div>
         </aside>
@@ -487,16 +487,22 @@
                             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ทุนวัตถุดิบ <span class="filter-label text-blue-500 font-normal ml-1"></span></span>
                             <div class="text-3xl font-black text-amber-500 truncate" id="dash-total-variable">฿0.00</div>
                         </div>
-                        <!-- 🔴 เพิ่มกล่อง ค่าใช้จ่ายรายวัน -->
+                        
+                        <!-- 🔴 กล่อง ค่าใช้จ่ายรายวัน (แก้ไขใหม่ตามที่แจ้ง) -->
                         <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group hover:border-red-200 transition-colors">
                             <div class="absolute top-0 right-0 p-4 opacity-5 text-4xl group-hover:scale-110 transition-transform"><i class="fas fa-file-invoice-dollar text-red-500"></i></div>
                             <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ค่าใช้จ่ายรายวัน <span class="filter-label text-blue-500 font-normal ml-1"></span></span>
                             <div class="text-3xl font-black text-red-500 truncate" id="dash-expenses">฿0.00</div>
-                            <div class="text-[10px] text-slate-400 mt-2">หักจากกำไรแล้ว</div>
+                            <div class="mt-3 text-[10px] font-medium text-slate-500 border-t border-slate-100 pt-2 flex justify-between z-10">
+                                <span title="ทุนที่ทำออกมาแล้วขายได้">ทุนขาย (COGS): <span id="dash-cogs-value" class="text-blue-500 font-bold">฿0.00</span></span>
+                                <span title="ทุนหมุนเวียนคงเหลือ (ทุนขาย - ค่าใช้จ่าย)">หมุนเวียน: <span id="dash-circulating-value" class="text-emerald-500 font-bold">฿0.00</span></span>
+                            </div>
                         </div>
+
+                        <!-- 🔴 กล่อง กำไรสุทธิ (ปรับไม่หักค่าใช้จ่าย) -->
                         <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group hover:border-emerald-200 transition-colors bg-gradient-to-br from-emerald-50 to-white">
                             <div class="absolute top-0 right-0 p-4 opacity-10 text-4xl group-hover:scale-110 transition-transform"><i class="fas fa-chart-line text-emerald-500"></i></div>
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">กำไรสุทธิ <span class="filter-label text-blue-500 font-normal ml-1"></span> <span class="text-[8px] text-slate-400 font-normal ml-1">*(หักทุน, ของเสีย, ค่าใช้จ่ายแล้ว)</span></span>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">กำไรสุทธิ <span class="filter-label text-blue-500 font-normal ml-1"></span> <span class="text-[8px] text-slate-400 font-normal ml-1">*(ยอดเต็ม ไม่หักค่าใช้จ่าย)</span></span>
                             <div class="text-3xl font-black text-emerald-500 truncate" id="dash-net-profit">฿0.00</div>
                         </div>
                     </div>
@@ -948,7 +954,7 @@
         let salesHistory = [];
         let productionHistory = [];
         let withdrawals = [];
-        let dailyExpenses = []; // 🔴 NEW: ตัวแปรเก็บค่าใช้จ่ายรายวัน
+        let dailyExpenses = []; 
         let usersList = [];
         let purchaseLogs = [];
         let cart = [];
@@ -1210,7 +1216,6 @@
                     window.renderDashboard();
                 }, handleFbError);
 
-                // 🔴 NEW: Listener สำหรับค่าใช้จ่ายรายวัน
                 onSnapshot(collection(db, "daily_expenses"), (snapshot) => {
                     dailyExpenses = [];
                     snapshot.forEach(doc => dailyExpenses.push(doc.data()));
@@ -2129,8 +2134,11 @@
                 const sumVar = inventory.filter(i => i.type === 'variable').reduce((s, x) => s + Number(x.price || 0), 0);
                 const sumFix = inventory.filter(i => i.type === 'fixed').reduce((s, x) => s + Number(x.price || 0), 0);
                 
-                // 🔴 NEW: หักค่าใช้จ่ายรายวันออกจากกำไรสุทธิด้วย
-                const netProfit = sumSaleProfit - sumWaste - sumExpenses;
+                // 🔴 NEW: กำไรสุทธิ จะไม่หักค่าใช้จ่าย เพื่อให้คงยอดเต็มตามจริง
+                const netProfit = sumSaleProfit - sumWaste; 
+                
+                // 🔴 NEW: ทุนหมุนเวียนคงเหลือ (Circulating Capital) = ทุนขาย - ค่าใช้จ่าย
+                const circulatingCapital = sumCogs - sumExpenses;
 
                 const sumRevShop1 = filteredSales.filter(s => s.shop === 'ร้าน 1').reduce((s, x) => s + Number(x.revenue || 0), 0);
                 const sumRevShop2 = filteredSales.filter(s => s.shop === 'ร้าน 2').reduce((s, x) => s + Number(x.revenue || 0), 0);
@@ -2237,10 +2245,20 @@
                 document.getElementById('dash-total-fixed').innerText = `฿${sumFix.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
                 document.getElementById('dash-total-waste').innerText = `฿${sumWaste.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
                 
-                // 🔴 อัปเดตกล่องแสดงค่าใช้จ่ายรายวัน
+                // 🔴 อัปเดตกล่องแสดงค่าใช้จ่ายรายวัน และ ทุนหมุนเวียนคงเหลือ
                 const expEl = document.getElementById('dash-expenses');
                 if(expEl) expEl.innerText = `฿${sumExpenses.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
 
+                const cogsEl = document.getElementById('dash-cogs-value');
+                if(cogsEl) cogsEl.innerText = `฿${sumCogs.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
+
+                const circEl = document.getElementById('dash-circulating-value');
+                if(circEl) {
+                    circEl.innerText = `฿${circulatingCapital.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
+                    circEl.className = circulatingCapital >= 0 ? "text-emerald-500 font-bold" : "text-rose-500 font-bold";
+                }
+
+                // 🔴 อัปเดตกล่องกำไรสุทธิ ให้ยอดตรงตามจริงโดยไม่หักรายวัน
                 const pf = document.getElementById('dash-net-profit');
                 pf.innerText = `฿${netProfit.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
                 pf.className = netProfit >= 0 ? "text-3xl font-black text-emerald-500 truncate" : "text-3xl font-black text-rose-500 truncate";
@@ -2403,10 +2421,10 @@
 
         window.deleteExpense = async (id) => {
             if (window.userRole !== 'admin') { showToast("🔒 สิทธิ์เฉพาะ Admin", "error"); return; }
-            if (!confirm("⚠️ ยืนยันการลบค่าใช้จ่ายนี้? กำไรสุทธิจะถูกบวกกลับคืนอัตโนมัติ")) return;
+            if (!confirm("⚠️ ยืนยันการลบค่าใช้จ่ายนี้? (ทุนหมุนเวียนจะถูกบวกกลับคืนอัตโนมัติ)")) return;
             try {
                 await deleteDoc(doc(db, "daily_expenses", id.toString()));
-                showToast("ลบข้อมูลและคืนกำไรสำเร็จ", "success");
+                showToast("ลบข้อมูลและคืนทุนหมุนเวียนสำเร็จ", "success");
                 window.closeModal('modal-expense-history');
             } catch (err) {
                 showToast("เกิดข้อผิดพลาดในการลบ", "error");
