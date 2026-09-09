@@ -483,7 +483,7 @@
                         </div>
                         <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group hover:border-amber-200 transition-colors">
                             <div class="absolute top-0 right-0 p-4 opacity-5 text-4xl group-hover:scale-110 transition-transform"><i class="fas fa-box-open"></i></div>
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ทุนวัตถุดิบ <span class="filter-label text-blue-500 font-normal ml-1"></span></span>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ทุนวัตถุดิบ <span class="filter-label text-blue-500 font-normal ml-1"></span> <span class="text-[8px] text-amber-400 font-normal ml-1" title="หักช่วยจ่ายค่าใช้จ่าย 50%">*หักช่วยค่าใช้จ่าย 50%</span></span>
                             <div class="text-2xl font-black text-amber-500 truncate" id="dash-total-variable">฿0.00</div>
                         </div>
                         <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group hover:border-indigo-200 transition-colors">
@@ -495,13 +495,13 @@
                         <!-- 🟢 การ์ดสำหรับแสดงยอดรวมค่าใช้จ่ายรายวัน -->
                         <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group hover:border-orange-300 transition-colors">
                             <div class="absolute top-0 right-0 p-4 opacity-5 text-4xl group-hover:scale-110 transition-transform"><i class="fas fa-file-invoice-dollar text-orange-500"></i></div>
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ค่าใช้จ่ายอื่นๆ <span class="filter-label text-blue-500 font-normal ml-1"></span> <span class="text-[8px] text-orange-400 font-normal ml-1">(เช่น ค่าน้ำแข็ง)</span></span>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">ค่าใช้จ่ายอื่นๆ <span class="filter-label text-blue-500 font-normal ml-1"></span> <span class="text-[8px] text-orange-400 font-normal ml-1">(หักทุน50%/กำไร50%)</span></span>
                             <div class="text-2xl font-black text-orange-500 truncate" id="dash-total-expenses">฿0.00</div>
                         </div>
 
                         <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group hover:border-emerald-200 transition-colors">
                             <div class="absolute top-0 right-0 p-4 opacity-5 text-4xl group-hover:scale-110 transition-transform"><i class="fas fa-chart-line"></i></div>
-                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">กำไรสุทธิ <span class="filter-label text-blue-500 font-normal ml-1"></span> <span class="text-[8px] text-slate-400 font-normal ml-1" title="กำไรการขาย - ทุนของเสีย - ค่าใช้จ่ายรายวัน">*ตามจริง</span></span>
+                            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider block mb-1">กำไรสุทธิ <span class="filter-label text-blue-500 font-normal ml-1"></span> <span class="text-[8px] text-slate-400 font-normal ml-1" title="กำไรการขาย - ทุนของเสีย - (ค่าใช้จ่าย 50%)">*ตามจริง</span></span>
                             <div class="text-2xl font-black text-emerald-500 truncate" id="dash-net-profit">฿0.00</div>
                         </div>
                         <div class="bg-white p-5 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group hover:border-rose-200 transition-colors">
@@ -2098,14 +2098,21 @@
                 // 🟢 คำนวณค่าใช้จ่าย
                 const sumExpenses = filteredExpenses.reduce((s, x) => s + Number(x.amount || 0), 0);
                 
+                // 🟢 แบ่งค่าใช้จ่ายหักออกจากกำไรครึ่งหนึ่ง และทุนครึ่งหนึ่ง (ตามที่ User ร้องขอ)
+                const expenseFromProfit = sumExpenses / 2;
+                const expenseFromCapital = sumExpenses / 2;
+                
                 // 🟢 กำไรจากการขายสุทธิ ก่อนหักค่าใช้จ่าย/ของเสีย
                 const sumSaleProfit = filteredSales.reduce((s, x) => s + (x.profit !== undefined ? Number(x.profit) : (Number(x.revenue || 0) - Number(x.cogsValue || 0))), 0);
                 const sumWaste = filteredProd.reduce((s, x) => s + Number(x.wasteValue || 0), 0);
-                const sumVar = inventory.filter(i => i.type === 'variable').reduce((s, x) => s + Number(x.price || 0), 0);
+                const sumVarOriginal = inventory.filter(i => i.type === 'variable').reduce((s, x) => s + Number(x.price || 0), 0);
                 const sumFix = inventory.filter(i => i.type === 'fixed').reduce((s, x) => s + Number(x.price || 0), 0);
                 
-                // 🟢 กำไรสุทธิ (Actual Net Profit) = กำไรขาย - ของเสีย - ค่าใช้จ่ายรายวัน
-                const netProfit = sumSaleProfit - sumWaste - sumExpenses;
+                // 🟢 หักค่าใช้จ่าย 50% ออกจากทุนวัตถุดิบสะสม
+                const sumVar = sumVarOriginal - expenseFromCapital;
+                
+                // 🟢 กำไรสุทธิ (Actual Net Profit) = กำไรขาย - ของเสีย - ค่าใช้จ่ายส่วนที่หักจากกำไร (50%)
+                const netProfit = sumSaleProfit - sumWaste - expenseFromProfit;
 
                 const sumRevShop1 = filteredSales.filter(s => s.shop === 'ร้าน 1').reduce((s, x) => s + Number(x.revenue || 0), 0);
                 const sumRevShop2 = filteredSales.filter(s => s.shop === 'ร้าน 2').reduce((s, x) => s + Number(x.revenue || 0), 0);
@@ -2208,6 +2215,7 @@
                 const elShop2 = document.getElementById('dash-rev-shop2');
                 if(elShop2) elShop2.innerText = `฿${sumRevShop2.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
 
+                // 🟢 อัปเดตยอดทุนวัตถุดิบ (หักค่าใช้จ่ายส่วนของทุนแล้ว)
                 document.getElementById('dash-total-variable').innerText = `฿${sumVar.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
                 document.getElementById('dash-total-fixed').innerText = `฿${sumFix.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
                 document.getElementById('dash-total-waste').innerText = `฿${sumWaste.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
@@ -2385,7 +2393,7 @@
         // 🟢 ฟังก์ชันสำหรับลบประวัติค่าใช้จ่าย
         window.deleteExpense = async (id) => {
             if (window.userRole !== 'admin') { showToast("🔒 สิทธิ์เฉพาะ Admin", "error"); return; }
-            if (confirm("ต้องการลบประวัติค่าใช้จ่ายนี้? (ยอดกำไรสุทธิจะถูกดึงกลับคืนมา)")) {
+            if (confirm("ต้องการลบประวัติค่าใช้จ่ายนี้? (ยอดกำไรและทุนจะถูกดึงกลับคืนมา)")) {
                 try {
                     await deleteDoc(doc(db, "expenses", id.toString()));
                     showToast("ลบข้อมูลสำเร็จ ดึงกำไรกลับคืนมาแล้ว", "success");
