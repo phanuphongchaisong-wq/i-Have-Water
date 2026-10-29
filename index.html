@@ -1092,6 +1092,7 @@
                                         <th class="p-3.5">เบอร์โทรศัพท์ (ID)</th>
                                         <th class="p-3.5 text-center">ระดับสิทธิ์</th>
                                         <th class="p-3.5 text-center">วันที่เข้าร่วม</th>
+                                        <th class="p-3.5 text-center">จัดการ</th>
                                     </tr>
                                 </thead>
                                 <tbody id="users-table-body" class="divide-y divide-[#E6DECF]"></tbody>
@@ -1242,6 +1243,7 @@
                             <th class="p-3">วันที่ถอน</th>
                             <th class="p-3">จำนวนเงิน</th>
                             <th class="p-3">หมายเหตุ</th>
+                            <th class="p-3 text-center">จัดการ</th>
                         </tr>
                     </thead>
                     <tbody id="withdrawal-history-modal-body" class="divide-y divide-[#E6DECF]"></tbody>
@@ -1345,6 +1347,25 @@
         window.prodCurrentFilter = 'all'; 
         window.invCurrentFilter = 'all'; 
         window.menuTabFilter = 'all';
+
+        // --- HELPER: ค้นหาและดึงรหัสเอกสารจริงใน Firestore (_docId) ป้องกันปัญหาลบ/แก้ไขแล้วไม่เจอเอกสาร ---
+        const withDocId = (d) => {
+            const data = d.data() || {};
+            const resolvedId = (data.id !== undefined && data.id !== null && String(data.id) !== '') ? data.id : d.id;
+            return { ...data, id: resolvedId, _docId: d.id };
+        };
+        const findById = (list, id) => {
+            if (id === undefined || id === null) return undefined;
+            const s = String(id);
+            return (list || []).find(x => x && (String(x.id) === s || String(x._docId) === s));
+        };
+        const getDocId = (list, id) => {
+            if (id === undefined || id === null) return '';
+            const found = findById(list, id);
+            return found && found._docId ? String(found._docId) : String(id);
+        };
+        window.findById = findById;
+        window.getDocId = getDocId;
 
         // --- HELPER: แยกหมวดหมู่ให้ฉลาดและรองรับข้อมูลเก่าใน Firebase อัตโนมัติ ---
         window.resolveMenuCategory = (menu) => {
@@ -1660,8 +1681,14 @@
         async function loadOrCreateProfile(user) {
             const ref = doc(db, 'users', user.uid);
             const snap = await getDoc(ref);
-            if (snap.exists()) return { uid: user.uid, ...snap.data() };
             const email = (user.email || '').toLowerCase();
+            if (snap.exists()) {
+                const data = snap.data() || {};
+                if (email === BOOTSTRAP_ADMIN_EMAIL && data.role !== 'admin') {
+                    try { await updateDoc(ref, { role: 'admin' }); data.role = 'admin'; } catch (e) {}
+                }
+                return { uid: user.uid, ...data };
+            }
             const isPhoneLogin = email.endsWith('@' + LOGIN_EMAIL_DOMAIN);
             const profile = {
                 uid: user.uid,
@@ -1762,7 +1789,7 @@
             try {
                 listen("inventory", (snapshot) => {
                     inventory = [];
-                    snapshot.forEach(doc => inventory.push(doc.data()));
+                    snapshot.forEach(d => inventory.push(withDocId(d)));
                     window.renderInventory();
                     window.renderMenus();
                     window.updateProductionCostPreview();
@@ -1770,7 +1797,7 @@
 
                 listen("menus", (snapshot) => {
                     menus = [];
-                    snapshot.forEach(doc => menus.push(doc.data()));
+                    snapshot.forEach(d => menus.push(withDocId(d)));
                     window.renderPOS();
                     window.renderMenus();
                     window.renderProductionTab();
@@ -1782,8 +1809,8 @@
 
                 listen("production", (snapshot) => {
                     productionHistory = [];
-                    snapshot.forEach(doc => productionHistory.push(doc.data()));
-                    productionHistory.sort((a,b) => b.id - a.id);
+                    snapshot.forEach(d => productionHistory.push(withDocId(d)));
+                    productionHistory.sort((a,b) => Number(b.id || b._docId || 0) - Number(a.id || a._docId || 0));
                     window.renderProductionTab();
                     if (isAdmin) window.renderDashboard();
                 });
@@ -1791,29 +1818,29 @@
                 if (isAdmin) {
                     listen("purchases", (snapshot) => {
                         purchaseLogs = [];
-                        snapshot.forEach(doc => purchaseLogs.push(doc.data()));
-                        purchaseLogs.sort((a,b) => b.id - a.id);
+                        snapshot.forEach(d => purchaseLogs.push(withDocId(d)));
+                        purchaseLogs.sort((a,b) => Number(b.id || b._docId || 0) - Number(a.id || a._docId || 0));
                         window.renderPurchaseLogs();
                     });
 
                     listen("sales", (snapshot) => {
                         salesHistory = [];
-                        snapshot.forEach(doc => salesHistory.push(doc.data()));
-                        salesHistory.sort((a,b) => b.id - a.id);
+                        snapshot.forEach(d => salesHistory.push(withDocId(d)));
+                        salesHistory.sort((a,b) => Number(b.id || b._docId || 0) - Number(a.id || a._docId || 0));
                         window.renderDashboard();
                     });
 
                     listen("withdrawals", (snapshot) => {
                         withdrawals = [];
-                        snapshot.forEach(doc => withdrawals.push(doc.data()));
-                        withdrawals.sort((a,b) => b.id - a.id);
+                        snapshot.forEach(d => withdrawals.push(withDocId(d)));
+                        withdrawals.sort((a,b) => Number(b.id || b._docId || 0) - Number(a.id || a._docId || 0));
                         window.renderDashboard();
                     });
 
                     listen("daily_expenses", (snapshot) => {
                         dailyExpenses = [];
-                        snapshot.forEach(doc => dailyExpenses.push(doc.data()));
-                        dailyExpenses.sort((a,b) => b.id - a.id);
+                        snapshot.forEach(d => dailyExpenses.push(withDocId(d)));
+                        dailyExpenses.sort((a,b) => Number(b.id || b._docId || 0) - Number(a.id || a._docId || 0));
                         window.renderDashboard();
                     });
 
@@ -1926,8 +1953,9 @@
             document.getElementById('loading-screen').classList.remove('hidden');
 
             try {
+                const resolvedLogId = getDocId(purchaseLogs, logId);
                 await runTransaction(db, async (transaction) => {
-                    const logRef = doc(db, "purchases", logId.toString());
+                    const logRef = doc(db, "purchases", resolvedLogId);
                     const logSnap = await transaction.get(logRef);
                     
                     if (!logSnap.exists()) throw new Error("ไม่พบประวัติการซื้อนี้ในฐานข้อมูล");
@@ -1938,7 +1966,7 @@
                     const addedStock = Number(logData.addedStock || 0);
 
                     if (itemId) {
-                        const itemRef = doc(db, "inventory", itemId.toString());
+                        const itemRef = doc(db, "inventory", getDocId(inventory, itemId));
                         const itemSnap = await transaction.get(itemRef);
                         
                         if (itemSnap.exists()) {
@@ -1969,17 +1997,17 @@
                 showToast("ลบประวัติและคืนสต๊อกเรียบร้อย", "success");
             } catch (err) {
                 console.error(err);
-                showToast(err.message, "error");
+                showToast("ลบประวัติไม่สำเร็จ: " + err.message, "error");
             } finally {
                 document.getElementById('loading-screen').classList.add('hidden');
             }
         };
 
         window.openAdjustStockModal = (id) => {
-            const item = inventory.find(i => i.id.toString() === id.toString());
+            const item = findById(inventory, id);
             if (!item) return;
 
-            document.getElementById('adjust-item-id').value = item.id;
+            document.getElementById('adjust-item-id').value = getDocId(inventory, item.id);
             document.getElementById('adjust-item-name-label').innerText = `ปรับยอดสต๊อก: ${item.name}`;
             document.getElementById('adjust-stock-val').value = item.stock || 0;
             document.getElementById('adjust-item-unit-label').innerText = item.unit || 'ชิ้น';
@@ -1998,14 +2026,14 @@
 
                 if(isNaN(newStock) || newStock < 0) throw new Error("จำนวนสต๊อกไม่ถูกต้อง");
 
-                await updateDoc(doc(db, "inventory", id.toString()), {
+                await updateDoc(doc(db, "inventory", getDocId(inventory, id)), {
                     stock: newStock
                 });
 
                 showToast("ปรับยอดสต๊อกสำเร็จ", "success");
                 window.closeModal('modal-adjust-stock');
             } catch (err) { 
-                showToast(err.message, "error"); 
+                showToast("ปรับยอดไม่สำเร็จ: " + err.message, "error"); 
             } finally { 
                 setLoadingButton('btn-save-adjust-stock', false, originalText); 
             }
@@ -2025,7 +2053,7 @@
                 if (editId) {
                     // แก้ไข: ไม่คิดทุนเฉลี่ยใหม่จาก ราคาสะสม ÷ คงเหลือ (เดิมทำให้ทุนพุ่งเมื่อใช้ของไปแล้ว)
                     const avgCost = validateInput(document.getElementById('item-avgcost').value, "ทุนเฉลี่ยต่อหน่วย", true);
-                    await updateDoc(doc(db, "inventory", editId.toString()), { name, type, unit, avgCost });
+                    await updateDoc(doc(db, "inventory", getDocId(inventory, editId)), { name, type, unit, avgCost });
                 } else {
                     const price = validateInput(document.getElementById('item-price').value, "ราคาทุนบิลเริ่มต้น", true);
                     const stock = validateInput(document.getElementById('item-stock').value, "ปริมาณสุทธิเริ่มต้น", true);
@@ -2038,7 +2066,7 @@
                 showToast("บันทึกคลังสินค้าเรียบร้อย", "success");
                 window.closeModal('modal-item');
                 window.setInvFilter(type);
-            } catch (err) { showToast(err.message, "error"); } 
+            } catch (err) { showToast("บันทึกไม่สำเร็จ: " + err.message, "error"); } 
             finally { setLoadingButton('btn-save-item', false, originalText); }
         });
 
@@ -2052,9 +2080,11 @@
             try {
                 const addedPrice = validateInput(document.getElementById('purch-price').value, "จำนวนเงิน", true);
                 const addedStock = validateInput(document.getElementById('purch-stock').value, "ปริมาณ");
+                const resolvedItemId = getDocId(inventory, itemId);
+                const purchaseId = Date.now().toString();
 
                 await runTransaction(db, async (transaction) => {
-                    const itemRef = doc(db, "inventory", itemId.toString());
+                    const itemRef = doc(db, "inventory", resolvedItemId);
                     const snap = await transaction.get(itemRef);
                     if (!snap.exists()) throw new Error("ไม่พบรายการสินค้าในระบบ");
                     const data = snap.data();
@@ -2070,10 +2100,10 @@
 
                     transaction.update(itemRef, { price: totalNewPrice, stock: totalNewStock, avgCost: finalAvg });
 
-                    transaction.set(doc(db, "purchases", Date.now().toString()), {
-                        id: Date.now(),
+                    transaction.set(doc(db, "purchases", purchaseId), {
+                        id: purchaseId,
                         timestamp: new Date().toLocaleString('th-TH'),
-                        itemId: itemId,
+                        itemId: resolvedItemId,
                         itemName: data.name,
                         addedPrice: addedPrice,
                         addedStock: addedStock,
@@ -2105,9 +2135,9 @@
         };
 
         window.editItem = (id) => {
-            const item = inventory.find(i => i.id.toString() === id.toString());
+            const item = findById(inventory, id);
             if (!item) return;
-            document.getElementById('edit-item-id').value = item.id;
+            document.getElementById('edit-item-id').value = getDocId(inventory, item.id);
             document.getElementById('item-name').value = item.name;
             document.getElementById('item-type').value = item.type;
             document.getElementById('item-price').value = item.price;
@@ -2122,16 +2152,42 @@
 
         window.deleteItem = async (id) => {
             if (window.userRole !== 'admin') { showToast("🔒 สิทธิ์เฉพาะ Admin", "error"); return; }
-            const usedIn = menus.filter(m => (m.recipe || []).some(r => r.itemId.toString() === id.toString()));
-            if (usedIn.length > 0) {
-                const item = inventory.find(i => i.id.toString() === id.toString());
-                await window.askConfirmDialog("ลบไม่ได้ ยังใช้อยู่ในสูตร", `"${item ? item.name : ''}" ยังอยู่ในสูตรของ:\n• ${usedIn.map(m => m.name).join('\n• ')}\n\nเอาออกจากสูตรเหล่านี้ก่อน แล้วค่อยลบ`);
-                return;
+            const item = findById(inventory, id);
+            const matchIds = new Set([String(id)]);
+            if (item) {
+                if (item.id !== undefined && item.id !== null) matchIds.add(String(item.id));
+                if (item._docId !== undefined && item._docId !== null) matchIds.add(String(item._docId));
             }
-            const ok = await window.askConfirmDialog("ลบรายการคลัง", "ต้องการลบรายการนี้ใช่ไหม?");
-            if (ok) {
-                await deleteDoc(doc(db, "inventory", id.toString()));
-                showToast("ลบข้อมูลสำเร็จ", "success");
+            const usedIn = menus.filter(m => (m.recipe || []).some(r => r && r.itemId !== undefined && r.itemId !== null && matchIds.has(String(r.itemId))));
+            const itemName = item ? item.name : 'รายการนี้';
+
+            if (usedIn.length > 0) {
+                const okUsed = await window.askConfirmDialog(
+                    "ยืนยันการลบรายการคลัง",
+                    `"${itemName}" ถูกใช้อยู่ในสูตรของ ${usedIn.length} เมนู:\n• ${usedIn.map(m => m.name).join('\n• ')}\n\nหากกดยืนยัน ระบบจะลบ "${itemName}" ออกจากคลัง และเอาออกจากสูตรเมนูเหล่านี้อัตโนมัติ ต้องการลบเลยไหม?`
+                );
+                if (!okUsed) return;
+            } else {
+                const ok = await window.askConfirmDialog("ลบรายการคลัง", `ต้องการลบ "${itemName}" ออกจากคลังวัตถุดิบใช่ไหม?`);
+                if (!ok) return;
+            }
+
+            try {
+                const batch = writeBatch(db);
+                usedIn.forEach(m => {
+                    const updatedRecipe = (m.recipe || []).filter(r => !(r && r.itemId !== undefined && r.itemId !== null && matchIds.has(String(r.itemId))));
+                    batch.update(doc(db, "menus", getDocId(menus, m.id)), { recipe: updatedRecipe });
+                });
+                const docIdToDelete = getDocId(inventory, id);
+                batch.delete(doc(db, "inventory", docIdToDelete));
+                if (item && item.id && String(item.id) !== docIdToDelete) {
+                    batch.delete(doc(db, "inventory", String(item.id)));
+                }
+                await batch.commit();
+                showToast(usedIn.length > 0 ? `ลบ "${itemName}" และเอาออกจาก ${usedIn.length} สูตรเรียบร้อย` : `ลบ "${itemName}" สำเร็จ`, "success");
+            } catch (err) {
+                console.error(err);
+                showToast("ลบรายการไม่สำเร็จ: " + (err?.message || err), "error");
             }
         };
 
@@ -2513,7 +2569,7 @@
 
             try {
                 await runTransaction(db, async (transaction) => {
-                    const mRef = doc(db, "menus", menuId.toString());
+                    const mRef = doc(db, "menus", getDocId(menus, menuId));
                     const mSnap = await transaction.get(mRef);
                     if (!mSnap.exists()) return;
 
@@ -2527,7 +2583,7 @@
                     let pSnap = null;
                     let pRef = null;
                     if (prodLogId) {
-                        pRef = doc(db, "production", prodLogId.toString());
+                        pRef = doc(db, "production", getDocId(productionHistory, prodLogId));
                         pSnap = await transaction.get(pRef);
                     }
 
@@ -2593,11 +2649,11 @@
                 const lotNo = "LOT-" + prodId.slice(-6);
 
                 await runTransaction(db, async (transaction) => {
-                    const menuRef = doc(db, "menus", menuId.toString());
+                    const menuRef = doc(db, "menus", getDocId(menus, menuId));
                     const mSnap = await transaction.get(menuRef);
                     const invSnaps = [];
                     for (let r of aggRecipe) {
-                        const iSnap = await transaction.get(doc(db, "inventory", r.itemId.toString()));
+                        const iSnap = await transaction.get(doc(db, "inventory", getDocId(inventory, r.itemId)));
                         if(!iSnap.exists()) throw new Error(`ไม่พบวัตถุดิบหนึ่งในสูตร (อาจถูกลบไปแล้ว)`);
                         invSnaps.push(iSnap);
                     }
@@ -2611,7 +2667,7 @@
 
                     for (let idx = 0; idx < aggRecipe.length; idx++) {
                         const needed = Number(aggRecipe[idx].quantity) * batchMultiplier;
-                        transaction.update(doc(db, "inventory", aggRecipe[idx].itemId.toString()), { stock: Number(invSnaps[idx].data().stock || 0) - needed });
+                        transaction.update(doc(db, "inventory", getDocId(inventory, aggRecipe[idx].itemId)), { stock: Number(invSnaps[idx].data().stock || 0) - needed });
                     }
 
                     const currentLots = mSnap.data().lots || [];
@@ -2681,7 +2737,7 @@
 
             try {
                 await runTransaction(db, async (transaction) => {
-                    const prodRef = doc(db, "production", prodId.toString());
+                    const prodRef = doc(db, "production", getDocId(productionHistory, prodId));
                     const prodSnap = await transaction.get(prodRef);
                     if (!prodSnap.exists()) throw new Error("ไม่พบประวัติการผลิตนี้ในฐานข้อมูลแล้ว");
 
@@ -2691,7 +2747,7 @@
 
                     const isDisposal = prodData.isDisposal || (prodData.menuName || '').startsWith('🔥');
                     const realMenuName = (prodData.menuName || '').replace(/^🔥 \[[^\]]*\] /, '');
-                    const menu = (prodData.menuId && menus.find(m => m.id.toString() === prodData.menuId.toString()))
+                    const menu = (prodData.menuId && findById(menus, prodData.menuId))
                         || menus.find(m => m.name === realMenuName);
 
                     // วัตถุดิบที่ต้องคืน: ใช้สูตร ณ วันที่ต้ม (ถ้ามี) ไม่ใช่สูตรปัจจุบัน
@@ -2709,12 +2765,12 @@
 
                     let menuRef = null, mSnap = null;
                     if (menu) {
-                        menuRef = doc(db, "menus", menu.id.toString());
+                        menuRef = doc(db, "menus", getDocId(menus, menu.id));
                         mSnap = await transaction.get(menuRef);
                     }
                     const invSnaps = [];
                     for (let r of refundList) {
-                        const invRef = doc(db, "inventory", r.itemId.toString());
+                        const invRef = doc(db, "inventory", getDocId(inventory, r.itemId));
                         const iSnap = await transaction.get(invRef);
                         if (iSnap.exists()) invSnaps.push({ ref: invRef, snap: iSnap, qty: Number(r.quantity || 0) });
                     }
@@ -2771,8 +2827,9 @@
             const ok = await window.askConfirmDialog("เททิ้งสินค้าในหม้อ/ตู้แช่", `ยืนยันการเททิ้งล็อต [${lotNo}]? (ระบบจะบันทึกมูลค่าที่เหลือเป็นของเสีย)`);
             if (!ok) return;
             try {
+                const dispId = Date.now().toString();
                 await runTransaction(db, async (transaction) => {
-                    const mRef = doc(db, "menus", menuId.toString());
+                    const mRef = doc(db, "menus", getDocId(menus, menuId));
                     const mSnap = await transaction.get(mRef);
                     if (!mSnap.exists()) throw new Error("ไม่พบเมนูนี้แล้ว");
                     let lots = mSnap.data().lots || [];
@@ -2784,8 +2841,8 @@
                         : (Number(target.qty || 0) * Number(target.costPerCup || 0));
 
                     transaction.update(mRef, { lots: lots.filter(l => l.lotNo !== lotNo) });
-                    transaction.set(doc(db, "production", Date.now().toString()), {
-                        id: Date.now().toString(), 
+                    transaction.set(doc(db, "production", dispId), {
+                        id: dispId, 
                         timestamp: new Date().toLocaleString('th-TH'), 
                         menuName: `🔥 [ทิ้งตู้แช่] ${mSnap.data().name}`, 
                         menuId: menuId.toString(), isDisposal: true,
@@ -3198,7 +3255,7 @@
                     // ---------- อ่านข้อมูลทั้งหมดก่อน ----------
                     for (let c of cart) {
                         if (!menuSnaps[c.menuId]) {
-                            const mSnap = await transaction.get(doc(db, "menus", c.menuId.toString()));
+                            const mSnap = await transaction.get(doc(db, "menus", getDocId(menus, c.menuId)));
                             if(!mSnap.exists()) throw new Error("ไม่พบเมนูในระบบ (อาจถูกลบไปแล้ว)");
                             menuSnaps[c.menuId] = mSnap.data();
                         }
@@ -3208,7 +3265,7 @@
                         if (m.sharedPotMenuId) {
                             const pid = m.sharedPotMenuId.toString();
                             if (!menuSnaps[pid]) {
-                                const pMenuSnap = await transaction.get(doc(db, "menus", pid));
+                                const pMenuSnap = await transaction.get(doc(db, "menus", getDocId(menus, pid)));
                                 if (pMenuSnap.exists()) menuSnaps[pid] = pMenuSnap.data();
                             }
                             if (menuSnaps[pid]) potMenuId = pid;
@@ -3223,14 +3280,14 @@
                             if (!hasOpenPot && avail < c.qty) throw new Error(`[${m.name}] น้ำในหม้อ/ตู้แช่ไม่พอ (มี ${avail})`);
                             for (let l of lots) {
                                 if (l.isOpenPot && l.prodLogId && !prodSnaps[l.prodLogId]) {
-                                    const pSnap = await transaction.get(doc(db, "production", l.prodLogId.toString()));
+                                    const pSnap = await transaction.get(doc(db, "production", getDocId(productionHistory, l.prodLogId)));
                                     if (pSnap.exists()) prodSnaps[l.prodLogId] = pSnap.data();
                                 }
                             }
                         } else {
                             for (let r of aggregateRecipe(m.recipe)) {
                                 if (!invSnaps[r.itemId]) {
-                                    const iSnap = await transaction.get(doc(db, "inventory", r.itemId.toString()));
+                                    const iSnap = await transaction.get(doc(db, "inventory", getDocId(inventory, r.itemId)));
                                     if(!iSnap.exists()) throw new Error(`วัตถุดิบบางตัวของ [${m.name}] ถูกลบออกจากคลัง`);
                                     invSnaps[r.itemId] = iSnap.data();
                                 }
@@ -3279,7 +3336,7 @@
                                     if (target.prodLogId && prodSnaps[target.prodLogId]) {
                                         const newSold = target.soldCount;
                                         const potTotalCost = Number(target.totalPotCost || 0);
-                                        transaction.update(doc(db, "production", target.prodLogId.toString()), {
+                                        transaction.update(doc(db, "production", getDocId(productionHistory, target.prodLogId)), {
                                             qtyProduced: newSold,
                                             costPerUnit: newSold > 0 ? (potTotalCost / newSold) : potTotalCost
                                         });
@@ -3309,9 +3366,9 @@
                         });
                     }
 
-                    touchedPots.forEach(pid => transaction.update(doc(db, "menus", pid), { lots: menuSnaps[pid].lots }));
+                    touchedPots.forEach(pid => transaction.update(doc(db, "menus", getDocId(menus, pid)), { lots: menuSnaps[pid].lots }));
                     for (let itemId in needMap) {
-                        transaction.update(doc(db, "inventory", itemId.toString()), { stock: Number(invSnaps[itemId].stock || 0) - needMap[itemId] });
+                        transaction.update(doc(db, "inventory", getDocId(inventory, itemId)), { stock: Number(invSnaps[itemId].stock || 0) - needMap[itemId] });
                     }
 
                     const sum = summarizeLines(lines);
@@ -3611,8 +3668,9 @@
                 const note = document.getElementById('expense-note').value.trim();
                 if (isNaN(amount) || amount <= 0) throw new Error('กรุณาระบุจำนวนเงิน');
 
-                await setDoc(doc(db, 'daily_expenses', Date.now().toString()), {
-                    id: Date.now().toString(),
+                const expId = Date.now().toString();
+                await setDoc(doc(db, 'daily_expenses', expId), {
+                    id: expId,
                     timestamp: new Date().toLocaleString('th-TH'),
                     amount,
                     note
@@ -3665,11 +3723,11 @@
             const ok = await window.askConfirmDialog("ลบค่าใช้จ่าย", "⚠️ ยืนยันการลบค่าใช้จ่ายนี้? (ทุนหมุนเวียนจะถูกบวกกลับคืนอัตโนมัติ)");
             if (!ok) return;
             try {
-                await deleteDoc(doc(db, "daily_expenses", id.toString()));
+                await deleteDoc(doc(db, "daily_expenses", getDocId(dailyExpenses, id)));
                 showToast("ลบข้อมูลและคืนทุนหมุนเวียนสำเร็จ", "success");
-                window.closeModal('modal-expense-history');
+                setTimeout(() => window.openExpenseHistoryModal(), 150);
             } catch (err) {
-                showToast("เกิดข้อผิดพลาดในการลบ", "error");
+                showToast("เกิดข้อผิดพลาดในการลบ: " + err.message, "error");
             }
         };
 
@@ -3696,7 +3754,7 @@
             if (body) {
                 body.innerHTML = '';
                 if (filteredWithdrawals.length === 0) {
-                    body.innerHTML = `<tr><td colspan="3" class="p-4 text-center text-[#7A7164]">ยังไม่มีรายการถอนภายใต้ช่วงที่เลือก</td></tr>`;
+                    body.innerHTML = `<tr><td colspan="4" class="p-4 text-center text-[#7A7164]">ยังไม่มีรายการถอนภายใต้ช่วงที่เลือก</td></tr>`;
                 } else {
                     filteredWithdrawals.forEach(w => {
                         body.innerHTML += `
@@ -3704,6 +3762,11 @@
                                 <td class="p-3.5 font-display text-[#7A7164] text-[11px]">${w.timestamp}</td>
                                 <td class="p-3.5 font-semibold text-[#2E2A24] font-display">฿${Number(w.amount || 0).toLocaleString('th-TH',{minimumFractionDigits:2})}</td>
                                 <td class="p-3.5 text-[#7A7164] text-xs">${w.note || '-'}</td>
+                                <td class="p-3.5 text-center">
+                                    <button type="button" onclick="window.deleteWithdrawal('${w.id}')" class="text-xs font-semibold text-[#B4513A] bg-[#F7E3DD] hover:bg-[#B4513A] hover:text-white px-3 py-1 rounded-lg transition-colors active:scale-95">
+                                        <i class="fas fa-trash-alt mr-1"></i> ลบ
+                                    </button>
+                                </td>
                             </tr>`;
                     });
                 }
@@ -3712,6 +3775,19 @@
             if (remainingEl) remainingEl.innerText = `฿${remaining.toLocaleString('th-TH', {minimumFractionDigits:2})}`;
             if (summaryEl) summaryEl.innerText = filteredWithdrawals.length > 0 ? `แสดง ${filteredWithdrawals.length} รายการ ${filterState.label}` : `ยังไม่มีรายการถอนในช่วงที่เลือก ${filterState.label}`;
             window.openModal('modal-withdrawal-history');
+        };
+
+        window.deleteWithdrawal = async (id) => {
+            if (window.userRole !== 'admin') { showToast("🔒 สิทธิ์เฉพาะ Admin", "error"); return; }
+            const ok = await window.askConfirmDialog("ลบรายการถอนกำไร", "⚠️ ยืนยันการลบรายการถอนกำไรนี้? (ยอดกำไรคงเหลือจะถูกบวกกลับคืนอัตโนมัติ)");
+            if (!ok) return;
+            try {
+                await deleteDoc(doc(db, "withdrawals", getDocId(withdrawals, id)));
+                showToast("ลบรายการถอนกำไรเรียบร้อย", "success");
+                setTimeout(() => window.openWithdrawalHistoryModal(), 150);
+            } catch (err) {
+                showToast("ลบรายการถอนไม่สำเร็จ: " + err.message, "error");
+            }
         };
 
         document.getElementById('withdrawal-form')?.addEventListener('submit', async (e) => {
@@ -3726,8 +3802,9 @@
                 const available = Number(window.lastAvailableProfit || 0);
                 if (amount > available) throw new Error('จำนวนถอนเกินยอดกำไรคงเหลือ');
 
-                await setDoc(doc(db, 'withdrawals', Date.now().toString()), {
-                    id: Date.now().toString(),
+                const wId = Date.now().toString();
+                await setDoc(doc(db, 'withdrawals', wId), {
+                    id: wId,
                     timestamp: new Date().toLocaleString('th-TH'),
                     amount,
                     note,
@@ -3745,10 +3822,10 @@
 
         window.openRefundModal = (saleId) => {
             if (window.userRole !== 'admin') { showToast("🔒 สิทธิ์เฉพาะ Admin", "error"); return; }
-            const sale = salesHistory.find(s => s.id.toString() === saleId.toString());
+            const sale = findById(salesHistory, saleId);
             if (!sale) return;
 
-            document.getElementById('refund-sale-id').value = sale.id;
+            document.getElementById('refund-sale-id').value = getDocId(salesHistory, sale.id);
             const container = document.getElementById('refund-items-container');
             container.innerHTML = '';
 
@@ -3780,7 +3857,7 @@
 
             try {
                 const saleId = document.getElementById('refund-sale-id').value;
-                const saleRef = doc(db, "sales", saleId.toString());
+                const saleRef = doc(db, "sales", getDocId(salesHistory, saleId));
 
                 const requested = [];
                 let i = 0;
@@ -3803,7 +3880,7 @@
                     lines.forEach((l, idx) => {
                         const q = Math.min(requested[idx], l.qty);
                         if (q <= 0) return;
-                        const menu = l.menuId ? menus.find(m => m.id.toString() === l.menuId.toString()) : null;
+                        const menu = l.menuId ? findById(menus, l.menuId) : null;
                         work.push({ idx, q, l, menu });
                     });
                     for (const w of work) {
@@ -3812,7 +3889,7 @@
                         if (mode === 'batch') {
                             w.potId = resolvePotMenuId(w.menu);
                             if (!potSnaps[w.potId]) {
-                                const ps = await transaction.get(doc(db, "menus", w.potId));
+                                const ps = await transaction.get(doc(db, "menus", getDocId(menus, w.potId)));
                                 potSnaps[w.potId] = ps.exists() ? { lots: JSON.parse(JSON.stringify(ps.data().lots || [])) } : null;
                             }
                         } else {
@@ -3821,7 +3898,7 @@
                         }
                     }
                     for (const itemId in addMap) {
-                        const iSnap = await transaction.get(doc(db, "inventory", itemId.toString()));
+                        const iSnap = await transaction.get(doc(db, "inventory", getDocId(inventory, itemId)));
                         if (iSnap.exists()) invSnaps[itemId] = iSnap.data();
                     }
 
@@ -3837,9 +3914,9 @@
                             lots.push({ lotNo: "REFUND-" + Date.now().toString().slice(-4) + "-" + w.idx, productionDate: new Date().toLocaleDateString('th-TH'), expDate: "รับคืน", qty: w.q, costPerCup: w.l.unitCost });
                         }
                     }
-                    for (const pid in potSnaps) { if (potSnaps[pid]) transaction.update(doc(db, "menus", pid), { lots: potSnaps[pid].lots }); }
+                    for (const pid in potSnaps) { if (potSnaps[pid]) transaction.update(doc(db, "menus", getDocId(menus, pid)), { lots: potSnaps[pid].lots }); }
                     for (const itemId in invSnaps) {
-                        transaction.update(doc(db, "inventory", itemId.toString()), { stock: Number(invSnaps[itemId].stock || 0) + addMap[itemId] });
+                        transaction.update(doc(db, "inventory", getDocId(inventory, itemId)), { stock: Number(invSnaps[itemId].stock || 0) + addMap[itemId] });
                     }
 
                     const newLines = lines.map((l, idx) => ({ ...l, qty: l.qty - Math.min(requested[idx], l.qty) })).filter(l => l.qty > 0);
@@ -3882,7 +3959,7 @@
         const imxEsc = (v) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
         const imxBaht = (n, d = 2) => '฿' + Number(n || 0).toLocaleString('th-TH', { minimumFractionDigits: d, maximumFractionDigits: d });
         const imxQty = (n) => Number(n || 0).toLocaleString('th-TH', { maximumFractionDigits: 3 });
-        const imxItem = (id) => inventory.find(i => i.id !== undefined && i.id.toString() === String(id));
+        const imxItem = (id) => findById(inventory, id);
         const IMX_PACK_WORDS = ['แก้ว', 'ฝา', 'หลอด', 'ฟิล์ม', 'ถุง', 'กล่อง', 'ช้อน', 'ซีล'];
         const imxIsPack = (it) => !!it && /ชิ้น|pcs|ใบ|อัน/.test(it.unit || '') && IMX_PACK_WORDS.some(w => (it.name || '').includes(w));
         const IMX_CAT = {
@@ -4022,9 +4099,9 @@
         }
 
         window.openMenuModal = () => { IMXD = imxDraftFrom(null); IMXD.price = IMXD.category === 'scoop' ? 25 : 10; IMXD.batchSize = IMXD.category === 'scoop' ? 13 : 28; imxOpen(true); };
-        window.editMenu = (id) => { const m = menus.find(x => x.id.toString() === id.toString()); if (!m) return; IMXD = imxDraftFrom(m); imxOpen(false); };
+        window.editMenu = (id) => { const m = findById(menus, id); if (!m) return; IMXD = imxDraftFrom(m); imxOpen(false); };
         window.cloneMenuForOtherCupStyle = (menuId) => {
-            const src = menus.find(m => m.id.toString() === menuId.toString());
+            const src = findById(menus, menuId);
             if (!src) return;
             const toCat = window.resolveMenuCategory(src) === 'sealed' ? 'scoop' : 'sealed';
             const base = src.name.replace('แก้วใหญ่', '').replace('(แก้วซีน)', '').replace('แก้วซีน', '').trim();
@@ -4038,7 +4115,7 @@
         };
         // เปลี่ยนหมวดด่วน (คงไว้เพื่อความเข้ากันได้)
         window.quickChangeMenuCategory = async (menuId, newCategory) => {
-            try { await updateDoc(doc(db, "menus", menuId.toString()), { category: newCategory }); showToast('ย้ายหมวดเรียบร้อย', 'success'); }
+            try { await updateDoc(doc(db, "menus", getDocId(menus, menuId)), { category: newCategory }); showToast('ย้ายหมวดเรียบร้อย', 'success'); }
             catch (err) { showToast("เปลี่ยนหมวดไม่สำเร็จ: " + err.message, "error"); }
         };
 
@@ -4371,7 +4448,7 @@
             try {
                 if (D.id) {
                     // ไม่เขียน lots ทับ (กันยอดขายจากหม้อที่เกิดระหว่างแก้ไขหาย)
-                    await updateDoc(doc(db, "menus", D.id), data);
+                    await updateDoc(doc(db, "menus", getDocId(menus, D.id)), data);
                 } else {
                     const id = Date.now().toString();
                     await setDoc(doc(db, "menus", id), { id, ...data, lots: [] });
@@ -4386,41 +4463,139 @@
 
         window.deleteMenu = async (id) => {
             if (window.userRole !== 'admin') { showToast("🔒 สิทธิ์เฉพาะ Admin", "error"); return false; }
-            const menu = menus.find(m => m.id.toString() === id.toString());
+            const menu = findById(menus, id);
             if (!menu) return false;
-            const activeLots = (menu.lots || []).filter(l => l.isOpenPot || Number(l.qty || 0) > 0);
+            const matchIds = new Set([String(id)]);
+            if (menu.id != null) matchIds.add(String(menu.id));
+            if (menu._docId != null) matchIds.add(String(menu._docId));
+
+            const activeLots = (menu.lots || []).filter(l => l && (l.isOpenPot || Number(l.qty || 0) > 0));
+            const children = menus.filter(m => m.sharedPotMenuId && matchIds.has(String(m.sharedPotMenuId)));
+
+            const notes = [];
             if (activeLots.length > 0) {
-                await window.askConfirmDialog("ยังลบไม่ได้", `"${menu.name}" ยังมีน้ำในหม้อ/ของในตู้แช่ ${activeLots.length} ล็อต\nไปที่หน้า "ต้มน้ำในหม้อ & ตู้แช่" แล้วกด "น้ำหมดหม้อ" หรือ "ทิ้ง" ก่อน เพื่อไม่ให้ต้นทุนหาย`);
-                return false;
+                notes.push(`• ยังมีน้ำในหม้อ/ของในตู้แช่ค้างอยู่ ${activeLots.length} ล็อต (ระบบจะปิดหม้อและบันทึกทุนที่เหลือเป็นของเสียให้อัตโนมัติ)`);
             }
-            const children = menus.filter(m => m.sharedPotMenuId && m.sharedPotMenuId.toString() === id.toString());
-            const msg = children.length > 0
-                ? `ลบ "${menu.name}"?\nเมนูที่ตักจากหม้อนี้ (${children.map(c => c.name).join(', ')}) จะถูกแยกเป็นหม้อของตัวเองอัตโนมัติ`
-                : `ลบ "${menu.name}"? ลบแล้วกู้คืนไม่ได้`;
-            const ok = await window.askConfirmDialog("ลบเมนู", msg);
+            if (children.length > 0) {
+                notes.push(`• เมนูที่ตักจากหม้อนี้ (${children.map(c => c.name).join(', ')}) จะถูกแยกเป็นหม้อของตัวเองอัตโนมัติ`);
+            }
+            const msg = notes.length > 0
+                ? `ต้องการลบเมนู "${menu.name}" ใช่ไหม?\n\n${notes.join('\n')}`
+                : `ต้องการลบเมนู "${menu.name}" ใช่ไหม? ลบแล้วกู้คืนไม่ได้`;
+
+            const ok = await window.askConfirmDialog("ยืนยันการลบเมนู", msg);
             if (!ok) return false;
             try {
                 const batch = writeBatch(db);
-                children.forEach(c => batch.update(doc(db, "menus", c.id.toString()), { sharedPotMenuId: null }));
-                batch.delete(doc(db, "menus", id.toString()));
+                // บันทึกของเสียสำหรับล็อตที่ค้างอยู่ก่อนลบเมนู
+                activeLots.forEach((lot, idx) => {
+                    const wasteCost = lot.isOpenPot
+                        ? Number(lot.remainingPotCost || 0)
+                        : (Number(lot.qty || 0) * Number(lot.costPerCup || 0));
+                    if (wasteCost > 0.005) {
+                        const wId = (Date.now() + idx).toString();
+                        batch.set(doc(db, "production", wId), {
+                            id: wId,
+                            timestamp: new Date().toLocaleString('th-TH'),
+                            menuName: `🔥 [เคลียร์สต๊อกตอนลบเมนู] ${menu.name}`,
+                            menuId: String(menu.id),
+                            isDisposal: true,
+                            isLeftoverRecord: true,
+                            qtyProduced: 0,
+                            wasteQty: lot.isOpenPot ? 1 : Number(lot.qty || 0),
+                            totalCost: 0,
+                            costPerUnit: 0,
+                            expDate: lot.expDate || '-',
+                            wasteValue: wasteCost
+                        });
+                    }
+                    if (lot.isOpenPot && lot.prodLogId) {
+                        const existingProd = findById(productionHistory, lot.prodLogId);
+                        if (existingProd) {
+                            batch.update(doc(db, "production", getDocId(productionHistory, lot.prodLogId)), { isOpenPotActive: false });
+                        }
+                    }
+                });
+                children.forEach(c => batch.update(doc(db, "menus", getDocId(menus, c.id)), { sharedPotMenuId: null }));
+                const docIdToDelete = getDocId(menus, id);
+                batch.delete(doc(db, "menus", docIdToDelete));
+                if (menu.id && String(menu.id) !== docIdToDelete) {
+                    batch.delete(doc(db, "menus", String(menu.id)));
+                }
                 await batch.commit();
-                showToast("ลบเมนูเรียบร้อย", "success");
+                showToast(`ลบเมนู "${menu.name}" เรียบร้อย`, "success");
                 return true;
-            } catch (err) { showToast("ลบเมนูไม่สำเร็จ: " + err.message, "error"); return false; }
+            } catch (err) {
+                console.error(err);
+                showToast("ลบเมนูไม่สำเร็จ: " + err.message, "error");
+                return false;
+            }
         };
 
 
         // --- USERS MANAGEMENT ---
+        window.toggleUserRole = async (uid) => {
+            if (window.userRole !== 'admin') { showToast("🔒 สิทธิ์เฉพาะ Admin", "error"); return; }
+            const target = usersList.find(u => u.uid === uid);
+            if (!target) return;
+            if ((target.email || '').toLowerCase() === BOOTSTRAP_ADMIN_EMAIL) {
+                showToast("ไม่สามารถลดสิทธิ์แอดมินหลักของระบบได้", "error");
+                return;
+            }
+            const nextRole = target.role === 'admin' ? 'staff' : 'admin';
+            const ok = await window.askConfirmDialog("เปลี่ยนระดับสิทธิ์", `ต้องการเปลี่ยนสิทธิ์ของ "${target.username || target.email}" เป็น ${nextRole.toUpperCase()} ใช่ไหม?`);
+            if (!ok) return;
+            try {
+                await updateDoc(doc(db, "users", uid), { role: nextRole });
+                showToast(`อัปเดตสิทธิ์เป็น ${nextRole.toUpperCase()} เรียบร้อย`, "success");
+            } catch (err) {
+                showToast("เปลี่ยนสิทธิ์ไม่สำเร็จ: " + err.message, "error");
+            }
+        };
+
+        window.deleteUserProfile = async (uid) => {
+            if (window.userRole !== 'admin') { showToast("🔒 สิทธิ์เฉพาะ Admin", "error"); return; }
+            const target = usersList.find(u => u.uid === uid);
+            if (!target) return;
+            if (currentUser && currentUser.uid === uid) {
+                showToast("ไม่สามารถลบบัญชีที่กำลังใช้งานอยู่ได้", "error");
+                return;
+            }
+            if ((target.email || '').toLowerCase() === BOOTSTRAP_ADMIN_EMAIL) {
+                showToast("ไม่สามารถลบแอดมินหลักของระบบได้", "error");
+                return;
+            }
+            const ok = await window.askConfirmDialog("ลบรายชื่อพนักงาน", `ต้องการลบโปรไฟล์ของ "${target.username || target.email}" ออกจากระบบร้านใช่ไหม?`);
+            if (!ok) return;
+            try {
+                await deleteDoc(doc(db, "users", uid));
+                showToast("ลบโปรไฟล์พนักงานเรียบร้อย", "success");
+            } catch (err) {
+                showToast("ลบโปรไฟล์ไม่สำเร็จ: " + err.message, "error");
+            }
+        };
+
         window.renderUsers = () => {
             const tbody = document.getElementById('users-table-body');
             if (!tbody) return;
             tbody.innerHTML = '';
             usersList.forEach(u => {
+                const isBootstrap = (u.email || '').toLowerCase() === BOOTSTRAP_ADMIN_EMAIL;
+                const isSelf = currentUser && currentUser.uid === u.uid;
                 const roleBadge = u.role === 'admin' 
                     ? '<span class="px-2.5 py-0.5 rounded-md bg-[#E7EEE3] text-[#3F5A3D] font-semibold text-xs">Admin</span>' 
                     : '<span class="px-2.5 py-0.5 rounded-md bg-[#FAF7F1] text-[#7A7164] border border-[#E6DECF] font-medium text-xs">Staff</span>';
                 const dateObj = u.createdAt ? new Date(u.createdAt) : null;
                 const dateStr = dateObj ? `${dateObj.toLocaleDateString('th-TH')} ${dateObj.toLocaleTimeString('th-TH').slice(0,5)}` : '-';
+
+                const actionsHtml = isBootstrap
+                    ? `<span class="text-xs text-[#7A7164]">แอดมินหลัก</span>`
+                    : `<div class="flex items-center justify-center gap-1.5">
+                        <button type="button" onclick="window.toggleUserRole('${u.uid}')" class="text-xs font-semibold text-[#3F5A3D] bg-[#E7EEE3] hover:bg-[#5E7D5B] hover:text-white px-2.5 py-1 rounded-lg transition-colors active:scale-95">
+                            สลับเป็น ${u.role === 'admin' ? 'Staff' : 'Admin'}
+                        </button>
+                        ${!isSelf ? `<button type="button" onclick="window.deleteUserProfile('${u.uid}')" class="text-xs font-semibold text-[#B4513A] bg-[#F7E3DD] hover:bg-[#B4513A] hover:text-white px-2.5 py-1 rounded-lg transition-colors active:scale-95" title="ลบโปรไฟล์"><i class="fas fa-trash-alt"></i></button>` : ''}
+                       </div>`;
 
                 tbody.innerHTML += `
                     <tr class="hover:bg-[#FAF7F1] transition-colors border-b border-[#E6DECF] last:border-b-0">
@@ -4431,6 +4606,7 @@
                         <td class="p-3.5 font-display text-[#7A7164]">${u.phone || '-'}</td>
                         <td class="p-3.5 text-center">${roleBadge}</td>
                         <td class="p-3.5 text-center font-display text-[#7A7164] text-xs">${dateStr}</td>
+                        <td class="p-3.5 text-center">${actionsHtml}</td>
                     </tr>`;
             });
         };
