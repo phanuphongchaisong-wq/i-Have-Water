@@ -176,12 +176,12 @@
         .imx .mbar{display:inline-block;flex:1;max-width:120px;min-width:60px;height:5px;background:var(--line);border-radius:99px;overflow:hidden}
         .imx .mbar i{display:block;height:100%;background:var(--sage)}
         .imx .mbar.low i{background:var(--warn)} .imx .mbar.neg i{background:var(--danger)}
-        .imx .row .acts{display:none}
+        .imx .row .acts{display:flex;justify-content:flex-end;gap:2px;grid-column:1/-1;padding-top:4px}
         .imx .iconbtn{width:36px;height:36px;border-radius:10px;border:1px solid transparent;background:none;display:grid;place-items:center;color:var(--muted);flex:none}
         .imx .iconbtn:hover{background:var(--line);color:var(--ink)}
         .imx .iconbtn svg{width:18px;height:18px}
         @media (min-width:760px){
-            .imx .list-head,.imx .row{display:grid;grid-template-columns:minmax(0,1fr) 80px 96px 150px 84px;gap:12px;align-items:center}
+            .imx .list-head,.imx .row{display:grid;grid-template-columns:minmax(0,1fr) 80px 96px 150px 124px;gap:12px;align-items:center}
             .imx .list-head{padding:9px 14px;font-size:12px;color:var(--muted);background:var(--surface-2);border-bottom:1px solid var(--line)}
             .imx .list-head span:not(:first-child){text-align:right}
             .imx .row .metrics{grid-column:auto;display:contents}
@@ -189,7 +189,7 @@
             .imx .row .m-profit{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
             .imx .row .m-profit .mbar{width:90px;flex:none}
             .imx .row .lbl{display:none}
-            .imx .row .acts{display:flex;justify-content:flex-end;gap:2px}
+            .imx .row .acts{display:flex;justify-content:flex-end;gap:2px;grid-column:auto;padding-top:0}
         }
         .imx .empty{padding:36px 16px;text-align:center;color:var(--muted)}
         /* editor */
@@ -300,6 +300,87 @@
         .imx .pick-sheet .panel{background:var(--surface-2);width:100%;height:88%;border-radius:18px 18px 0 0;display:flex;flex-direction:column;overflow:hidden}
         .imx .grab{width:40px;height:4px;border-radius:99px;background:var(--line);margin:8px auto 0}
         @media (min-width:1024px){.imx .pick-sheet{display:none!important}}
+
+        /* ===== ระบบพิมพ์ใบสูตรทำน้ำ ขนาด A4 (1 สูตร ต่อ 1 หน้า A4) ===== */
+        #recipe-print-root { display: none; }
+        .a4-preview-page {
+            width: 210mm;
+            min-height: 297mm;
+            background: #FFFFFF;
+            color: #2E2A24;
+            margin: 0 auto 24px auto;
+            padding: 14mm 16mm;
+            box-shadow: 0 6px 28px rgba(46,42,36,0.16);
+            border-radius: 6px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: relative;
+            font-family: 'IBM Plex Sans Thai', 'Prompt', sans-serif;
+        }
+        .a4-preview-page:last-child { margin-bottom: 0; }
+        .a4-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+        .a4-table th {
+            background: #FAF7F1 !important;
+            color: #2E2A24 !important;
+            border: 1.5px solid #2E2A24 !important;
+            padding: 9px 10px;
+            font-size: 13px;
+            font-weight: 700;
+        }
+        .a4-table td {
+            border: 1px solid #8E8577 !important;
+            padding: 9px 10px;
+            font-size: 14px;
+            color: #2E2A24;
+            vertical-align: middle;
+        }
+        .a4-table tbody tr:nth-child(even) { background: #FAF7F1; }
+
+        @media print {
+            @page { size: A4 portrait; margin: 0; }
+            html, body {
+                background: #FFFFFF !important;
+                color: #000000 !important;
+                margin: 0 !important;
+                padding: 0 !important;
+                height: auto !important;
+                min-height: 0 !important;
+                overflow: visible !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+            }
+            body > *:not(#recipe-print-root) {
+                display: none !important;
+            }
+            #recipe-print-root {
+                display: block !important;
+                width: 100% !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .a4-preview-page {
+                width: 210mm !important;
+                height: 297mm !important;
+                min-height: 297mm !important;
+                max-height: 297mm !important;
+                margin: 0 !important;
+                padding: 13mm 15mm !important;
+                box-shadow: none !important;
+                border: none !important;
+                border-radius: 0 !important;
+                page-break-after: always !important;
+                break-after: page !important;
+                page-break-inside: avoid !important;
+                break-inside: avoid !important;
+                overflow: hidden !important;
+            }
+            .a4-preview-page:last-child {
+                page-break-after: auto !important;
+                break-after: auto !important;
+            }
+        }
     </style>
 </head>
 <body class="text-[#2E2A24] bg-[#F5F1E8] min-h-screen flex flex-col overflow-hidden">
@@ -1177,6 +1258,44 @@
 
     <!-- ตัวแก้สูตรเมนู (v21) จะถูกสร้างใน layer นี้ -->
     <div id="imx-layer" class="imx"></div>
+
+    <!-- MODAL: พรีวิวและตั้งค่าพิมพ์ใบสูตรทำน้ำขนาด A4 (1 สูตร ต่อ 1 หน้า A4) -->
+    <div id="modal-print-recipes" class="fixed inset-0 bg-[#1E180F]/60 backdrop-blur-[2px] hidden items-center justify-center p-2 sm:p-4 z-[65] transition-opacity duration-300 opacity-0">
+        <div class="bg-[#F5F1E8] border border-[#E6DECF] rounded-[20px] w-full max-w-5xl h-[92vh] shadow-[0_12px_36px_rgba(30,24,15,0.28)] flex flex-col overflow-hidden transform transition-transform duration-300 scale-95">
+            <!-- Header & Controls -->
+            <div class="bg-white border-b border-[#E6DECF] px-4 py-3.5 sm:px-6 flex flex-wrap items-center justify-between gap-3 shrink-0">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl bg-[#E7EEE3] text-[#3F5A3D] flex items-center justify-center shrink-0">
+                        <i class="fas fa-print text-base"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-[#2E2A24] text-base leading-tight">พิมพ์ใบสูตรทำน้ำ (A4 ต่อ 1 สูตร)</h3>
+                        <p class="text-xs text-[#7A7164]" id="print-modal-subtitle">จัดหน้าขนาด A4 อัตโนมัติ แยก 1 สูตร ต่อ 1 แผ่น สำหรับแปะหน้าหม้อต้มหรือเข้าแฟ้ม</p>
+                    </div>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    <label class="inline-flex items-center gap-2 text-xs font-semibold text-[#2E2A24] bg-[#FAF7F1] border border-[#E6DECF] px-3 py-2 rounded-xl cursor-pointer select-none">
+                        <input type="checkbox" id="print-opt-multi-pots" checked onchange="window.refreshRecipePrintPreview()" class="accent-[#5E7D5B] w-4 h-4 rounded">
+                        <span>ตารางคูณ 1 / 2 / 3 หม้อ</span>
+                    </label>
+                    <button type="button" onclick="window.triggerBrowserPrintRecipes()" class="px-4 py-2.5 bg-[#5E7D5B] hover:bg-[#4F6B4C] text-white rounded-xl text-xs sm:text-sm font-semibold shadow-sm transition-all active:scale-95 flex items-center gap-2">
+                        <i class="fas fa-print"></i>
+                        <span>สั่งพิมพ์ A4 ทันที</span>
+                    </button>
+                    <button type="button" onclick="window.closeModal('modal-print-recipes')" class="px-3.5 py-2.5 bg-[#FAF7F1] hover:bg-[#E6DECF] text-[#7A7164] hover:text-[#2E2A24] border border-[#E6DECF] rounded-xl text-xs sm:text-sm font-semibold transition-colors">
+                        ปิด
+                    </button>
+                </div>
+            </div>
+            <!-- Scrollable A4 Preview Area -->
+            <div id="print-preview-scroll" class="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-8 bg-[#D8D0C1]/60">
+                <div id="print-preview-pages" class="overflow-x-auto"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ROOT สำหรับสั่งพิมพ์ลงกระดาษ A4 จริง -->
+    <div id="recipe-print-root" aria-hidden="true"></div>
 
     <div id="modal-refund" class="fixed inset-0 bg-[#1E180F]/45 backdrop-blur-[2px] hidden items-center justify-center p-4 z-50 transition-opacity duration-300 opacity-0">
         <div class="bg-white border border-[#E6DECF] rounded-[20px] p-6 md:p-7 w-full max-w-md shadow-[0_8px_24px_rgba(60,45,25,0.14)] overflow-y-auto max-h-[90vh] transform transition-transform duration-300 scale-95">
@@ -3974,7 +4093,8 @@
             plus: '<path d="M12 5v14M5 12h14"/>', x: '<path d="M6 6l12 12M18 6L6 18"/>', search: '<circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/>',
             copy: '<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V5a1 1 0 00-1-1H5a1 1 0 00-1 1v10a1 1 0 001 1h3"/>',
             trash: '<path d="M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13"/>', check: '<path d="M5 12l5 5 9-10"/>', alert: '<path d="M12 4l9 16H3z"/><path d="M12 10v4M12 17v.5"/>',
-            link: '<path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/>', back: '<path d="M15 5l-7 7 7 7"/>'
+            link: '<path d="M10 14a4 4 0 005.7 0l3-3a4 4 0 00-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 00-5.7 0l-3 3a4 4 0 005.7 5.7l1-1"/>', back: '<path d="M15 5l-7 7 7 7"/>',
+            print: '<path d="M6 9V3h12v6"/><path d="M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><rect x="6" y="14" width="12" height="7" rx="1"/>'
         };
         const imxIcon = (n) => `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IMX_IC[n]}</svg>`;
 
@@ -4004,7 +4124,8 @@
                 root.dataset.ready = '1';
                 root.innerHTML = `
                     <div class="page-head">
-                        <div class="t"><p>แตะเมนูเพื่อแก้สูตร ต้นทุนคิดจากทุนเฉลี่ยของวัตถุดิบในคลัง</p></div>
+                        <div class="t"><p>แตะเมนูเพื่อแก้สูตร ต้นทุนคิดจากทุนเฉลี่ยของวัตถุดิบในคลัง · กดปุ่มพิมพ์สูตรเพื่อพิมพ์ใบสูตร A4 (1 สูตร ต่อ 1 แผ่น)</p></div>
+                        <button type="button" class="btn" id="imx-print-all">${imxIcon('print')}พิมพ์สูตรทำน้ำ (A4)</button>
                         <button type="button" class="btn primary" id="imx-new">${imxIcon('plus')}เพิ่มเมนู</button>
                     </div>
                     <div class="toolbar">
@@ -4019,9 +4140,11 @@
                 root.querySelector('#imx-sort').addEventListener('change', e => { imxUi.sort = e.target.value; window.renderMenus(); });
                 root.addEventListener('click', e => {
                     const f = e.target.closest('[data-filter]'); if (f) { imxUi.filter = f.dataset.filter; window.renderMenus(); return; }
+                    const p = e.target.closest('[data-print]'); if (p) { e.stopPropagation(); window.printSingleMenuRecipe(p.dataset.print); return; }
                     const c = e.target.closest('[data-clone]'); if (c) { e.stopPropagation(); window.cloneMenuForOtherCupStyle(c.dataset.clone); return; }
                     const d = e.target.closest('[data-del]'); if (d) { e.stopPropagation(); window.deleteMenu(d.dataset.del); return; }
                     const r = e.target.closest('[data-edit]'); if (r) { window.editMenu(r.dataset.edit); return; }
+                    if (e.target.closest('#imx-print-all')) { window.printFilteredMenuRecipes(); return; }
                     if (e.target.closest('#imx-new')) window.openMenuModal();
                 });
                 root.addEventListener('keydown', e => {
@@ -4061,6 +4184,7 @@
                         <span class="m-profit"><span><span class="lbl">กำไร </span><b class="num" style="color:${p < 0 ? 'var(--danger)' : 'var(--sage-ink)'}">${p < 0 ? '−' : '+'}${imxBaht(Math.abs(p))}</b> <span class="num">(${mg.toFixed(0)}%)</span></span><span class="mbar ${barCls}"><i style="width:${Math.max(0, Math.min(100, mg))}%"></i></span></span>
                     </div>
                     <div class="acts">
+                        <button type="button" class="iconbtn" data-print="${m.id}" title="พิมพ์ใบสูตรทำน้ำ A4 (${imxEsc(m.name)})" aria-label="พิมพ์สูตร ${imxEsc(m.name)}">${imxIcon('print')}</button>
                         ${cat !== 'snack' ? `<button type="button" class="iconbtn" data-clone="${m.id}" title="สร้าง${cat === 'sealed' ? 'แก้วตัก' : 'แก้วซีน'}จากหม้อเดียวกัน" aria-label="คัดลอกเป็นแก้วอีกแบบ">${imxIcon('copy')}</button>` : ''}
                         <button type="button" class="iconbtn" data-del="${m.id}" title="ลบเมนู" aria-label="ลบ ${imxEsc(m.name)}">${imxIcon('trash')}</button>
                     </div>
@@ -4076,6 +4200,181 @@
                 });
             } else html = `<div class="list">${head}${rows.map(rowHtml).join('')}</div>`;
             root.querySelector('#imx-list').innerHTML = html;
+        };
+
+        // ---------- ระบบพิมพ์ใบสูตรทำน้ำ ขนาด A4 (1 สูตร ต่อ 1 หน้า A4) ----------
+        let currentPrintTargetMenus = [];
+
+        function buildSingleA4RecipeSheetHtml(menu, pageIndex, totalPages, options = {}) {
+            const showMultiPots = options.showMultiPots !== false;
+            const cat = window.resolveMenuCategory(menu);
+            const meta = IMX_CAT[cat] || IMX_CAT.sealed;
+            const isBatch = menu.mode === 'batch';
+            const batchSize = isBatch ? (Number(menu.batchSize) || 1) : 1;
+            const unitLabel = meta.unit || 'แก้ว';
+
+            // เอาเฉพาะรายการวัตถุดิบ/ส่วนผสมทำน้ำ (ไม่เอาบรรจุภัณฑ์ เช่น แก้ว ฝา หลอด ซีล ถุง)
+            const rawRecipe = menu.recipe || [];
+            const ingRows = [];
+
+            rawRecipe.forEach(r => {
+                const it = imxItem(r.itemId);
+                if (it && imxIsPack(it)) return;
+                const qtyPerPot = Number(r.quantity || 0);
+                const qtyPerCup = batchSize > 0 ? (qtyPerPot / batchSize) : qtyPerPot;
+
+                ingRows.push({
+                    name: it ? it.name : `รายการที่ถูกลบ (ID: ${r.itemId})`,
+                    unit: it ? (it.unit || 'หน่วย') : 'หน่วย',
+                    qtyPerPot,
+                    qtyPerCup,
+                    perUnitFlag: !!r.perUnit,
+                    missing: !it
+                });
+            });
+
+            const renderTableRows = (list) => {
+                if (list.length === 0) {
+                    const colCount = 4 + (showMultiPots && isBatch ? 2 : 0);
+                    return `<tr><td colspan="${colCount}" style="text-align:center;color:#7A7164;padding:18px;">— ไม่มีรายการวัตถุดิบในสูตรนี้ —</td></tr>`;
+                }
+                return list.map((item, idx) => `
+                    <tr>
+                        <td style="text-align:center;font-weight:600;width:48px;">${idx + 1}</td>
+                        <td style="font-weight:600;">
+                            ${imxEsc(item.name)}
+                            ${item.perUnitFlag && isBatch ? `<span style="font-size:11px;color:#5E7D5B;font-weight:500;margin-left:6px;">(คิดต่อ${unitLabel}: ${imxQty(item.qtyPerCup)} ${imxEsc(item.unit)}/${unitLabel})</span>` : ''}
+                            ${item.missing ? `<span style="font-size:11px;color:#B4513A;font-weight:700;margin-left:6px;">[ไม่พบในคลัง]</span>` : ''}
+                        </td>
+                        <td style="text-align:right;font-weight:700;font-size:16px;font-family:'Prompt',sans-serif;background:#F3F7F0;">
+                            ${imxQty(item.qtyPerPot)} <span style="font-size:12px;font-weight:500;color:#5A5246;">${imxEsc(item.unit)}</span>
+                        </td>
+                        ${showMultiPots && isBatch ? `
+                            <td style="text-align:right;font-family:'Prompt',sans-serif;color:#2E2A24;">
+                                ${imxQty(item.qtyPerPot * 2)} <span style="font-size:11px;color:#7A7164;">${imxEsc(item.unit)}</span>
+                            </td>
+                            <td style="text-align:right;font-family:'Prompt',sans-serif;color:#2E2A24;">
+                                ${imxQty(item.qtyPerPot * 3)} <span style="font-size:11px;color:#7A7164;">${imxEsc(item.unit)}</span>
+                            </td>
+                        ` : ''}
+                        <td style="text-align:center;width:64px;font-size:16px;">☐</td>
+                    </tr>
+                `).join('');
+            };
+
+            return `
+            <div class="a4-preview-page" style="justify-content:flex-start;">
+                <div>
+                    <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;">
+                        <h2 style="font-size:18px;font-weight:700;color:#2E2A24;margin:0;font-family:'Prompt',sans-serif;">
+                            ${imxEsc(menu.name)} — รายการวัตถุดิบ / ส่วนผสมทำน้ำ (${ingRows.length} รายการ)
+                        </h2>
+                        <span style="font-size:12px;color:#7A7164;">ตวงตามปริมาณด้านล่างให้ครบและติ๊กช่องเช็ค ✓</span>
+                    </div>
+                    <table class="a4-table">
+                        <thead>
+                            <tr>
+                                <th style="width:48px;text-align:center;">ลำดับ</th>
+                                <th style="text-align:left;">รายการวัตถุดิบ</th>
+                                <th style="text-align:right;width:135px;background:#E7EEE3 !important;color:#3F5A3D !important;">
+                                    ${isBatch ? 'ต้ม 1 หม้อ' : `ต่อ 1 ${unitLabel}`}
+                                    ${isBatch ? `<div style="font-size:10px;font-weight:500;">(~${batchSize} ${unitLabel})</div>` : ''}
+                                </th>
+                                ${showMultiPots && isBatch ? `
+                                    <th style="text-align:right;width:115px;">ต้ม 2 หม้อ<div style="font-size:10px;font-weight:500;">(~${batchSize * 2} ${unitLabel})</div></th>
+                                    <th style="text-align:right;width:115px;">ต้ม 3 หม้อ<div style="font-size:10px;font-weight:500;">(~${batchSize * 3} ${unitLabel})</div></th>
+                                ` : ''}
+                                <th style="width:64px;text-align:center;">เช็ค ✓</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${renderTableRows(ingRows)}
+                        </tbody>
+                    </table>
+                </div>
+            </div>`;
+        }
+
+        window.refreshRecipePrintPreview = () => {
+            const showMultiPots = !!document.getElementById('print-opt-multi-pots')?.checked;
+            const previewContainer = document.getElementById('print-preview-pages');
+            const printRoot = document.getElementById('recipe-print-root');
+            const subEl = document.getElementById('print-modal-subtitle');
+
+            if (!previewContainer || !printRoot) return;
+            if (!currentPrintTargetMenus || currentPrintTargetMenus.length === 0) {
+                previewContainer.innerHTML = `<div class="bg-white rounded-xl p-8 text-center text-[#7A7164]">ไม่มีเมนูที่จะพิมพ์</div>`;
+                printRoot.innerHTML = '';
+                return;
+            }
+
+            if (subEl) {
+                subEl.innerText = `พร้อมพิมพ์ทั้งหมด ${currentPrintTargetMenus.length} สูตร (${currentPrintTargetMenus.length} หน้า A4 แยกหน้าละ 1 สูตร)`;
+            }
+
+            const pagesHtml = currentPrintTargetMenus
+                .map((m, idx) => buildSingleA4RecipeSheetHtml(m, idx, currentPrintTargetMenus.length, { showMultiPots }))
+                .join('');
+
+            previewContainer.innerHTML = pagesHtml;
+            printRoot.innerHTML = pagesHtml;
+        };
+
+        window.openRecipePrintModal = (targetMenus) => {
+            if (!targetMenus || targetMenus.length === 0) {
+                showToast("ยังไม่มีรายการเมนูสำหรับพิมพ์สูตร", "error");
+                return;
+            }
+            currentPrintTargetMenus = targetMenus;
+            window.refreshRecipePrintPreview();
+            window.openModal('modal-print-recipes');
+        };
+
+        window.printSingleMenuRecipe = (menuId) => {
+            const m = findById(menus, menuId);
+            if (!m) {
+                showToast("ไม่พบเมนูที่ต้องการพิมพ์", "error");
+                return;
+            }
+            window.openRecipePrintModal([m]);
+        };
+
+        window.printFilteredMenuRecipes = () => {
+            const catOf = (m) => window.resolveMenuCategory(m);
+            const q = (imxUi.q || '').trim().toLowerCase();
+            const list = menus
+                .filter(m => (imxUi.filter === 'all' || catOf(m) === imxUi.filter) && (m.name || '').toLowerCase().includes(q))
+                .sort((a, b) => (a.name || '').localeCompare(b.name || '', 'th'));
+
+            if (list.length === 0) {
+                showToast("ไม่มีเมนูในหมวดที่เลือกให้พิมพ์", "error");
+                return;
+            }
+            window.openRecipePrintModal(list);
+        };
+
+        window.printCurrentDraftRecipe = () => {
+            if (!IMXD) return;
+            const isBatch = IMXD.mode === 'batch';
+            const tempMenu = {
+                id: IMXD.id || 'DRAFT',
+                name: IMXD.name.trim() || 'เมนูใหม่ (ยังไม่ตั้งชื่อ)',
+                price: Number(IMXD.price) || 0,
+                category: IMXD.category,
+                mode: IMXD.mode,
+                batchSize: isBatch ? (Number(IMXD.batchSize) || 1) : 1,
+                sharedPotMenuId: isBatch ? (IMXD.sharedPotMenuId || null) : null,
+                minAlert: Number(IMXD.minAlert) || 0,
+                recipe: IMXD.rows.map(r => (r.perUnit && isBatch)
+                    ? { itemId: String(r.itemId), quantity: +imxStored(r).toFixed(4), perUnit: true, perUnitQty: +r.qty.toFixed(4) }
+                    : { itemId: String(r.itemId), quantity: +r.qty.toFixed(4) })
+            };
+            window.openRecipePrintModal([tempMenu]);
+        };
+
+        window.triggerBrowserPrintRecipes = () => {
+            window.refreshRecipePrintPreview();
+            window.print();
         };
 
         // ---------- ตัวแก้สูตร ----------
@@ -4146,6 +4445,7 @@
                 <div class="sheet-head">
                   <button type="button" class="iconbtn" id="imx-close" aria-label="ปิด">${imxIcon('back')}</button>
                   <h3 id="imx-title">${D.id ? 'แก้ไขเมนู' : 'เพิ่มเมนูใหม่'}${D.name ? ' · ' + imxEsc(D.name) : ''}</h3>
+                  <button type="button" class="btn" id="imx-print-draft" style="min-height:36px;padding:6px 12px;font-size:12.5px" title="พิมพ์ใบสูตรทำน้ำขนาด A4">${imxIcon('print')}พิมพ์สูตร A4</button>
                   ${D.id ? `<button type="button" class="iconbtn" id="imx-del" aria-label="ลบเมนู" title="ลบเมนู">${imxIcon('trash')}</button>` : ''}
                 </div>
                 <div class="sheet-body">
@@ -4411,6 +4711,7 @@
                     D.dirty = true; imxRender();
                     showToast(`ดึงสูตรจาก "${p.name}" แล้ว เหลือปรับ "1 หม้อได้กี่แก้ว" ให้ตรงแก้วใหญ่`, 'success');
                 }
+                else if (b.id === 'imx-print-draft') { window.printCurrentDraftRecipe(); }
                 else if (b.id === 'imx-close' || b.id === 'imx-cancel') { imxTryClose(); }
                 else if (b.id === 'imx-del') { const ok = await window.deleteMenu(D.id); if (ok) { layer.innerHTML = ''; IMXD = null; } }
                 else if (b.id === 'imx-save') { imxSave(); }
